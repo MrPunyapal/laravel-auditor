@@ -1,0 +1,16 @@
+* text=auto eol=lf
+
+/.github            export-ignore
+/.gitattributes     export-ignore
+/.gitignore         export-ignore
+/.editorconfig      export-ignore
+/tests              export-ignore
+/phpunit.xml.dist   export-ignore
+/phpstan.neon.dist  export-ignore
+/pint.json          export-ignore
+/workbench          export-ignore
+/.claude            export-ignore
+/.agents            export-ignore
+/CLAUDE.md          export-ignore
+/AGENTS.md          export-ignore
+/AGENTS_PACKAGE.md  export-ignore
