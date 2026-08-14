@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelAuditor\Console\Commands;
 
+use Composer\InstalledVersions;
 use Illuminate\Console\Command;
 use LaravelAuditor\Audit\Enums\AuditDomain;
 use LaravelAuditor\Audit\Rules\RuleDefinition;
@@ -20,6 +21,7 @@ class AuditorRulesCommand extends Command
      */
     protected $signature = 'auditor:rules
         {--domain= : Filter rules by domain (security, performance, architecture, database, testing, conventions)}
+        {--applicable : Only rules that apply to this app\'s Laravel version and packages}
         {--json : Output rules as JSON}';
 
     /**
@@ -39,7 +41,12 @@ class AuditorRulesCommand extends Command
     public function handle(): int
     {
         $domain = $this->option('domain');
-        $rules = $this->rules->list();
+        $rules = $this->option('applicable')
+            ? $this->rules->applicable(
+                InstalledVersions::getPrettyVersion('laravel/framework'),
+                InstalledVersions::getInstalledPackages(),
+            )
+            : $this->rules->list();
 
         if (is_string($domain) && $domain !== '') {
             $domain = strtolower($domain);

@@ -134,4 +134,26 @@ return [
         ],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-PER-007',
+        'name' => 'Repeated expensive computation without cache',
+        'domain' => 'performance',
+        'severity' => 'low',
+        'confidence' => 'low',
+        'description' => 'The same expensive, stable result is recomputed across requests when a cache key and invalidation strategy are clearly justified.',
+        'why_it_matters' => 'Uncached repeated work burns CPU and external quota on every request.',
+        'recommendation' => 'Cache the result with an explicit key and invalidation path. Do not cache just because a function looks slow.',
+        'evidence' => [
+            'The expensive computation and proof it is stable enough to cache.',
+            'The request paths that recompute it.',
+        ],
+        'false_positive_considerations' => [
+            'Do not recommend caching without a clear key and invalidation story.',
+            'User-specific or highly volatile data is usually a poor cache candidate.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/cache',
+        ],
+        'applicability' => [],
+    ],
 ];

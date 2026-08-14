@@ -29,6 +29,7 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-PER-004 | Repeated query without reuse | low | medium |
 | AUD-PER-005 | Synchronous work that belongs on a queue | medium | medium |
 | AUD-PER-006 | Inefficient collection or database usage | low | medium |
+| AUD-PER-007 | Repeated expensive computation without cache | low | low |
 
 ## Architecture
 
@@ -71,3 +72,49 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-CON-004 | Framework anti-pattern | medium | medium |
 | AUD-CON-005 | Incorrect framework assumption | medium | high |
 | AUD-CON-006 | Validation or form-request convention gap | low | medium |
+
+## Ecosystem packs
+
+These rules only apply when the package is installed (`applicability.packages`). List them with `php artisan auditor:rules --applicable`.
+
+### Livewire (`livewire/livewire`)
+
+| ID | Name | Severity | Confidence |
+| --- | --- | --- | --- |
+| AUD-LW-001 | Livewire action missing authorization | high | high |
+| AUD-LW-002 | Unvalidated Livewire public property | high | medium |
+
+### Filament (`filament/filament`)
+
+| ID | Name | Severity | Confidence |
+| --- | --- | --- | --- |
+| AUD-FIL-001 | Filament resource missing policy | high | medium |
+| AUD-FIL-002 | Unrestricted Filament bulk action | high | medium |
+
+### Inertia (`inertiajs/inertia-laravel`)
+
+| ID | Name | Severity | Confidence |
+| --- | --- | --- | --- |
+| AUD-IN-001 | Inertia shared data leaks sensitive attributes | high | medium |
+| AUD-IN-002 | Inertia endpoint missing authorization | high | high |
+
+### Queues
+
+| ID | Name | Severity | Confidence |
+| --- | --- | --- | --- |
+| AUD-QUE-001 | Job missing retry or timeout bounds | medium | medium |
+| AUD-QUE-002 | Sensitive model serialized on the queue | medium | medium |
+| AUD-QUE-003 | Sync queue driver in a non-local environment | medium | high |
+
+### API / Sanctum (`laravel/sanctum`)
+
+| ID | Name | Severity | Confidence |
+| --- | --- | --- | --- |
+| AUD-API-001 | Mutating API route missing token auth | high | high |
+| AUD-API-002 | Overly broad API token abilities | medium | medium |
+
+### Pest (`pestphp/pest`)
+
+| ID | Name | Severity | Confidence |
+| --- | --- | --- | --- |
+| AUD-PEST-001 | PHPUnit class tests in a Pest-first suite | low | low |

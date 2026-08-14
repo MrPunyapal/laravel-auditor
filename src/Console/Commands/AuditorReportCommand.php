@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace LaravelAuditor\Console\Commands;
 
 use Illuminate\Console\Command;
-use JsonException;
-use LaravelAuditor\Audit\Findings\Finding;
 use LaravelAuditor\Audit\Findings\FindingCollection;
+use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Audit\Reports\AuditReport;
 use LaravelAuditor\Audit\Reports\JsonReportRenderer;
 use LaravelAuditor\Audit\Reports\MarkdownReportRenderer;
+use LaravelAuditor\Audit\Reports\SarifReportRenderer;
 use LaravelAuditor\Audit\Reports\TextReportRenderer;
 use LaravelAuditor\Context\ProjectContext;
+use RuntimeException;
 
 /**
  * Generates an audit report from provided findings or project context alone.
@@ -25,7 +26,7 @@ class AuditorReportCommand extends Command
     protected $signature = 'auditor:report
         {--findings= : Path to a JSON file containing findings}
         {--example : Render the packaged example findings}
-        {--format=markdown : Output format (markdown, json, text)}
+        {--format=markdown : Output format (markdown, json, text, sarif)}
         {--output= : Write the report to a file instead of stdout}';
 
     /**
@@ -35,6 +36,7 @@ class AuditorReportCommand extends Command
 
     public function __construct(
         private readonly ProjectContext $project,
+        private readonly FindingLoader $loader,
     ) {
         parent::__construct();
     }
@@ -54,9 +56,11 @@ class AuditorReportCommand extends Command
         }
 
         if (is_string($findingsPath) && $findingsPath !== '') {
-            $findings = $this->loadFindings($findingsPath);
+            try {
+                $findings = $this->loader->load($findingsPath);
+            } catch (RuntimeException $e) {
+                $this->components->error($e->getMessage());
 
-            if ($findings === null) {
                 return self::FAILURE;
             }
         }
@@ -76,8 +80,8 @@ class AuditorReportCommand extends Command
         $defaultFormat = (string) config('laravel-auditor.report.format', 'markdown');
         $format = is_string($this->option('format')) ? $this->option('format') : $defaultFormat;
 
-        if (! in_array($format, ['markdown', 'json', 'text'], true)) {
-            $this->components->error("Unknown format [{$format}]. Use markdown, json, or text.");
+        if (! in_array($format, ['markdown', 'json', 'text', 'sarif'], true)) {
+            $this->components->error("Unknown format [{$format}]. Use markdown, json, text, or sarif.");
 
             return self::FAILURE;
         }
@@ -85,6 +89,7 @@ class AuditorReportCommand extends Command
         $content = match ($format) {
             'json' => (new JsonReportRenderer)->render($report),
             'text' => (new TextReportRenderer)->render($report),
+            'sarif' => (new SarifReportRenderer)->render($report),
             default => (new MarkdownReportRenderer)->render($report),
         };
 
@@ -100,35 +105,5 @@ class AuditorReportCommand extends Command
         $this->line($content);
 
         return self::SUCCESS;
-    }
-
-    private function loadFindings(string $path): ?FindingCollection
-    {
-        if (! file_exists($path)) {
-            $this->components->error("Findings file [{$path}] does not exist.");
-
-            return null;
-        }
-
-        try {
-            $data = json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
-            $this->components->error('Invalid findings JSON: '.$e->getMessage());
-
-            return null;
-        }
-
-        if (! is_array($data)) {
-            $this->components->error('Findings file must contain a JSON array of findings.');
-
-            return null;
-        }
-
-        $list = is_array($data['findings'] ?? null) ? $data['findings'] : $data;
-
-        return FindingCollection::fromIterable(array_map(
-            static fn (array $item): Finding => Finding::fromArray($item),
-            $list,
-        ));
     }
 }

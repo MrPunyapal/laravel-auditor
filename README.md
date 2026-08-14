@@ -124,7 +124,11 @@ php artisan auditor:rules --domain=security
 php artisan auditor:rules --json
 ```
 
-V1 ships **38** evidence-first rules. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
+V1 ships **52** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, Pest, and queue packs that only apply when those packages are installed. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
+
+```bash
+php artisan auditor:rules --applicable
+```
 
 ## Example audit interaction
 
@@ -229,6 +233,8 @@ php artisan auditor:report --example
 php artisan auditor:report --format=json
 php artisan auditor:report --format=text
 php artisan auditor:report --findings=storage/auditor-findings.json --output=storage/auditor-report.md
+php artisan auditor:report --findings=storage/auditor-findings.json --format=sarif
+php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 ```
 
 Finding and report JSON schemas live in `resources/auditor/schema`. See [docs/FINDINGS.md](docs/FINDINGS.md).

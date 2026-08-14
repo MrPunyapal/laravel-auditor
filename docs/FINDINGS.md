@@ -11,6 +11,8 @@ Required fields: `id`, `rule_id`, `title`, `domain`, `severity`, `confidence`, `
 ```bash
 php artisan auditor:report --findings=storage/auditor-findings.json --format=markdown
 php artisan auditor:report --example
+php artisan auditor:report --findings=storage/auditor-findings.json --format=sarif
+php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 ```
 
 ## Collecting project facts without MCP

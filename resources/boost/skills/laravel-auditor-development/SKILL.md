@@ -90,7 +90,9 @@ Register that stdio command with the agent so it can call `project_info`, `route
 - Diagnostics: `php artisan auditor:status`
 - Rules: `php artisan auditor:rules` (`--domain=`, `--json`)
 - Context: `php artisan auditor:context` (`--list`, `{collector}`, `--output=`)
-- Reports: `php artisan auditor:report` (`--findings=`, `--example`, `--format=`, `--output=`)
+- Reports: `php artisan auditor:report` (`--findings=`, `--example`, `--format=markdown|json|text|sarif`, `--output=`)
+- CI: `php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high`
+- Applicable rules: `php artisan auditor:rules --applicable`
 - Facade: `LaravelAuditor::collect('routes')`, `LaravelAuditor::rules()`
 - Config publish tag: `laravel-auditor-config`
 - Resource publish tag: `laravel-auditor-resources`

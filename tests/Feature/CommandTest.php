@@ -178,7 +178,7 @@ it('renders the packaged example report', function () {
 });
 
 it('resolves the LaravelAuditor facade', function () {
-    expect(LaravelAuditor::rules()->count())->toBeGreaterThanOrEqual(36);
+    expect(LaravelAuditor::rules()->count())->toBeGreaterThanOrEqual(50);
     expect(LaravelAuditor::collect('project_info'))->toHaveKey('laravel_version');
 });
 

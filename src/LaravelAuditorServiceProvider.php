@@ -9,6 +9,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
 use LaravelAuditor\Audit\Domains\DomainRegistry;
 use LaravelAuditor\Audit\Rules\RuleRegistry;
+use LaravelAuditor\Console\Commands\AuditorCiCommand;
 use LaravelAuditor\Console\Commands\AuditorContextCommand;
 use LaravelAuditor\Console\Commands\AuditorInstallCommand;
 use LaravelAuditor\Console\Commands\AuditorMcpCommand;
@@ -80,6 +81,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
                 AuditorRulesCommand::class,
                 AuditorReportCommand::class,
                 AuditorContextCommand::class,
+                AuditorCiCommand::class,
                 AuditorMcpCommand::class,
             ]);
         }
