@@ -41,3 +41,11 @@ Run all tests:
 ```bash
 composer test
 ```
+
+## Documentation
+
+Markdown source lives in `md/`. Generate the static site with Docsmith:
+
+```bash
+composer docs:build
+```

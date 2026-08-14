@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future scope | Laravel Auditor</title>
+    <meta name="description" content="Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link rel="stylesheet" href="../assets/app.css">
+    <script src="../assets/app.js" defer></script>
+</head>
+<body data-docsmith-root="../">
+    <div class="shell has-right-rail">
+        <aside class="sidebar" data-docsmith-sidebar>
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <h1 class="brand">Laravel Auditor</h1>
+                    <p class="tagline">Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.</p>
+                </div>
+                <button type="button" class="mobile-menu-toggle" data-docsmith-menu-toggle aria-expanded="false" aria-controls="docsmith-sidebar-panel" aria-label="Open menu"><span class="mobile-menu-icon" aria-hidden="true"></span><span class="sr-only">Toggle menu</span></button>
+            </div>
+            <div class="sidebar-panel" id="docsmith-sidebar-panel" data-docsmith-sidebar-panel>
+                
+                <div class="sidebar-actions"><a class="sidebar-action-link" href="https://github.com/mrpunyapal/laravel-auditor">Repository</a><button type="button" class="theme-toggle" data-docsmith-theme-toggle>Theme</button></div>
+                <div class="search">
+                    <input type="search" placeholder="Search pages  (⌘K)" aria-label="Search pages" data-docsmith-search>
+                    <div class="search-results" data-docsmith-search-results hidden></div>
+                    <div class="search-empty" data-docsmith-empty>No pages match your search.</div>
+                </div>
+                <nav class="nav" data-docsmith-nav><a class="" href="../" data-nav-item data-title="Overview" data-search="Laravel Auditor Overview Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">Overview</a><a class="" href="../installation/" data-nav-item data-title="Installation" data-search="Installation Installation Install Laravel Auditor in a Laravel application with or without Laravel Boost.">Installation</a><a class="" href="../usage/" data-nav-item data-title="Usage" data-search="Usage Usage Run status, context, rules, reports, and CI with Laravel Auditor.">Usage</a><a class="" href="../agents/" data-nav-item data-title="Agent setup" data-search="Agent setup Agent setup Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.">Agent setup</a><a class="" href="../mcp/" data-nav-item data-title="MCP tools" data-search="MCP tools MCP tools Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.">MCP tools</a><a class="" href="../rules/" data-nav-item data-title="Rules" data-search="Rules Rules The evidence-first audit catalog and how applicability works.">Rules</a><a class="" href="../findings/" data-nav-item data-title="Findings and reports" data-search="Findings and reports Findings and reports Finding schema, example payloads, and how reports are rendered.">Findings and reports</a><a class="" href="../dsa/" data-nav-item data-title="DSA audit" data-search="DSA audit DSA audit Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.">DSA audit</a><a class="active" href="./" data-nav-item data-title="Future scope" data-search="Future scope Future scope Features that may influence architecture but are not part of V1.">Future scope</a><a class="" href="../contributing/" data-nav-item data-title="Contributing" data-search="Contributing Contributing How to work on Laravel Auditor locally, including documentation.">Contributing</a></nav>
+            </div>
+        </aside>
+        <button type="button" class="sidebar-backdrop" data-docsmith-sidebar-backdrop aria-label="Close menu"></button>
+        <main class="content">
+            <article>
+                <header class="doc-head">
+                    
+                    <h1>Future scope</h1>
+                    <p class="doc-description">Features that may influence architecture but are not part of V1.</p>
+                </header>
+                <div class="doc-body">
+                    <p>These features may influence architecture. They are <strong>not</strong> required to ship V1.</p>
+<h2 id="f1-legacy-standalone-runner">F1: Legacy / standalone runner</h2>
+<p>Audit older Laravel applications without forcing those apps to upgrade PHP or Laravel just to install Auditor.</p>
+<h2 id="f2-standalone-cli-distribution">F2: Standalone CLI distribution</h2>
+<p>A package-runner style command for projects whose runtime is too old for the current package.</p>
+<h2 id="f3-auto-fix-remediation">F3: Auto-fix / remediation</h2>
+<p>Turn a verified finding into a proposed fix, tests, and a patch. Any implementation must require explicit user approval and stay read-only by default.</p>
+<h2 id="f4-f5-ci-policies-and-baselines">F4 / F5: CI policies and baselines</h2>
+<p><code>auditor:ci</code> already fails on severity. Still open: ignored findings, historical baselines, new-vs-existing, trends.</p>
+<h2 id="f6-f7-more-domains-and-deeper-ecosystem-packs">F6 / F7: More domains and deeper ecosystem packs</h2>
+<p>Deployment, observability, API design, Tailwind/Passport/PHPUnit-specific packs — only when they stay evidence-first.</p>
+<h2 id="f8-runtime-verification">F8: Runtime verification</h2>
+<p>Safe, opt-in checks that turn likely findings into confirmed ones.</p>
+<h2 id="f9-richer-reporting">F9: Richer reporting</h2>
+<p>HTML, GitHub annotations, PR comments, TUI, IDE integration. SARIF is already available.</p>
+<h2 id="f10-f12">F10–F12</h2>
+<p>Organization policy packs, an agent profiler, and other-framework auditors are separate products.</p>
+<h2 id="constraints-that-survive">Constraints that survive</h2>
+<p>Agent-agnostic core. Boost optional. Evidence over guesses. Read-only by default. Few high-quality rules. Never claim more certainty than the evidence.</p>
+
+                </div>
+                <footer class="doc-meta">
+                    <a class="edit-link" href="https://github.com/mrpunyapal/laravel-auditor/edit/main/future.md">Edit this page</a>
+                </footer>
+            </article>
+            <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../dsa/"><span>Previous</span><strong>DSA audit</strong></a><a class="pager-link pager-link-next" href="../contributing/"><span>Next</span><strong>Contributing</strong></a></nav>
+        </main>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#f1-legacy-standalone-runner" data-docsmith-toc-link="f1-legacy-standalone-runner">F1: Legacy / standalone runner</a><a class="toc-link toc-link-level-2" href="#f2-standalone-cli-distribution" data-docsmith-toc-link="f2-standalone-cli-distribution">F2: Standalone CLI distribution</a><a class="toc-link toc-link-level-2" href="#f3-auto-fix-remediation" data-docsmith-toc-link="f3-auto-fix-remediation">F3: Auto-fix / remediation</a><a class="toc-link toc-link-level-2" href="#f4-f5-ci-policies-and-baselines" data-docsmith-toc-link="f4-f5-ci-policies-and-baselines">F4 / F5: CI policies and baselines</a><a class="toc-link toc-link-level-2" href="#f6-f7-more-domains-and-deeper-ecosystem-packs" data-docsmith-toc-link="f6-f7-more-domains-and-deeper-ecosystem-packs">F6 / F7: More domains and deeper ecosystem packs</a><a class="toc-link toc-link-level-2" href="#f8-runtime-verification" data-docsmith-toc-link="f8-runtime-verification">F8: Runtime verification</a><a class="toc-link toc-link-level-2" href="#f9-richer-reporting" data-docsmith-toc-link="f9-richer-reporting">F9: Richer reporting</a><a class="toc-link toc-link-level-2" href="#f10-f12" data-docsmith-toc-link="f10-f12">F10–F12</a><a class="toc-link toc-link-level-2" href="#constraints-that-survive" data-docsmith-toc-link="constraints-that-survive">Constraints that survive</a></nav></aside>
+    </div>
+    <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
+    <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>
+    <div class="search-overlay-panel">
+        <div class="search-overlay-input-wrap">
+            <svg class="search-overlay-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="search" class="search-overlay-input" placeholder="Search documentation..." aria-label="Search documentation" data-docsmith-search-overlay-input autocomplete="off">
+            <kbd class="search-overlay-hint">ESC</kbd>
+        </div>
+        <div class="search-overlay-results" data-docsmith-search-overlay-results></div>
+        <div class="search-overlay-empty" data-docsmith-search-overlay-empty hidden>No results found.</div>
+    </div>
+</div>
+</body>
+</html>

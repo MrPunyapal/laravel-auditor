@@ -15,6 +15,7 @@
 - Ecosystem rule packs (Livewire, Filament, Inertia, Sanctum, Pest, queues)
 - `auditor:ci`, SARIF reports, and `auditor:rules --applicable`
 - DSA coordinator skill, `subsystems` context tool, and P0–P3 report ranking
+- Docsmith documentation site (`md/` source, `docs/` output, `composer docs:build`)
 
 
 ## [v0.1.0](https://github.com/mrpunyapal/laravel-auditor/compare/...v0.1.0) - 202x-xx-xx

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation | Laravel Auditor</title>
+    <meta name="description" content="Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link rel="stylesheet" href="../assets/app.css">
+    <script src="../assets/app.js" defer></script>
+</head>
+<body data-docsmith-root="../">
+    <div class="shell has-right-rail">
+        <aside class="sidebar" data-docsmith-sidebar>
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <h1 class="brand">Laravel Auditor</h1>
+                    <p class="tagline">Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.</p>
+                </div>
+                <button type="button" class="mobile-menu-toggle" data-docsmith-menu-toggle aria-expanded="false" aria-controls="docsmith-sidebar-panel" aria-label="Open menu"><span class="mobile-menu-icon" aria-hidden="true"></span><span class="sr-only">Toggle menu</span></button>
+            </div>
+            <div class="sidebar-panel" id="docsmith-sidebar-panel" data-docsmith-sidebar-panel>
+                
+                <div class="sidebar-actions"><a class="sidebar-action-link" href="https://github.com/mrpunyapal/laravel-auditor">Repository</a><button type="button" class="theme-toggle" data-docsmith-theme-toggle>Theme</button></div>
+                <div class="search">
+                    <input type="search" placeholder="Search pages  (⌘K)" aria-label="Search pages" data-docsmith-search>
+                    <div class="search-results" data-docsmith-search-results hidden></div>
+                    <div class="search-empty" data-docsmith-empty>No pages match your search.</div>
+                </div>
+                <nav class="nav" data-docsmith-nav><a class="" href="../" data-nav-item data-title="Overview" data-search="Laravel Auditor Overview Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">Overview</a><a class="active" href="./" data-nav-item data-title="Installation" data-search="Installation Installation Install Laravel Auditor in a Laravel application with or without Laravel Boost.">Installation</a><a class="" href="../usage/" data-nav-item data-title="Usage" data-search="Usage Usage Run status, context, rules, reports, and CI with Laravel Auditor.">Usage</a><a class="" href="../agents/" data-nav-item data-title="Agent setup" data-search="Agent setup Agent setup Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.">Agent setup</a><a class="" href="../mcp/" data-nav-item data-title="MCP tools" data-search="MCP tools MCP tools Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.">MCP tools</a><a class="" href="../rules/" data-nav-item data-title="Rules" data-search="Rules Rules The evidence-first audit catalog and how applicability works.">Rules</a><a class="" href="../findings/" data-nav-item data-title="Findings and reports" data-search="Findings and reports Findings and reports Finding schema, example payloads, and how reports are rendered.">Findings and reports</a><a class="" href="../dsa/" data-nav-item data-title="DSA audit" data-search="DSA audit DSA audit Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.">DSA audit</a><a class="" href="../future/" data-nav-item data-title="Future scope" data-search="Future scope Future scope Features that may influence architecture but are not part of V1.">Future scope</a><a class="" href="../contributing/" data-nav-item data-title="Contributing" data-search="Contributing Contributing How to work on Laravel Auditor locally, including documentation.">Contributing</a></nav>
+            </div>
+        </aside>
+        <button type="button" class="sidebar-backdrop" data-docsmith-sidebar-backdrop aria-label="Close menu"></button>
+        <main class="content">
+            <article>
+                <header class="doc-head">
+                    
+                    <h1>Installation</h1>
+                    <p class="doc-description">Install Laravel Auditor in a Laravel application with or without Laravel Boost.</p>
+                </header>
+                <div class="doc-body">
+                    <p>Install Laravel Auditor as a <strong>development</strong> dependency.</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">require</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dev</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">mrpunyapal/laravel-auditor</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>Requirements: PHP 8.3+ and Laravel 12 or 13.</p>
+<h2 id="with-laravel-boost">With Laravel Boost</h2>
+<p>If the application already uses <a href="https://laravel.com/docs/boost">Laravel Boost</a>, expose Auditor's guidelines and skills through Boost:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">boost:install</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>After package updates:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">boost:update</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>Do not run <code>auditor:install</code> just to duplicate Boost setup. Boost consumes <code>resources/boost/guidelines</code> and <code>resources/boost/skills</code> from this package directly.</p>
+<h2 id="standalone-no-boost">Standalone (no Boost)</h2>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>The installer is idempotent and safe. It:</p>
+<ul>
+<li>detects the Laravel application context</li>
+<li>detects whether Laravel Boost is installed</li>
+<li>publishes agent skills, guidelines, schemas, and examples to <code>.ai/</code></li>
+<li>writes thin <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>GEMINI.md</code>, Cursor, and Copilot adapters only when those files are missing</li>
+<li>publishes <code>config/laravel-auditor.php</code> when it is missing</li>
+<li>reports what it created or left unchanged</li>
+</ul>
+<p>Useful options:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dry-run</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-force</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p><code>--force</code> refreshes Auditor-owned resources. It does not overwrite unrelated user-owned files unless you explicitly ask it to refresh an existing adapter.</p>
+<h2 id="publish-tags">Publish tags</h2>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">vendor:publish</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-tag=</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">vendor:publish</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-tag=</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor-config</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">vendor:publish</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-tag=</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor-resources</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">vendor:publish</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-tag=</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor-schema</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">vendor:publish</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-tag=</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor-examples</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<h2 id="verify">Verify</h2>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:status</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:rules</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-applicable</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+
+                </div>
+                <footer class="doc-meta">
+                    <a class="edit-link" href="https://github.com/mrpunyapal/laravel-auditor/edit/main/installation.md">Edit this page</a>
+                </footer>
+            </article>
+            <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../"><span>Previous</span><strong>Laravel Auditor</strong></a><a class="pager-link pager-link-next" href="../usage/"><span>Next</span><strong>Usage</strong></a></nav>
+        </main>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#with-laravel-boost" data-docsmith-toc-link="with-laravel-boost">With Laravel Boost</a><a class="toc-link toc-link-level-2" href="#standalone-no-boost" data-docsmith-toc-link="standalone-no-boost">Standalone (no Boost)</a><a class="toc-link toc-link-level-2" href="#publish-tags" data-docsmith-toc-link="publish-tags">Publish tags</a><a class="toc-link toc-link-level-2" href="#verify" data-docsmith-toc-link="verify">Verify</a></nav></aside>
+    </div>
+    <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
+    <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>
+    <div class="search-overlay-panel">
+        <div class="search-overlay-input-wrap">
+            <svg class="search-overlay-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="search" class="search-overlay-input" placeholder="Search documentation..." aria-label="Search documentation" data-docsmith-search-overlay-input autocomplete="off">
+            <kbd class="search-overlay-hint">ESC</kbd>
+        </div>
+        <div class="search-overlay-results" data-docsmith-search-overlay-results></div>
+        <div class="search-overlay-empty" data-docsmith-search-overlay-empty hidden>No results found.</div>
+    </div>
+</div>
+</body>
+</html>

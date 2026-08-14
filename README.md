@@ -12,6 +12,8 @@
 
 Laravel Auditor equips an existing AI coding agent with a specialized, evidence-based methodology and toolset for auditing Laravel applications.
 
+**Docs:** [mrpunyapal.github.io/laravel-auditor](https://mrpunyapal.github.io/laravel-auditor)
+
 It is **not** a generic code-review prompt, a replacement for Laravel Boost, or an autonomous AI product. The agent remains the reasoning engine. This package provides the audit workflow, domain knowledge, rules, finding schema, and structured Laravel context tools.
 
 ## Why it exists
@@ -248,7 +250,7 @@ php artisan auditor:report --findings=storage/auditor-findings.json --format=sar
 php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 ```
 
-Finding and report JSON schemas live in `resources/auditor/schema`. See [docs/FINDINGS.md](docs/FINDINGS.md).
+Finding and report JSON schemas live in `resources/auditor/schema`. See the [findings docs](https://mrpunyapal.github.io/laravel-auditor/findings/).
 
 `auditor:report` does not invent findings. The agent produces findings; the command renders them as Markdown, JSON, or CLI text with project facts, domain scope, counts, key risks, evidence, and recommendations.
 
@@ -306,7 +308,7 @@ A short, evidenced report is the intended product.
 
 ## Not in V1
 
-Deferred work lives in [docs/FUTURE.md](docs/FUTURE.md). That includes automatic fixes, CI mode, baselines, a web dashboard, legacy/standalone runners, organization policy packs, and deeper ecosystem rule packs.
+Deferred work lives in the [future scope](https://mrpunyapal.github.io/laravel-auditor/future/) docs. That includes automatic fixes, historical baselines, a web dashboard, legacy/standalone runners, organization policy packs, and deeper ecosystem rule packs.
 
 ## Changelog
 
