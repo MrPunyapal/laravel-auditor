@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelAuditor\Audit\Reports;
 
 use JsonSerializable;
+use LaravelAuditor\Audit\Enums\Priority;
 use LaravelAuditor\Audit\Enums\Severity;
 use LaravelAuditor\Audit\Findings\Finding;
 use LaravelAuditor\Audit\Findings\FindingCollection;
@@ -63,6 +64,25 @@ final class AuditReport implements JsonSerializable
     }
 
     /**
+     * @return array<string, list<string>>
+     */
+    public function priorityTiers(): array
+    {
+        $tiers = [
+            Priority::P0->value => [],
+            Priority::P1->value => [],
+            Priority::P2->value => [],
+            Priority::P3->value => [],
+        ];
+
+        foreach ($this->findings->sorted()->all() as $finding) {
+            $tiers[Priority::for($finding)->value][] = $finding->id;
+        }
+
+        return $tiers;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -75,6 +95,7 @@ final class AuditReport implements JsonSerializable
                 'total_findings' => $this->totalFindings(),
                 'counts_by_severity' => $this->countsBySeverity(),
                 'counts_by_domain' => $this->countsByDomain(),
+                'priority_tiers' => $this->priorityTiers(),
             ],
             'key_risks' => $this->keyRisks(),
             'findings' => $this->findings->sorted()->toArray(),

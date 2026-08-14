@@ -56,7 +56,7 @@ it('discovers and validates the built-in rules', function () {
         [__DIR__.'/../../resources/auditor/rules'],
     );
 
-    expect($registry->count())->toBeGreaterThanOrEqual(50);
+    expect($registry->count())->toBeGreaterThanOrEqual(54);
     expect($registry->find('AUD-SEC-001'))->not->toBeNull();
     expect($registry->all())->toHaveCount($registry->count());
 });

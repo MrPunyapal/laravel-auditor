@@ -55,6 +55,8 @@ it('serializes a report with summary counts and key risks', function () {
     expect($report->countsBySeverity()['high'])->toBe(1);
     expect($report->countsByDomain()['security'])->toBe(1);
     expect($report->keyRisks())->toHaveCount(1);
+    expect($report->priorityTiers()['p0'])->toBe(['F-1']);
+    expect($report->jsonSerialize()['summary']['priority_tiers']['p0'])->toBe(['F-1']);
     expect($report->jsonSerialize()['findings'][0]['rule_id'])->toBe('AUD-SEC-001');
 });
 
@@ -67,7 +69,9 @@ it('renders a markdown report with findings and evidence', function () {
         ->toContain('Missing authorization boundary')
         ->toContain('app/Http/Controllers/PostController.php:42-48')
         ->toContain('Add a PostPolicy.')
-        ->toContain('Security');
+        ->toContain('Security')
+        ->toContain('Priority synthesis')
+        ->toContain('P0');
 });
 
 it('renders an empty markdown report', function () {

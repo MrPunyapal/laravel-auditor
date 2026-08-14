@@ -118,3 +118,14 @@ These rules only apply when the package is installed (`applicability.packages`).
 | ID | Name | Severity | Confidence |
 | --- | --- | --- | --- |
 | AUD-PEST-001 | PHPUnit class tests in a Pest-first suite | low | low |
+
+## DSA / organizing model
+
+Used by the `laravel-audit-dsa` coordinator skill.
+
+| ID | Name | Severity | Confidence |
+| --- | --- | --- | --- |
+| AUD-DSA-001 | Invalid state combinations | medium | high |
+| AUD-DSA-002 | Unclear state or behavior ownership | medium | medium |
+| AUD-DSA-003 | Duplicated branching that a registry would remove | low | medium |
+| AUD-DSA-004 | Repeated scans that need an index | low | medium |

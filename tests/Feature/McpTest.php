@@ -12,7 +12,7 @@ it('registers an MCP tool for every context collector', function () {
     $registry = app(McpToolRegistry::class);
     $tools = $registry->all();
 
-    expect($tools)->toHaveCount(10);
+    expect($tools)->toHaveCount(11);
     expect(array_map(static fn (McpTool $tool): string => $tool->name, $tools))->toEqualCanonicalizing(app(ContextRegistry::class)->names());
     expect($tools[0]->toJson())->toHaveKeys(['name', 'description', 'inputSchema']);
 });
@@ -52,7 +52,7 @@ it('serves initialize, ping, tools/list, and tools/call over stdio', function ()
 
     expect($responses[0]['result']['serverInfo']['name'])->toBe('laravel-auditor');
     expect($responses[1]['result'])->toBe([]);
-    expect($responses[2]['result']['tools'])->toHaveCount(10);
+    expect($responses[2]['result']['tools'])->toHaveCount(11);
     expect($responses[3]['result']['content'][0]['text'])->toContain('laravel_version');
     expect($responses[4]['error']['code'])->toBe(-32602);
     expect($responses[5]['error']['code'])->toBe(-32601);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelAuditor\Audit\Reports;
 
 use LaravelAuditor\Audit\Enums\AuditDomain;
+use LaravelAuditor\Audit\Enums\Priority;
 use LaravelAuditor\Audit\Findings\Finding;
 
 /**
@@ -36,6 +37,8 @@ final class MarkdownReportRenderer
         $lines[] = $this->renderSeverityCounts($report);
         $lines[] = '';
         $lines[] = $this->renderDomainCounts($report);
+        $lines[] = '';
+        $lines[] = $this->renderPriorityTiers($report);
         $lines[] = '';
 
         $lines[] = '## Domains Audited';
@@ -106,6 +109,28 @@ final class MarkdownReportRenderer
             '| --- | --- |',
             ...$rows,
         ]);
+    }
+
+    private function renderPriorityTiers(AuditReport $report): string
+    {
+        $lines = [
+            '## Priority synthesis',
+            '',
+            sprintf('**Final partition:** %d unique recommendation(s). Every promoted ID appears exactly once.', $report->totalFindings()),
+            '',
+        ];
+
+        foreach ($report->priorityTiers() as $tier => $ids) {
+            $priority = Priority::from($tier);
+            $lines[] = sprintf(
+                '- **%s** (%d): %s',
+                $priority->label(),
+                count($ids),
+                $ids === [] ? 'none' : implode(', ', $ids),
+            );
+        }
+
+        return implode(PHP_EOL, $lines);
     }
 
     private function renderDomainsRun(AuditReport $report): string

@@ -25,6 +25,7 @@ use LaravelAuditor\Context\Collectors\MigrationsCollector;
 use LaravelAuditor\Context\Collectors\ModelsCollector;
 use LaravelAuditor\Context\Collectors\ProjectInfoCollector;
 use LaravelAuditor\Context\Collectors\RoutesCollector;
+use LaravelAuditor\Context\Collectors\SubsystemsCollector;
 use LaravelAuditor\Context\Collectors\TestsCollector;
 use LaravelAuditor\Context\ContextRegistry;
 use LaravelAuditor\Context\ProjectContext;
@@ -129,6 +130,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
                 authorization: $app->make(AuthorizationCollector::class),
                 jobsEventsSchedules: $app->make(JobsEventsSchedulesCollector::class),
                 tests: $app->make(TestsCollector::class),
+                subsystems: $app->make(SubsystemsCollector::class),
             );
         });
 
@@ -142,6 +144,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
         $this->app->singleton(AuthorizationCollector::class);
         $this->app->singleton(JobsEventsSchedulesCollector::class);
         $this->app->singleton(TestsCollector::class);
+        $this->app->singleton(SubsystemsCollector::class);
     }
 
     private function registerMcp(): void

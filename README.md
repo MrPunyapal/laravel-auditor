@@ -175,6 +175,17 @@ Severity: `critical`, `high`, `medium`, `low`, `info`.
 
 Confidence: `confirmed`, `high`, `medium`, `low`.
 
+## DSA / subsystem audit
+
+For a read-only, orchestrated pass over **data structures, state, algorithms, and ownership**, use the `laravel-audit-dsa` skill. The coordinator inventories every subsystem, sends bounded read-only workers (at most two findings each), then validates, dedupes, and ranks **P0–P3**.
+
+```bash
+php artisan auditor:context subsystems
+php artisan auditor:report --findings=storage/auditor-findings.json
+```
+
+Reports include a priority synthesis. Set `metadata.priority` to `p0`–`p3` when ranking explicitly.
+
 ## Collecting project facts
 
 You do not need MCP to inspect the app. Dump any collector from Artisan:

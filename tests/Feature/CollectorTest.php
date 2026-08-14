@@ -12,6 +12,7 @@ use LaravelAuditor\Context\Collectors\MigrationsCollector;
 use LaravelAuditor\Context\Collectors\ModelsCollector;
 use LaravelAuditor\Context\Collectors\ProjectInfoCollector;
 use LaravelAuditor\Context\Collectors\RoutesCollector;
+use LaravelAuditor\Context\Collectors\SubsystemsCollector;
 use LaravelAuditor\Context\Collectors\TestsCollector;
 use LaravelAuditor\Context\ContextRegistry;
 use LaravelAuditor\Context\ProjectContext;
@@ -21,7 +22,7 @@ it('resolves Laravel Auditor services from the container', function () {
     $auditor = app(LaravelAuditor::class);
 
     expect($auditor->rules()->count())->toBeGreaterThanOrEqual(18);
-    expect($auditor->context()->names())->toHaveCount(10);
+    expect($auditor->context()->names())->toHaveCount(11);
     expect($auditor->project()->facts()['php_version'])->toBe(PHP_VERSION);
 });
 
@@ -43,8 +44,8 @@ it('loads additional rules from configured directories', function () {
 it('registers all ten context collectors', function () {
     $registry = app(ContextRegistry::class);
 
-    expect($registry->all())->toHaveCount(10);
-    expect($registry->names())->toContain('project_info', 'routes', 'models', 'migrations', 'database_schema', 'dependencies', 'configuration', 'policies_authorization', 'jobs_events_schedules', 'tests');
+    expect($registry->all())->toHaveCount(11);
+    expect($registry->names())->toContain('project_info', 'routes', 'models', 'migrations', 'database_schema', 'dependencies', 'configuration', 'policies_authorization', 'jobs_events_schedules', 'tests', 'subsystems');
 });
 
 it('exposes named collectors through the registry', function () {
@@ -150,6 +151,14 @@ it('collects the database schema read-only', function () {
     } else {
         expect($data)->toHaveKey('reason');
     }
+});
+
+it('inventories subsystems for a bounded audit', function () {
+    $data = app(SubsystemsCollector::class)->collect();
+
+    expect($data['count'])->toBeGreaterThanOrEqual(3);
+    expect($data['subsystems'][0])->toHaveKeys(['id', 'name', 'boundary', 'files', 'collectors', 'status']);
+    expect(array_column($data['subsystems'], 'id'))->toContain('HTTP', 'MDL', 'TST');
 });
 
 it('collects model metadata for the workbench app', function () {

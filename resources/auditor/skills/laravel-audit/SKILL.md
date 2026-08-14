@@ -16,6 +16,8 @@ Perform a deep, structured, evidence-based audit of the current Laravel applicat
 
 Use this skill when asked to audit, review, assess, or evaluate an existing Laravel application for security, performance, architecture, database, testing, or Laravel conventions issues.
 
+For a bounded data-structure / ownership / organizing-model pass (inventory every subsystem, fan out read-only workers, validate and rank P0–P3), use the `laravel-audit-dsa` skill instead.
+
 ## Core principles
 
 - **Evidence-first.** Every meaningful finding must cite concrete, verifiable project context: a file path, line/range, symbol, route, migration, query, configuration key, or dependency.
@@ -42,6 +44,7 @@ Gather deterministic project facts first. When available, run the Laravel Audito
 - `jobs_events_schedules`: jobs, events/listeners, schedules.
 - `tests`: test framework and coverage signals.
 - `migrations`: migration files.
+- `subsystems`: ownership-bounded inventory for a DSA-style coordinator audit.
 
 Fall back to `composer.json`, `bootstrap/app.php`, `config/app.php`, and the file tree when tools are unavailable.
 

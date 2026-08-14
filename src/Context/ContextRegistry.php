@@ -14,6 +14,7 @@ use LaravelAuditor\Context\Collectors\MigrationsCollector;
 use LaravelAuditor\Context\Collectors\ModelsCollector;
 use LaravelAuditor\Context\Collectors\ProjectInfoCollector;
 use LaravelAuditor\Context\Collectors\RoutesCollector;
+use LaravelAuditor\Context\Collectors\SubsystemsCollector;
 use LaravelAuditor\Context\Collectors\TestsCollector;
 
 /**
@@ -37,6 +38,7 @@ final class ContextRegistry
         private readonly AuthorizationCollector $authorization,
         private readonly JobsEventsSchedulesCollector $jobsEventsSchedules,
         private readonly TestsCollector $tests,
+        private readonly SubsystemsCollector $subsystems,
     ) {}
 
     /**
@@ -55,6 +57,7 @@ final class ContextRegistry
             $this->authorization->name() => $this->authorization,
             $this->jobsEventsSchedules->name() => $this->jobsEventsSchedules,
             $this->tests->name() => $this->tests,
+            $this->subsystems->name() => $this->subsystems,
         ];
     }
 
