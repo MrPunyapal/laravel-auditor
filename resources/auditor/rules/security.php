@@ -96,4 +96,68 @@ return [
         ],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-SEC-005',
+        'name' => 'Dangerous file handling',
+        'domain' => 'security',
+        'severity' => 'high',
+        'confidence' => 'medium',
+        'description' => 'User-controlled input is used to read, write, move, or delete files without a validated allow-list, or uploaded files are stored/executed unsafely.',
+        'why_it_matters' => 'Unvalidated file paths and uploads can leak source files, overwrite application files, or execute attacker-controlled content.',
+        'recommendation' => 'Validate uploads with Laravel\'s file rules, store them outside the public web root or on a disk with a generated name, and never concatenate user input into filesystem paths.',
+        'evidence' => [
+            'The file operation and the user-controlled input that reaches it.',
+            'Whether the destination is public or uses a generated filename.',
+        ],
+        'false_positive_considerations' => [
+            'The path may already be constrained to a known directory and filename.',
+            'Storage::putFile() with a generated name is typically safe.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/filesystem',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-SEC-006',
+        'name' => 'Secrets committed or hardcoded',
+        'domain' => 'security',
+        'severity' => 'high',
+        'confidence' => 'high',
+        'description' => 'Credentials, API keys, private tokens, or other secrets appear in source control, committed .env files, or hardcoded in application code.',
+        'why_it_matters' => 'Committed secrets are difficult to revoke and can be extracted from git history even after they are removed from the working tree.',
+        'recommendation' => 'Move secrets to environment variables or a secret manager, rotate any exposed credentials, and ensure `.env` is gitignored.',
+        'evidence' => [
+            'The file and the secret-looking value or committed environment file.',
+        ],
+        'false_positive_considerations' => [
+            'Example or placeholder values in .env.example are expected.',
+            'Public client identifiers are not automatically secrets.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/configuration#environment-configuration',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-SEC-007',
+        'name' => 'Risky debug or error exposure',
+        'domain' => 'security',
+        'severity' => 'medium',
+        'confidence' => 'high',
+        'description' => 'Debug mode, verbose exception rendering, or leftover dump statements can expose stack traces, environment values, or application internals in a non-local environment.',
+        'why_it_matters' => 'Debug output leaks implementation details and sometimes secrets, which helps an attacker map the application.',
+        'recommendation' => 'Keep `app.debug` false outside local development, remove leftover `dd`/`dump` calls, and avoid rendering raw exception details to end users.',
+        'evidence' => [
+            'The configuration key or dump call and the environment it applies to.',
+        ],
+        'false_positive_considerations' => [
+            'Debug mode is expected in local development.',
+            'A dump used only in tests is not a production exposure.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/errors',
+        ],
+        'applicability' => [],
+    ],
 ];

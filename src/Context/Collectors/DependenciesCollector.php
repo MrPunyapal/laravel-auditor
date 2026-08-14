@@ -32,32 +32,36 @@ final class DependenciesCollector implements ContextCollector
      */
     public function collect(): array
     {
+        $composer = $this->composerFile();
+        $requires = is_array($composer['require'] ?? null) ? $composer['require'] : [];
+        $requiresDev = is_array($composer['require-dev'] ?? null) ? $composer['require-dev'] : [];
+
         $packages = [];
 
-        foreach (InstalledVersions::getInstalledPackages() as $package) {
+        foreach (array_unique(array_merge(array_keys($requires), array_keys($requiresDev), ['laravel/framework'])) as $package) {
+            if (! is_string($package) || $package === '' || $package === 'php') {
+                continue;
+            }
+
+            if (! InstalledVersions::isInstalled($package)) {
+                continue;
+            }
+
             $packages[$package] = [
                 'version' => InstalledVersions::getPrettyVersion($package),
-                'dev' => $this->isDevPackage($package),
+                'dev' => isset($requiresDev[$package]),
             ];
         }
 
         ksort($packages);
 
-        $composer = $this->composerFile();
-
         return [
             'count' => count($packages),
             'packages' => $packages,
-            'requires' => $composer['require'] ?? [],
-            'requires_dev' => $composer['require-dev'] ?? [],
+            'requires' => $requires,
+            'requires_dev' => $requiresDev,
+            'installed_count' => count(InstalledVersions::getInstalledPackages()),
         ];
-    }
-
-    private function isDevPackage(string $package): bool
-    {
-        $composer = $this->composerFile();
-
-        return isset($composer['require-dev'][$package]);
     }
 
     /**

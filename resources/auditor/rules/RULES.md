@@ -12,6 +12,9 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-SEC-002 | Mass assignment risk | high | medium |
 | AUD-SEC-003 | Sensitive data exposure | high | medium |
 | AUD-SEC-004 | Unsafe redirect to user-controlled URL | medium | high |
+| AUD-SEC-005 | Dangerous file handling | high | medium |
+| AUD-SEC-006 | Secrets committed or hardcoded | high | high |
+| AUD-SEC-007 | Risky debug or error exposure | medium | high |
 
 ## Performance
 

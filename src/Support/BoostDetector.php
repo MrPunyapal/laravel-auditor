@@ -9,7 +9,7 @@ use Composer\InstalledVersions;
 /**
  * Detects whether Laravel Boost is installed in the consuming application.
  */
-final class BoostDetector
+class BoostDetector
 {
     public const string PACKAGE = 'laravel/boost';
 

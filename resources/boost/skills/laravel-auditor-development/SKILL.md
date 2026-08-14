@@ -61,14 +61,47 @@ php artisan auditor:rules
 
 Ask the agent to use the `laravel-audit` skill to perform a structured, evidence-based audit of the application.
 
-## Rules and references
+### 6. Render a report
 
-- Audit workflow: the `laravel-audit` skill.
-- Findings schema and rule metadata: `src/Audit/Findings` and `src/Audit/Rules`.
-- Context tools: `src/Context`.
+If the agent produced a JSON findings file:
+
+```bash
+php artisan auditor:report --findings=storage/auditor-findings.json --format=markdown
+```
+
+Supported formats: `markdown`, `json`, `text`.
+
+### 7. Optional MCP
+
+```bash
+php artisan auditor:mcp
+```
+
+Register that stdio command with the agent so it can call `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, and `tests`.
+
+## References
+
+- Install: `composer require --dev mrpunyapal/laravel-auditor`
+- Boost path: `php artisan boost:install` / `php artisan boost:update`
+- Standalone path: `php artisan auditor:install` (`--dry-run`, `--force`)
+- Diagnostics: `php artisan auditor:status`
+- Rules: `php artisan auditor:rules` (`--domain=`, `--json`)
+- Reports: `php artisan auditor:report` (`--findings=`, `--format=`, `--output=`)
+- Config publish tag: `laravel-auditor-config`
+- Resource publish tag: `laravel-auditor-resources`
+- Audit workflow skill: `laravel-audit`
+
+## Examples
+
+Ask the agent:
+
+> Use the laravel-audit skill. Discover this Laravel app, scope the relevant domains, and report only findings with file, route, or schema evidence.
+
+A finding should include `rule_id`, `severity`, `confidence`, `summary`, `why_it_matters`, `evidence`, and `recommendation`.
 
 ## Anti-patterns
 
 - Do not require Boost just to use Auditor.
 - Do not run `php artisan auditor:install` when Boost is installed unless a standalone path is explicitly wanted.
-- Do not modify application code as part of setup.
+- Do not modify application code during setup or during an audit.
+- Do not treat Auditor as an autonomous scanner that invents findings without evidence.

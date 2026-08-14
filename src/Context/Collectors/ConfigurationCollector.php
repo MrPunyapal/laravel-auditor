@@ -11,9 +11,9 @@ use SplFileInfo;
 /**
  * Collects the available configuration keys from the config directory.
  *
- * Values are resolved through the application configuration store so agents
- * see the effective configuration, not just the files. Secret-looking values
- * are redacted to avoid exposing sensitive data through tool output.
+ * Keys are read from the configuration files. A small set of non-secret
+ * values is included so agents can inspect debug, environment, and driver
+ * settings without dumping credentials.
  */
 final class ConfigurationCollector implements ContextCollector
 {
@@ -55,6 +55,7 @@ final class ConfigurationCollector implements ContextCollector
             'count' => count($keys),
             'keys' => $keys,
             'files' => $files,
+            'safe_values' => $this->safeValues(),
         ];
     }
 
@@ -115,5 +116,34 @@ final class ConfigurationCollector implements ContextCollector
         }
 
         return $keys;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function safeValues(): array
+    {
+        $safe = [];
+
+        foreach ([
+            'app.name',
+            'app.env',
+            'app.debug',
+            'app.timezone',
+            'session.driver',
+            'session.secure',
+            'queue.default',
+            'cache.default',
+            'database.default',
+            'logging.default',
+        ] as $key) {
+            $value = config($key);
+
+            if (is_scalar($value) || $value === null) {
+                $safe[$key] = $value;
+            }
+        }
+
+        return $safe;
     }
 }

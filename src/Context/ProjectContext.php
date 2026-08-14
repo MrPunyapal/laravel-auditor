@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelAuditor\Context;
 
+use LaravelAuditor\Audit\Enums\AuditDomain;
 use LaravelAuditor\Context\Collectors\ProjectInfoCollector;
 
 /**
@@ -34,34 +35,28 @@ final class ProjectContext
     }
 
     /**
-     * Returns the list of audit domain keys that are relevant given the
-     * project facts. This is a deterministic, conservative default scope.
+     * Returns the default advertised audit domain keys.
+     *
+     * Domain selection for a specific audit is the agent's job. This method
+     * exposes the package's configured/core scope so reports and diagnostics
+     * have a stable default.
      *
      * @return list<string>
      */
     public function domainsPresent(): array
     {
-        $info = $this->projectInfo->collect();
+        $configured = array_values(array_filter(
+            array_map('strval', (array) config('laravel-auditor.domains', [])),
+            static fn (string $domain): bool => $domain !== '',
+        ));
 
-        $domains = [
-            'security',
-            'performance',
-            'architecture',
-            'database',
-            'testing',
-            'conventions',
-        ];
-
-        $signals = (array) ($info['source_layout'] ?? []);
-
-        // If the application has essentially no source code, drop domains
-        // that would have nothing to inspect.
-        $appFiles = (int) ($signals['app_files'] ?? 0);
-
-        if ($appFiles === 0) {
-            return [];
+        if ($configured !== []) {
+            return $configured;
         }
 
-        return $domains;
+        return array_map(
+            static fn (AuditDomain $domain): string => $domain->value,
+            AuditDomain::core(),
+        );
     }
 }

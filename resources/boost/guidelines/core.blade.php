@@ -27,6 +27,8 @@ When Boost is not installed, use the package's own installer instead:
 php artisan auditor:install
 ```
 
+Useful commands: `auditor:status`, `auditor:rules`, `auditor:report`, and `auditor:mcp`.
+
 ### Audit skill
 
 Use the `laravel-audit` skill when asked to audit or review a Laravel application. It contains the full workflow, evidence requirements, and severity/confidence guidance.

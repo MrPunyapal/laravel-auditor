@@ -9,3 +9,6 @@ composer.lock
 .DS_Store
 .idea
 .vscode
+/workbench/vendor
+/workbench/database/*.sqlite
+/workbench/bootstrap/cache/

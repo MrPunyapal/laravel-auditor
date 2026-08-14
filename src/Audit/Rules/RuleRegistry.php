@@ -82,6 +82,18 @@ final class RuleRegistry
     }
 
     /**
+     * @param  array<int|string, string>|array<string, mixed>  $installedPackages
+     * @return list<RuleDefinition>
+     */
+    public function applicable(?string $laravelVersion = null, array $installedPackages = []): array
+    {
+        return array_values(array_filter(
+            $this->list(),
+            static fn (RuleDefinition $rule): bool => $rule->applies($laravelVersion, $installedPackages),
+        ));
+    }
+
+    /**
      * @return array<string, RuleDefinition>
      */
     private function load(): array

@@ -64,6 +64,7 @@ class AuditorInstallCommand extends Command
             [$created, $updated] = $this->prepareBoostResources($dryRun, $force, $created, $updated);
         } else {
             [$created, $updated] = $this->prepareStandaloneResources($dryRun, $force, $created, $updated);
+            [$created, $updated] = $this->prepareAgentAdapters($dryRun, $force, $created, $updated);
         }
 
         $this->components->twoColumnDetail('Configuration', config_path('laravel-auditor.php'));
@@ -126,7 +127,6 @@ class AuditorInstallCommand extends Command
 
             foreach ($this->files->allDirectories($source) as $skillDir) {
                 $relative = ltrim(str_replace('\\', '/', substr($skillDir, strlen($source))), '/');
-                $skillName = basename($relative);
 
                 if (! $this->files->exists($skillDir.DIRECTORY_SEPARATOR.'SKILL.md')) {
                     continue;
@@ -178,11 +178,101 @@ class AuditorInstallCommand extends Command
         ];
     }
 
+    /**
+     * @param  list<string>  $created
+     * @param  list<string>  $updated
+     * @return array{list<string>, list<string>}
+     */
+    private function prepareAgentAdapters(bool $dryRun, bool $force, array $created, array $updated): array
+    {
+        foreach (['AGENTS.md', 'CLAUDE.md'] as $filename) {
+            [$created, $updated] = $this->writeAdapter(base_path($filename), $dryRun, $force, $created, $updated);
+        }
+
+        return [$created, $updated];
+    }
+
+    /**
+     * @param  list<string>  $created
+     * @param  list<string>  $updated
+     * @return array{list<string>, list<string>}
+     */
+    private function writeAdapter(string $path, bool $dryRun, bool $force, array $created, array $updated): array
+    {
+        $block = $this->adapterContents();
+
+        if (! $this->files->exists($path)) {
+            if (! $dryRun) {
+                $this->files->put($path, $block);
+            }
+
+            $created[] = $this->relative($path);
+
+            return [$created, $updated];
+        }
+
+        $existing = $this->files->get($path);
+
+        if (str_contains($existing, '<!-- laravel-auditor -->')) {
+            if (! $force) {
+                $updated[] = $this->relative($path);
+
+                return [$created, $updated];
+            }
+
+            $replaced = preg_replace(
+                '/<!-- laravel-auditor -->.*?<!-- \/laravel-auditor -->/s',
+                trim($block),
+                $existing,
+            );
+
+            if (! $dryRun) {
+                $this->files->put($path, is_string($replaced) ? $replaced : $existing);
+            }
+
+            $updated[] = $this->relative($path);
+
+            return [$created, $updated];
+        }
+
+        if (! $force) {
+            $this->components->twoColumnDetail($this->relative($path), 'left unchanged (user-owned)');
+
+            return [$created, $updated];
+        }
+
+        if (! $dryRun) {
+            $this->files->put($path, rtrim($existing).PHP_EOL.PHP_EOL.$block);
+        }
+
+        $updated[] = $this->relative($path);
+
+        return [$created, $updated];
+    }
+
+    private function adapterContents(): string
+    {
+        $target = trim((string) config('laravel-auditor.resources_target', '.ai'), '/\\');
+
+        return <<<MARKDOWN
+<!-- laravel-auditor -->
+# Laravel Auditor
+
+This project uses Laravel Auditor for evidence-based Laravel audits.
+
+When asked to audit, review, or assess this application, use the `laravel-audit` skill in `{$target}/skills/laravel-audit` and follow `{$target}/guidelines/core.md`.
+
+Do not modify application code during an audit. Prefer deterministic project facts from `php artisan auditor:status`, `php artisan auditor:rules`, and the Laravel Auditor MCP tools.
+<!-- /laravel-auditor -->
+
+MARKDOWN;
+    }
+
     private function standaloneTarget(): string
     {
-        $base = base_path('.ai');
+        $target = trim((string) config('laravel-auditor.resources_target', '.ai'), '/\\');
 
-        return $base;
+        return base_path($target);
     }
 
     private function shouldPublishConfig(bool $dryRun): bool

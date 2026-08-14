@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelAuditor\MCP;
 
+use InvalidArgumentException;
 use Throwable;
 
 /**
@@ -70,6 +71,10 @@ final class McpServer
                 'tools/call' => $this->callTool($message),
                 default => null,
             };
+        } catch (InvalidArgumentException $e) {
+            $this->respond($id, null, $this->error(-32602, $e->getMessage()));
+
+            return;
         } catch (Throwable $e) {
             $this->respond($id, null, $this->error(-32603, 'Internal error: '.$e->getMessage()));
 
@@ -142,7 +147,7 @@ final class McpServer
             }
         }
 
-        return $this->error(-32602, "Unknown tool: {$name}");
+        throw new InvalidArgumentException("Unknown tool: {$name}");
     }
 
     /**

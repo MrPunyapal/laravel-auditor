@@ -52,7 +52,8 @@ final class ProjectInfoCollector implements ContextCollector
             'frontend' => $this->frontendSignals(),
             'architecture_signals' => $this->architectureSignals(),
             'source_layout' => $this->sourceLayout(),
-            'packages' => $installed,
+            'ecosystem' => $this->ecosystem($installed),
+            'packages' => $this->notablePackages($installed),
             'paths' => [
                 'app' => $this->relative(app_path()),
                 'config' => $this->relative(config_path()),
@@ -206,6 +207,58 @@ final class ProjectInfoCollector implements ContextCollector
         }
 
         ksort($packages);
+
+        return $packages;
+    }
+
+    /**
+     * @param  array<string, array{version: string|null, dev: bool}>  $installed
+     * @return array<string, bool>
+     */
+    private function ecosystem(array $installed): array
+    {
+        return [
+            'livewire' => isset($installed['livewire/livewire']) || class_exists(Livewire::class),
+            'filament' => isset($installed['filament/filament']) || class_exists(FilamentServiceProvider::class),
+            'inertia' => isset($installed['inertiajs/inertia-laravel']),
+            'pest' => isset($installed['pestphp/pest']),
+            'phpunit' => isset($installed['phpunit/phpunit']),
+            'tailwind' => (bool) ($this->frontendSignals()['tailwind'] ?? false),
+            'queues' => (bool) ($this->architectureSignals()['queued_jobs'] ?? false),
+            'boost' => isset($installed['laravel/boost']),
+        ];
+    }
+
+    /**
+     * @param  array<string, array{version: string|null, dev: bool}>  $installed
+     * @return array<string, array{version: string|null, dev: bool}>
+     */
+    private function notablePackages(array $installed): array
+    {
+        $notable = [
+            'laravel/framework',
+            'laravel/boost',
+            'laravel/sanctum',
+            'laravel/passport',
+            'laravel/horizon',
+            'laravel/octane',
+            'laravel/scout',
+            'laravel/nova',
+            'laravel/reverb',
+            'livewire/livewire',
+            'filament/filament',
+            'inertiajs/inertia-laravel',
+            'pestphp/pest',
+            'phpunit/phpunit',
+        ];
+
+        $packages = [];
+
+        foreach ($notable as $package) {
+            if (isset($installed[$package])) {
+                $packages[$package] = $installed[$package];
+            }
+        }
 
         return $packages;
     }

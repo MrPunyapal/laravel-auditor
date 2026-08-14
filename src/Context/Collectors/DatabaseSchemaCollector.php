@@ -13,9 +13,9 @@ use Throwable;
 /**
  * Reads the database schema read-only using the configured connection.
  *
- * Schema reads are wrapped in a transaction and rolled back so they never
- * modify application data. If the database is unavailable the collector
- * returns a safe diagnostic result instead of failing the audit.
+ * Schema is inspected through read-only catalog queries. If the database
+ * is unavailable the collector returns a safe diagnostic result instead
+ * of failing the audit.
  */
 final class DatabaseSchemaCollector implements ContextCollector
 {

@@ -77,10 +77,16 @@ class LaravelAuditorServiceProvider extends ServiceProvider
     private function registerRuleRegistry(): void
     {
         $this->app->singleton(RuleRegistry::class, static function (Application $app): RuleRegistry {
+            $configured = array_values(array_filter(
+                array_map('strval', (array) config('laravel-auditor.rules', [])),
+                static fn (string $path): bool => $path !== '',
+            ));
+
             return new RuleRegistry(
                 $app->make(Filesystem::class),
                 [
                     __DIR__.'/../resources/auditor/rules',
+                    ...$configured,
                 ],
             );
         });

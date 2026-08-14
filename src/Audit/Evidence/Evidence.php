@@ -62,6 +62,21 @@ final class Evidence implements JsonSerializable
         return new self('migration', $path, null, null, $detail);
     }
 
+    public static function query(string $sql, ?string $detail = null): self
+    {
+        return new self('query', $sql, null, null, $detail);
+    }
+
+    public static function test(string $path, ?string $detail = null): self
+    {
+        return new self('test', $path, null, null, $detail);
+    }
+
+    public static function log(string $reference, ?string $detail = null): self
+    {
+        return new self('log', $reference, null, null, $detail);
+    }
+
     /**
      * @return array{type: string, reference: string, line: int|null, end_line: int|null, detail: string|null, metadata: array<string, mixed>}
      */

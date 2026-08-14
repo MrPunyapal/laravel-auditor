@@ -23,7 +23,9 @@ return [
         'references' => [
             'https://laravel.com/docs/upgrade',
         ],
-        'applicability' => [],
+        'applicability' => [
+            'laravel_min' => '8.0.0',
+        ],
     ],
     [
         'id' => 'AUD-CON-002',

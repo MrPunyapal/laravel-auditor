@@ -69,6 +69,12 @@ class AuditorReportCommand extends Command
 
         $format = is_string($this->option('format')) ? $this->option('format') : 'markdown';
 
+        if (! in_array($format, ['markdown', 'json', 'text'], true)) {
+            $this->components->error("Unknown format [{$format}]. Use markdown, json, or text.");
+
+            return self::FAILURE;
+        }
+
         $content = match ($format) {
             'json' => (new JsonReportRenderer)->render($report),
             'text' => (new TextReportRenderer)->render($report),
