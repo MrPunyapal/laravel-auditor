@@ -157,7 +157,6 @@ it('collects model metadata for the workbench app', function () {
 
     expect($data)->toHaveKeys(['count', 'models']);
 
-    if ($data['count'] > 0) {
-        expect($data['models'][0])->toHaveKeys(['class', 'table', 'fillable', 'guarded', 'casts', 'primary_key', 'relationships']);
-    }
+    expect($data['count'])->toBeGreaterThanOrEqual(1);
+    expect($data['models'][0])->toHaveKeys(['class', 'table', 'fillable', 'guarded', 'casts', 'primary_key', 'relationships']);
 });

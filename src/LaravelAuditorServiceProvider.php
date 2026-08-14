@@ -9,6 +9,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
 use LaravelAuditor\Audit\Domains\DomainRegistry;
 use LaravelAuditor\Audit\Rules\RuleRegistry;
+use LaravelAuditor\Console\Commands\AuditorContextCommand;
 use LaravelAuditor\Console\Commands\AuditorInstallCommand;
 use LaravelAuditor\Console\Commands\AuditorMcpCommand;
 use LaravelAuditor\Console\Commands\AuditorReportCommand;
@@ -41,6 +42,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
         $this->app->singleton(BoostDetector::class);
 
         $this->app->singleton(LaravelAuditor::class);
+        $this->app->alias(LaravelAuditor::class, 'laravel-auditor');
 
         $this->registerRuleRegistry();
         $this->registerDomainRegistry();
@@ -63,12 +65,21 @@ class LaravelAuditorServiceProvider extends ServiceProvider
             ['laravel-auditor', 'laravel-auditor-resources'],
         );
 
+        $this->publishes([
+            __DIR__.'/../resources/auditor/schema' => base_path('.ai/schema'),
+        ], ['laravel-auditor', 'laravel-auditor-schema']);
+
+        $this->publishes([
+            __DIR__.'/../resources/auditor/examples' => base_path('.ai/examples'),
+        ], ['laravel-auditor', 'laravel-auditor-examples']);
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 AuditorInstallCommand::class,
                 AuditorStatusCommand::class,
                 AuditorRulesCommand::class,
                 AuditorReportCommand::class,
+                AuditorContextCommand::class,
                 AuditorMcpCommand::class,
             ]);
         }
@@ -146,6 +157,8 @@ class LaravelAuditorServiceProvider extends ServiceProvider
         $map = [
             $base.'/skills' => base_path('.ai/skills'),
             $base.'/guidelines' => base_path('.ai/guidelines'),
+            $base.'/schema' => base_path('.ai/schema'),
+            $base.'/examples' => base_path('.ai/examples'),
         ];
 
         return $map;

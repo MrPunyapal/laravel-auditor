@@ -79,7 +79,8 @@ The installer is idempotent and safe. It:
 - detects the Laravel application context
 - detects whether Laravel Boost is installed
 - publishes agent skills and guidelines to `.ai/`
-- writes thin `AGENTS.md` and `CLAUDE.md` adapters only when those files are missing
+- writes thin `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, Cursor, and Copilot adapters only when those files are missing
+- publishes finding/report schemas and an example findings file
 - publishes `config/laravel-auditor.php` when it is missing
 - reports what it created or left unchanged
 
@@ -122,6 +123,8 @@ php artisan auditor:rules
 php artisan auditor:rules --domain=security
 php artisan auditor:rules --json
 ```
+
+V1 ships **38** evidence-first rules. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
 
 ## Example audit interaction
 
@@ -168,6 +171,24 @@ Severity: `critical`, `high`, `medium`, `low`, `info`.
 
 Confidence: `confirmed`, `high`, `medium`, `low`.
 
+## Collecting project facts
+
+You do not need MCP to inspect the app. Dump any collector from Artisan:
+
+```bash
+php artisan auditor:context --list
+php artisan auditor:context project_info
+php artisan auditor:context routes --output=storage/auditor-routes.json
+```
+
+Or from PHP:
+
+```php
+use LaravelAuditor\Facades\LaravelAuditor;
+
+LaravelAuditor::collect('models');
+```
+
 ## MCP tools
 
 Register the local stdio server with your agent:
@@ -204,10 +225,13 @@ These tools are read-only. They return structured facts, not unfiltered source d
 ```bash
 php artisan auditor:status
 php artisan auditor:report
+php artisan auditor:report --example
 php artisan auditor:report --format=json
 php artisan auditor:report --format=text
 php artisan auditor:report --findings=storage/auditor-findings.json --output=storage/auditor-report.md
 ```
+
+Finding and report JSON schemas live in `resources/auditor/schema`. See [docs/FINDINGS.md](docs/FINDINGS.md).
 
 `auditor:report` does not invent findings. The agent produces findings; the command renders them as Markdown, JSON, or CLI text with project facts, domain scope, counts, key risks, evidence, and recommendations.
 
@@ -265,14 +289,7 @@ A short, evidenced report is the intended product.
 
 ## Not in V1
 
-These are intentionally deferred:
-
-- automatic code fixes or pull requests
-- a web dashboard or hosted audit service
-- CI-as-a-product, baselines, and historical trend reporting
-- a giant rule library or CVE scanner
-- standalone / legacy Laravel runners
-- organization policy packs
+Deferred work lives in [docs/FUTURE.md](docs/FUTURE.md). That includes automatic fixes, CI mode, baselines, a web dashboard, legacy/standalone runners, organization policy packs, and deeper ecosystem rule packs.
 
 ## Changelog
 

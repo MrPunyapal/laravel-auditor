@@ -66,4 +66,42 @@ return [
         'references' => [],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-ARC-004',
+        'name' => 'Application boundary violation',
+        'domain' => 'architecture',
+        'severity' => 'medium',
+        'confidence' => 'medium',
+        'description' => 'Domain or persistence concerns leak into routes, views, or middleware, or HTTP/presentation concerns leak into models or jobs.',
+        'why_it_matters' => 'Broken boundaries make behavior hard to test and change without unexpected side effects.',
+        'recommendation' => 'Keep HTTP adapters thin, keep domain rules out of views, and keep persistence details out of presentation layers.',
+        'evidence' => [
+            'The leaking class/file and the layer it should belong to.',
+        ],
+        'false_positive_considerations' => [
+            'Small apps may keep simple queries in controllers without it being a problem.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/structure',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-ARC-005',
+        'name' => 'Inconsistent architectural convention',
+        'domain' => 'architecture',
+        'severity' => 'low',
+        'confidence' => 'medium',
+        'description' => 'The codebase mixes incompatible conventions for the same kind of work (actions vs services vs fat controllers) without a documented reason, creating maintenance friction.',
+        'why_it_matters' => 'Inconsistent structure slows onboarding and makes the next change harder than it should be.',
+        'recommendation' => 'Pick the convention the codebase already uses most and apply it to new work. Do not introduce a new layer just for consistency theater.',
+        'evidence' => [
+            'Two or more conflicting conventions and the feature they implement.',
+        ],
+        'false_positive_considerations' => [
+            'A gradual migration may intentionally mix old and new styles.',
+        ],
+        'references' => [],
+        'applicability' => [],
+    ],
 ];

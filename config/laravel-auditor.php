@@ -52,4 +52,17 @@ return [
 
     'resources_target' => '.ai',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Report Defaults
+    |--------------------------------------------------------------------------
+    |
+    | Default renderer used by `auditor:report` when --format is omitted.
+    |
+    */
+
+    'report' => [
+        'format' => 'markdown',
+    ],
+
 ];

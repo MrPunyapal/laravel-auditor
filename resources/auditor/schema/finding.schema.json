@@ -1,0 +1,39 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/mrpunyapal/laravel-auditor/schema/finding.schema.json",
+    "title": "Laravel Auditor Finding",
+    "type": "object",
+    "required": ["id", "rule_id", "title", "domain", "severity", "confidence", "summary", "why_it_matters"],
+    "properties": {
+        "id": { "type": "string" },
+        "rule_id": { "type": "string" },
+        "title": { "type": "string" },
+        "domain": { "type": "string", "enum": ["security", "performance", "architecture", "database", "testing", "conventions"] },
+        "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "info"] },
+        "confidence": { "type": "string", "enum": ["confirmed", "high", "medium", "low"] },
+        "status": { "type": "string", "enum": ["open", "accepted", "dismissed", "fixed"] },
+        "summary": { "type": "string" },
+        "why_it_matters": { "type": "string" },
+        "evidence": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["type", "reference"],
+                "properties": {
+                    "type": { "type": "string" },
+                    "reference": { "type": "string" },
+                    "line": { "type": ["integer", "null"] },
+                    "end_line": { "type": ["integer", "null"] },
+                    "detail": { "type": ["string", "null"] },
+                    "metadata": { "type": "object" }
+                }
+            }
+        },
+        "affected_resources": { "type": "array", "items": { "type": "string" } },
+        "symbol": { "type": ["string", "null"] },
+        "recommendation": { "type": "string" },
+        "remediation": { "type": ["string", "null"] },
+        "verification_notes": { "type": ["string", "null"] },
+        "metadata": { "type": "object" }
+    }
+}

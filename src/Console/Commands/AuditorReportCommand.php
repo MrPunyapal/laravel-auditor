@@ -24,6 +24,7 @@ class AuditorReportCommand extends Command
      */
     protected $signature = 'auditor:report
         {--findings= : Path to a JSON file containing findings}
+        {--example : Render the packaged example findings}
         {--format=markdown : Output format (markdown, json, text)}
         {--output= : Write the report to a file instead of stdout}';
 
@@ -44,8 +45,13 @@ class AuditorReportCommand extends Command
     public function handle(): int
     {
         $findingsPath = $this->option('findings');
+        $example = (bool) $this->option('example');
 
         $findings = new FindingCollection;
+
+        if ($example) {
+            $findingsPath = __DIR__.'/../../../resources/auditor/examples/findings.json';
+        }
 
         if (is_string($findingsPath) && $findingsPath !== '') {
             $findings = $this->loadFindings($findingsPath);
@@ -67,7 +73,8 @@ class AuditorReportCommand extends Command
             ],
         );
 
-        $format = is_string($this->option('format')) ? $this->option('format') : 'markdown';
+        $defaultFormat = (string) config('laravel-auditor.report.format', 'markdown');
+        $format = is_string($this->option('format')) ? $this->option('format') : $defaultFormat;
 
         if (! in_array($format, ['markdown', 'json', 'text'], true)) {
             $this->components->error("Unknown format [{$format}]. Use markdown, json, or text.");

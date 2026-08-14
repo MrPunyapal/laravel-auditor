@@ -1,0 +1,37 @@
+{
+    "findings": [
+        {
+            "id": "F-2026-0001",
+            "rule_id": "AUD-SEC-001",
+            "title": "Missing authorization boundary",
+            "domain": "security",
+            "severity": "high",
+            "confidence": "confirmed",
+            "status": "open",
+            "summary": "Any authenticated user can delete another user's post.",
+            "why_it_matters": "The destroy action never authorizes the Post policy, so ownership is not enforced.",
+            "evidence": [
+                {
+                    "type": "file",
+                    "reference": "app/Http/Controllers/PostController.php",
+                    "line": 42,
+                    "end_line": 48,
+                    "detail": "destroy() calls $post->delete() without authorize()."
+                },
+                {
+                    "type": "route",
+                    "reference": "DELETE /posts/{post}",
+                    "detail": "Named route posts.destroy"
+                }
+            ],
+            "affected_resources": [
+                "app/Http/Controllers/PostController.php",
+                "routes/web.php"
+            ],
+            "symbol": "App\\Http\\Controllers\\PostController@destroy",
+            "recommendation": "Authorize the deletion with a PostPolicy or can:delete,post middleware.",
+            "remediation": "Add $this->authorize('delete', $post); before deleting, and cover it with a 403 feature test.",
+            "verification_notes": "Route middleware does not include can:delete,post. PostPolicy::delete exists but is unused."
+        }
+    ]
+}

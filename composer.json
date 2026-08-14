@@ -91,7 +91,10 @@
         "laravel": {
             "providers": [
                 "LaravelAuditor\\LaravelAuditorServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "LaravelAuditor": "LaravelAuditor\\Facades\\LaravelAuditor"
+            }
         }
     },
     "config": {

@@ -9,7 +9,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
 use LaravelAuditor\Context\ContextCollector;
-use SplFileInfo;
+use LaravelAuditor\Support\ApplicationPaths;
 use Throwable;
 
 /**
@@ -20,6 +20,7 @@ final class JobsEventsSchedulesCollector implements ContextCollector
     public function __construct(
         private readonly Filesystem $files,
         private readonly Dispatcher $events,
+        private readonly ApplicationPaths $paths,
     ) {}
 
     public function name(): string
@@ -38,27 +39,35 @@ final class JobsEventsSchedulesCollector implements ContextCollector
     public function collect(): array
     {
         return [
-            'jobs' => $this->filesIn(app_path('Jobs')),
-            'events' => $this->filesIn(app_path('Events')),
-            'listeners' => $this->filesIn(app_path('Listeners')),
+            'jobs' => $this->filesIn($this->paths->directories('Jobs')),
+            'events' => $this->filesIn($this->paths->directories('Events')),
+            'listeners' => $this->filesIn($this->paths->directories('Listeners')),
             'registered_events' => $this->registeredEvents(),
             'scheduled_commands' => $this->scheduledCommands(),
         ];
     }
 
     /**
+     * @param  list<string>  $directories
      * @return list<string>
      */
-    private function filesIn(string $directory): array
+    private function filesIn(array $directories): array
     {
-        if (! $this->files->isDirectory($directory)) {
-            return [];
+        $files = [];
+
+        foreach ($directories as $directory) {
+            if (! $this->files->isDirectory($directory)) {
+                continue;
+            }
+
+            foreach ($this->files->allFiles($directory) as $file) {
+                $files[] = $file->getRelativePathname();
+            }
         }
 
-        return array_values(array_map(
-            static fn (SplFileInfo $file): string => $file->getRelativePathname(),
-            $this->files->allFiles($directory),
-        ));
+        sort($files);
+
+        return array_values(array_unique($files));
     }
 
     /**

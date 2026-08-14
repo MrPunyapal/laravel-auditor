@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use LaravelAuditor\Context\ContextCollector;
+use LaravelAuditor\Support\ApplicationPaths;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
@@ -25,6 +26,7 @@ final class ModelsCollector implements ContextCollector
     public function __construct(
         private readonly Application $app,
         private readonly Filesystem $files,
+        private readonly ApplicationPaths $paths,
     ) {}
 
     public function name(): string
@@ -61,24 +63,42 @@ final class ModelsCollector implements ContextCollector
      */
     private function discoverModels(): array
     {
-        $directory = app_path('Models');
+        $directories = $this->paths->directories('Models');
 
-        if (! $this->files->isDirectory($directory)) {
-            return [];
+        if ($directories === []) {
+            $directories = $this->paths->directories();
         }
 
         $models = [];
 
-        foreach ($this->files->allFiles($directory) as $file) {
-            $relative = $file->getRelativePathname();
-            $class = $this->app->getNamespace().'Models\\'.str_replace(['/', '.php'], ['\\', ''], $relative);
+        foreach ($directories as $directory) {
+            foreach ($this->files->allFiles($directory) as $file) {
+                if ($file->getExtension() !== 'php') {
+                    continue;
+                }
 
-            if ($this->isEloquentModel($class)) {
-                $models[] = $class;
+                $class = $this->classFromFile($file->getPathname());
+
+                if ($class !== null && $this->isEloquentModel($class)) {
+                    $models[] = $class;
+                }
             }
         }
 
-        return $models;
+        return array_values(array_unique($models));
+    }
+
+    private function classFromFile(string $path): ?string
+    {
+        $contents = $this->files->get($path);
+
+        if (preg_match('/namespace\s+([^;]+);/', $contents, $namespace) !== 1) {
+            return null;
+        }
+
+        $class = pathinfo($path, PATHINFO_FILENAME);
+
+        return trim($namespace[1]).'\\'.$class;
     }
 
     private function isEloquentModel(string $class): bool

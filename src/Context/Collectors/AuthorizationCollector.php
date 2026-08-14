@@ -7,8 +7,8 @@ namespace LaravelAuditor\Context\Collectors;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Filesystem\Filesystem;
 use LaravelAuditor\Context\ContextCollector;
+use LaravelAuditor\Support\ApplicationPaths;
 use ReflectionClass;
-use SplFileInfo;
 use Throwable;
 
 /**
@@ -21,6 +21,7 @@ final class AuthorizationCollector implements ContextCollector
 {
     public function __construct(
         private readonly Filesystem $files,
+        private readonly ApplicationPaths $paths,
         private readonly ?Gate $gate = null,
     ) {}
 
@@ -108,16 +109,17 @@ final class AuthorizationCollector implements ContextCollector
      */
     private function policyFiles(): array
     {
-        $directory = app_path('Policies');
+        $files = [];
 
-        if (! $this->files->isDirectory($directory)) {
-            return [];
+        foreach ($this->paths->directories('Policies') as $directory) {
+            foreach ($this->files->allFiles($directory) as $file) {
+                $files[] = $file->getRelativePathname();
+            }
         }
 
-        return array_values(array_map(
-            static fn (SplFileInfo $file): string => $file->getRelativePathname(),
-            $this->files->allFiles($directory),
-        ));
+        sort($files);
+
+        return array_values(array_unique($files));
     }
 
     /**

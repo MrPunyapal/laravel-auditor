@@ -11,7 +11,13 @@ function auditorCleanupInstallArtifacts(): void
 
     $files->deleteDirectory(base_path('.ai'));
 
-    foreach (['AGENTS.md', 'CLAUDE.md'] as $adapter) {
+    foreach ([
+        'AGENTS.md',
+        'CLAUDE.md',
+        'GEMINI.md',
+        '.cursor/rules/laravel-auditor.mdc',
+        '.github/copilot-instructions.md',
+    ] as $adapter) {
         $path = base_path($adapter);
 
         if (! $files->exists($path)) {
@@ -39,8 +45,12 @@ it('installs standalone agent resources and thin adapters', function () {
 
     expect(file_exists(base_path('.ai/skills/laravel-audit/SKILL.md')))->toBeTrue();
     expect(file_exists(base_path('.ai/guidelines/core.md')))->toBeTrue();
+    expect(file_exists(base_path('.ai/schema/finding.schema.json')))->toBeTrue();
+    expect(file_exists(base_path('.ai/examples/findings.json')))->toBeTrue();
     expect((string) file_get_contents(base_path('AGENTS.md')))->toContain('<!-- laravel-auditor -->');
     expect((string) file_get_contents(base_path('CLAUDE.md')))->toContain('laravel-audit');
+    expect((string) file_get_contents(base_path('GEMINI.md')))->toContain('laravel-audit');
+    expect((string) file_get_contents(base_path('.cursor/rules/laravel-auditor.mdc')))->toContain('laravel-audit');
 });
 
 it('is idempotent and does not overwrite existing standalone resources', function () {

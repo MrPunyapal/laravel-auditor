@@ -160,4 +160,66 @@ return [
         ],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-SEC-008',
+        'name' => 'Unsafe validation assumptions',
+        'domain' => 'security',
+        'severity' => 'medium',
+        'confidence' => 'medium',
+        'description' => 'A mutating or sensitive endpoint trusts client-side checks, missing server-side validation, or treats `required` as authorization or type safety.',
+        'why_it_matters' => 'Unvalidated input is a common source of mass-assignment, injection, and business-rule bypasses.',
+        'recommendation' => 'Validate every untrusted input on the server with a Form Request or `Validator`, including types, ownership ids, and authorization-relevant fields.',
+        'evidence' => [
+            'The controller/action and the request input it consumes.',
+            'The missing or incomplete validation rules.',
+        ],
+        'false_positive_considerations' => [
+            'Internal console commands or trusted signed URLs may not need the same validation.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/validation',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-SEC-009',
+        'name' => 'Unsafe configuration usage',
+        'domain' => 'security',
+        'severity' => 'medium',
+        'confidence' => 'high',
+        'description' => 'Security-sensitive configuration (debug, session, cookie, CORS, trusted proxies, or hashed secrets) is set unsafely for a non-local environment.',
+        'why_it_matters' => 'Unsafe configuration can expose internals, weaken session protections, or make CSRF/CORS checks ineffective.',
+        'recommendation' => 'Use environment-specific config: `app.debug` false outside local, secure session cookies in production, and explicit trusted-proxy/CORS allow-lists.',
+        'evidence' => [
+            'The configuration key and its effective value.',
+            'The environment where the value applies.',
+        ],
+        'false_positive_considerations' => [
+            'Local development values are expected to be looser.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/configuration',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-SEC-010',
+        'name' => 'Insecure authentication pattern',
+        'domain' => 'security',
+        'severity' => 'high',
+        'confidence' => 'medium',
+        'description' => 'Authentication stores secrets in plaintext, skips rate limiting on login, uses a homemade auth loop, or disables important session protections without a documented reason.',
+        'why_it_matters' => 'Weak authentication is a direct path to account takeover.',
+        'recommendation' => 'Use Laravel\'s auth scaffolding, hash passwords, rate-limit login, and keep session/cookie security settings at framework defaults unless there is a proven need.',
+        'evidence' => [
+            'The authentication code or config that is unsafe.',
+        ],
+        'false_positive_considerations' => [
+            'Custom auth may be required for SSO or an external identity provider.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/authentication',
+        ],
+        'applicability' => [],
+    ],
 ];

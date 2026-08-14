@@ -51,10 +51,12 @@ The installer is idempotent and safe. It detects the Laravel application context
 php artisan auditor:status
 ```
 
-### 4. Inspect the available rules
+### 4. Inspect the available rules and project facts
 
 ```bash
 php artisan auditor:rules
+php artisan auditor:context --list
+php artisan auditor:context project_info
 ```
 
 ### 5. Run an audit
@@ -66,10 +68,11 @@ Ask the agent to use the `laravel-audit` skill to perform a structured, evidence
 If the agent produced a JSON findings file:
 
 ```bash
+php artisan auditor:report --example
 php artisan auditor:report --findings=storage/auditor-findings.json --format=markdown
 ```
 
-Supported formats: `markdown`, `json`, `text`.
+Supported formats: `markdown`, `json`, `text`. Finding schema: publish tag `laravel-auditor-schema`.
 
 ### 7. Optional MCP
 
@@ -86,9 +89,13 @@ Register that stdio command with the agent so it can call `project_info`, `route
 - Standalone path: `php artisan auditor:install` (`--dry-run`, `--force`)
 - Diagnostics: `php artisan auditor:status`
 - Rules: `php artisan auditor:rules` (`--domain=`, `--json`)
-- Reports: `php artisan auditor:report` (`--findings=`, `--format=`, `--output=`)
+- Context: `php artisan auditor:context` (`--list`, `{collector}`, `--output=`)
+- Reports: `php artisan auditor:report` (`--findings=`, `--example`, `--format=`, `--output=`)
+- Facade: `LaravelAuditor::collect('routes')`, `LaravelAuditor::rules()`
 - Config publish tag: `laravel-auditor-config`
 - Resource publish tag: `laravel-auditor-resources`
+- Schema publish tag: `laravel-auditor-schema`
+- Example publish tag: `laravel-auditor-examples`
 - Audit workflow skill: `laravel-audit`
 
 ## Examples

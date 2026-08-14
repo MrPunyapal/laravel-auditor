@@ -63,4 +63,63 @@ return [
         'references' => [],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-DB-004',
+        'name' => 'Missing foreign key',
+        'domain' => 'database',
+        'severity' => 'medium',
+        'confidence' => 'medium',
+        'description' => 'A column that clearly references another table has no foreign key, allowing orphaned rows and inconsistent deletes.',
+        'why_it_matters' => 'Missing foreign keys hide data-integrity bugs until they appear in production.',
+        'recommendation' => 'Add a foreign key (and the matching Eloquent relationship) when the column is a real relation, with an explicit onDelete behavior.',
+        'evidence' => [
+            'The column and the table it should reference.',
+            'Schema or migration showing the missing constraint.',
+        ],
+        'false_positive_considerations' => [
+            'Polymorphic relations and some legacy import tables cannot use a simple FK.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/migrations#foreign-key-constraints',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-DB-005',
+        'name' => 'Duplicate data modeling',
+        'domain' => 'database',
+        'severity' => 'low',
+        'confidence' => 'medium',
+        'description' => 'The same fact is stored in multiple columns or tables that can drift, or a denormalized cache column is treated as a source of truth.',
+        'why_it_matters' => 'Duplicated facts diverge and produce inconsistent application behavior.',
+        'recommendation' => 'Keep a single source of truth and derive or cache copies explicitly.',
+        'evidence' => [
+            'The duplicated columns/tables and the code that writes them independently.',
+        ],
+        'false_positive_considerations' => [
+            'Intentional denormalization for performance may be acceptable if one writer owns it.',
+        ],
+        'references' => [],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-DB-006',
+        'name' => 'Inefficient relationship usage',
+        'domain' => 'database',
+        'severity' => 'low',
+        'confidence' => 'medium',
+        'description' => 'A relationship is defined or used in a way that forces expensive queries (unconstrained hasMany in a loop, missing pivot indexes, loading huge graphs).',
+        'why_it_matters' => 'Bad relationship usage turns simple pages into table scans or N+1 explosions.',
+        'recommendation' => 'Constrain the relationship, add the missing index, or load only the columns/relations the response needs.',
+        'evidence' => [
+            'The relationship method and the query site that makes it expensive.',
+        ],
+        'false_positive_considerations' => [
+            'A relationship used once on a small table is not inherently inefficient.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/eloquent-relationships',
+        ],
+        'applicability' => [],
+    ],
 ];

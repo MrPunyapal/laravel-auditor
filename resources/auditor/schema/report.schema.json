@@ -1,0 +1,25 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/mrpunyapal/laravel-auditor/schema/report.schema.json",
+    "title": "Laravel Auditor Report",
+    "type": "object",
+    "required": ["project", "domains_run", "summary", "findings"],
+    "properties": {
+        "meta": { "type": "object" },
+        "project": { "type": "object" },
+        "domains_run": { "type": "array", "items": { "type": "string" } },
+        "summary": {
+            "type": "object",
+            "properties": {
+                "total_findings": { "type": "integer" },
+                "counts_by_severity": { "type": "object" },
+                "counts_by_domain": { "type": "object" }
+            }
+        },
+        "key_risks": { "type": "array" },
+        "findings": {
+            "type": "array",
+            "items": { "$ref": "finding.schema.json" }
+        }
+    }
+}

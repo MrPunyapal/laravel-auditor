@@ -33,4 +33,14 @@ final class LaravelAuditor
     {
         return $this->project;
     }
+
+    /**
+     * Collect structured context from a named collector.
+     *
+     * @return array<string, mixed>
+     */
+    public function collect(string $name): array
+    {
+        return $this->context->get($name)->collect();
+    }
 }

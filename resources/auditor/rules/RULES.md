@@ -15,6 +15,9 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-SEC-005 | Dangerous file handling | high | medium |
 | AUD-SEC-006 | Secrets committed or hardcoded | high | high |
 | AUD-SEC-007 | Risky debug or error exposure | medium | high |
+| AUD-SEC-008 | Unsafe validation assumptions | medium | medium |
+| AUD-SEC-009 | Unsafe configuration usage | medium | high |
+| AUD-SEC-010 | Insecure authentication pattern | high | medium |
 
 ## Performance
 
@@ -23,6 +26,9 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-PER-001 | N+1 query risk | medium | medium |
 | AUD-PER-002 | Expensive work in the request lifecycle | low | medium |
 | AUD-PER-003 | Missing index on a frequently-queried column | low | low |
+| AUD-PER-004 | Repeated query without reuse | low | medium |
+| AUD-PER-005 | Synchronous work that belongs on a queue | medium | medium |
+| AUD-PER-006 | Inefficient collection or database usage | low | medium |
 
 ## Architecture
 
@@ -31,6 +37,8 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-ARC-001 | Business logic in controllers | medium | medium |
 | AUD-ARC-002 | Duplicated business logic | medium | high |
 | AUD-ARC-003 | Unnecessary abstraction | low | medium |
+| AUD-ARC-004 | Application boundary violation | medium | medium |
+| AUD-ARC-005 | Inconsistent architectural convention | low | medium |
 
 ## Database
 
@@ -39,6 +47,9 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-DB-001 | Relationship definition inconsistent with schema | medium | medium |
 | AUD-DB-002 | Suspicious or destructive migration | high | medium |
 | AUD-DB-003 | Nullable/non-nullable mismatch | low | medium |
+| AUD-DB-004 | Missing foreign key | medium | medium |
+| AUD-DB-005 | Duplicate data modeling | low | medium |
+| AUD-DB-006 | Inefficient relationship usage | low | medium |
 
 ## Testing
 
@@ -47,6 +58,8 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-TST-001 | Critical business flow without test coverage | medium | low |
 | AUD-TST-002 | Tests that do not verify meaningful behavior | low | medium |
 | AUD-TST-003 | Missing authorization tests | medium | low |
+| AUD-TST-004 | Important edge cases left untested | low | low |
+| AUD-TST-005 | Brittle or inconsistent test conventions | low | medium |
 
 ## Laravel conventions
 
@@ -55,3 +68,6 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-CON-001 | Version-inappropriate API usage | medium | high |
 | AUD-CON-002 | Reinventing framework functionality | medium | high |
 | AUD-CON-003 | Misuse of framework lifecycle or features | low | medium |
+| AUD-CON-004 | Framework anti-pattern | medium | medium |
+| AUD-CON-005 | Incorrect framework assumption | medium | high |
+| AUD-CON-006 | Validation or form-request convention gap | low | medium |

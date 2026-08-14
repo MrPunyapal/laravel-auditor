@@ -68,4 +68,44 @@ return [
         ],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-TST-004',
+        'name' => 'Important edge cases left untested',
+        'domain' => 'testing',
+        'severity' => 'low',
+        'confidence' => 'low',
+        'description' => 'A critical flow is tested only on the happy path, leaving empty states, duplicates, authorization variants, or failure modes uncovered.',
+        'why_it_matters' => 'Edge cases are where production bugs concentrate; a single happy-path test gives false confidence.',
+        'recommendation' => 'Add focused tests for the important failure and boundary cases of the flow.',
+        'evidence' => [
+            'The flow and the existing test that only covers the happy path.',
+        ],
+        'false_positive_considerations' => [
+            'Not every branch of an unimportant helper needs a test.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/testing',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-TST-005',
+        'name' => 'Brittle or inconsistent test conventions',
+        'domain' => 'testing',
+        'severity' => 'low',
+        'confidence' => 'medium',
+        'description' => 'Tests are coupled to exact query counts, implementation ordering, or mix Pest and PHPUnit styles in a way that makes the suite brittle.',
+        'why_it_matters' => 'Brittle tests fail on harmless refactors and train the team to ignore the suite.',
+        'recommendation' => 'Assert observable behavior and pick one testing convention for new tests.',
+        'evidence' => [
+            'The brittle assertion or the conflicting conventions.',
+        ],
+        'false_positive_considerations' => [
+            'A query-count assertion can be valid when it protects a real N+1 invariant.',
+        ],
+        'references' => [
+            'https://pestphp.com/docs',
+        ],
+        'applicability' => [],
+    ],
 ];

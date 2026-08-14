@@ -147,20 +147,22 @@ class AuditorInstallCommand extends Command
                 $created[] = $this->relative($to.DIRECTORY_SEPARATOR.'SKILL.md');
             }
 
-            foreach ($this->files->glob(rtrim($source, '/\\').DIRECTORY_SEPARATOR.'*.md') as $file) {
-                $to = $dest.DIRECTORY_SEPARATOR.basename($file);
+            foreach (['*.md', '*.json'] as $pattern) {
+                foreach ($this->files->glob(rtrim($source, '/\\').DIRECTORY_SEPARATOR.$pattern) as $file) {
+                    $to = $dest.DIRECTORY_SEPARATOR.basename($file);
 
-                if ($this->files->exists($to) && ! $force) {
-                    $updated[] = $this->relative($to);
+                    if ($this->files->exists($to) && ! $force) {
+                        $updated[] = $this->relative($to);
 
-                    continue;
+                        continue;
+                    }
+
+                    if (! $dryRun) {
+                        $this->files->copy($file, $to);
+                    }
+
+                    $created[] = $this->relative($to);
                 }
-
-                if (! $dryRun) {
-                    $this->files->copy($file, $to);
-                }
-
-                $created[] = $this->relative($to);
             }
         }
 
@@ -175,6 +177,9 @@ class AuditorInstallCommand extends Command
         return [
             'skills' => __DIR__.'/../../../resources/auditor/skills',
             'guidelines' => __DIR__.'/../../../resources/auditor/guidelines',
+            'schema' => __DIR__.'/../../../resources/auditor/schema',
+            'examples' => __DIR__.'/../../../resources/auditor/examples',
+            'mcp' => __DIR__.'/../../../resources/auditor/mcp',
         ];
     }
 
@@ -185,11 +190,31 @@ class AuditorInstallCommand extends Command
      */
     private function prepareAgentAdapters(bool $dryRun, bool $force, array $created, array $updated): array
     {
-        foreach (['AGENTS.md', 'CLAUDE.md'] as $filename) {
-            [$created, $updated] = $this->writeAdapter(base_path($filename), $dryRun, $force, $created, $updated);
+        foreach ($this->adapterTargets() as $path) {
+            $directory = dirname($path);
+
+            if (! $dryRun) {
+                $this->files->ensureDirectoryExists($directory);
+            }
+
+            [$created, $updated] = $this->writeAdapter($path, $dryRun, $force, $created, $updated);
         }
 
         return [$created, $updated];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function adapterTargets(): array
+    {
+        return [
+            base_path('AGENTS.md'),
+            base_path('CLAUDE.md'),
+            base_path('GEMINI.md'),
+            base_path('.cursor/rules/laravel-auditor.mdc'),
+            base_path('.github/copilot-instructions.md'),
+        ];
     }
 
     /**

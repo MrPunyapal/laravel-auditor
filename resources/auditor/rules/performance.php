@@ -73,4 +73,65 @@ return [
         ],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-PER-004',
+        'name' => 'Repeated query without reuse',
+        'domain' => 'performance',
+        'severity' => 'low',
+        'confidence' => 'medium',
+        'description' => 'The same query or expensive lookup is executed multiple times in one request instead of being reused, memoized, or eager-loaded.',
+        'why_it_matters' => 'Repeated queries add latency that grows with request complexity and traffic.',
+        'recommendation' => 'Reuse the first result, eager-load the relationship, or memoize the lookup for the request lifetime.',
+        'evidence' => [
+            'Two or more call sites executing the same query in one request path.',
+        ],
+        'false_positive_considerations' => [
+            'The second query may be intentionally different or already cached.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/eloquent',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-PER-005',
+        'name' => 'Synchronous work that belongs on a queue',
+        'domain' => 'performance',
+        'severity' => 'medium',
+        'confidence' => 'medium',
+        'description' => 'Email, notifications, remote HTTP, PDF/image processing, or other non-essential I/O runs synchronously in a web request when a queued job is the idiomatic Laravel fit.',
+        'why_it_matters' => 'Synchronous side effects make requests slow and fragile when the remote service is down.',
+        'recommendation' => 'Dispatch a queued job or notification for work that is not required to produce the HTTP response.',
+        'evidence' => [
+            'The synchronous call and the request path that contains it.',
+        ],
+        'false_positive_considerations' => [
+            'The user may be waiting on the result, so the work cannot be deferred.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/queues',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-PER-006',
+        'name' => 'Inefficient collection or database usage',
+        'domain' => 'performance',
+        'severity' => 'low',
+        'confidence' => 'medium',
+        'description' => 'A large dataset is loaded into a collection and filtered/sorted in PHP, or a query omits pagination/`chunk`/`cursor` where the table can grow.',
+        'why_it_matters' => 'Loading unbounded rows wastes memory and time as the table grows.',
+        'recommendation' => 'Push filters, sorts, and limits into the query, and paginate or chunk large result sets.',
+        'evidence' => [
+            'The query/collection site and why the dataset can be large.',
+        ],
+        'false_positive_considerations' => [
+            'A known tiny lookup table does not need pagination.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/pagination',
+            'https://laravel.com/docs/eloquent#chunking-results',
+        ],
+        'applicability' => [],
+    ],
 ];

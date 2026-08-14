@@ -1,0 +1,8 @@
+{
+    "mcpServers": {
+        "laravel-auditor": {
+            "command": "php",
+            "args": ["artisan", "auditor:mcp"]
+        }
+    }
+}

@@ -17,6 +17,10 @@ it('exposes Boost third-party guidelines and skills from the package', function 
     expect(file_exists(__DIR__.'/../../resources/boost/guidelines/core.blade.php'))->toBeTrue();
     expect(file_exists(__DIR__.'/../../resources/boost/skills/laravel-audit/SKILL.md'))->toBeTrue();
     expect(file_exists(__DIR__.'/../../resources/boost/skills/laravel-auditor-development/SKILL.md'))->toBeTrue();
+    expect(file_exists(__DIR__.'/../../resources/boost/skills/laravel-audit-security/SKILL.md'))->toBeTrue();
+    expect(file_exists(__DIR__.'/../../resources/boost/skills/laravel-audit-testing/SKILL.md'))->toBeTrue();
+    expect(file_exists(__DIR__.'/../../resources/auditor/schema/finding.schema.json'))->toBeTrue();
+    expect(file_exists(__DIR__.'/../../resources/auditor/examples/findings.json'))->toBeTrue();
 });
 
 it('describes the standalone mechanism when Boost is absent', function () {

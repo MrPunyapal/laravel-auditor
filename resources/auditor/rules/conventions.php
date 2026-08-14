@@ -69,4 +69,62 @@ return [
         ],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-CON-004',
+        'name' => 'Framework anti-pattern',
+        'domain' => 'conventions',
+        'severity' => 'medium',
+        'confidence' => 'medium',
+        'description' => 'Code fights the framework: manual SQL for a simple Eloquent query, a custom dispatcher that duplicates events, or bypassing the container/config/session APIs.',
+        'why_it_matters' => 'Fighting the framework creates code that is harder to upgrade and easier to get subtly wrong.',
+        'recommendation' => 'Use the idiomatic Laravel API unless there is a measured reason not to.',
+        'evidence' => [
+            'The custom code and the Laravel API it replaces.',
+        ],
+        'false_positive_considerations' => [
+            'A custom path may exist because the framework API cannot express the need.',
+        ],
+        'references' => [
+            'https://laravel.com/docs',
+        ],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-CON-005',
+        'name' => 'Incorrect framework assumption',
+        'domain' => 'conventions',
+        'severity' => 'medium',
+        'confidence' => 'high',
+        'description' => 'Code assumes a config key, middleware alias, guard, or route exists when the installed application does not define it, or assumes a removed helper still exists.',
+        'why_it_matters' => 'Incorrect assumptions fail only on some environments or after a seemingly unrelated change.',
+        'recommendation' => 'Verify the key, alias, or helper against the installed Laravel version and the application\'s actual config/routes.',
+        'evidence' => [
+            'The assumed key/alias/helper and the project fact that contradicts it.',
+        ],
+        'false_positive_considerations' => [
+            'The assumption may be satisfied by a package the collector did not see.',
+        ],
+        'references' => [],
+        'applicability' => [],
+    ],
+    [
+        'id' => 'AUD-CON-006',
+        'name' => 'Validation or form-request convention gap',
+        'domain' => 'conventions',
+        'severity' => 'low',
+        'confidence' => 'medium',
+        'description' => 'A controller with substantial validation or authorization logic does not use a Form Request (or equivalent) when that is clearly the local Laravel convention.',
+        'why_it_matters' => 'Inline validation mixed with HTTP glue makes controllers harder to reuse and test.',
+        'recommendation' => 'Move validation and authorize() into a Form Request when the action is more than a few rules.',
+        'evidence' => [
+            'The controller action and the missing Form Request.',
+        ],
+        'false_positive_considerations' => [
+            'Tiny validation arrays in a one-line action are fine.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/validation#form-request-validation',
+        ],
+        'applicability' => [],
+    ],
 ];

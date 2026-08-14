@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
 use LaravelAuditor\Audit\Enums\AuditDomain;
+use LaravelAuditor\Facades\LaravelAuditor;
 
 it('lists rules in a table and accepts a domain filter', function () {
     $this->artisan('auditor:rules')
@@ -135,6 +136,50 @@ it('rejects invalid findings JSON', function () {
         ->assertFailed();
 
     unlink($path);
+});
+
+it('lists context collectors and dumps JSON', function () {
+    $this->artisan('auditor:context', ['--list' => true])
+        ->expectsOutputToContain('project_info')
+        ->assertSuccessful();
+
+    $exit = Artisan::call('auditor:context', ['collector' => 'project_info']);
+
+    expect($exit)->toBe(0);
+    expect(json_decode(Artisan::output(), true))->toHaveKey('php_version');
+});
+
+it('writes context JSON to a file', function () {
+    $path = sys_get_temp_dir().'/laravel-auditor-context-'.uniqid().'.json';
+
+    $this->artisan('auditor:context', ['collector' => 'routes', '--output' => $path])
+        ->expectsOutputToContain('Context written')
+        ->assertSuccessful();
+
+    expect(file_exists($path))->toBeTrue();
+    expect(json_decode((string) file_get_contents($path), true))->toHaveKey('routes');
+
+    unlink($path);
+});
+
+it('rejects an unknown context collector', function () {
+    $this->artisan('auditor:context', ['collector' => 'nope'])
+        ->expectsOutputToContain('Unknown context collector')
+        ->assertFailed();
+});
+
+it('renders the packaged example report', function () {
+    $exit = Artisan::call('auditor:report', ['--example' => true]);
+
+    expect($exit)->toBe(0);
+    expect(Artisan::output())
+        ->toContain('AUD-SEC-001')
+        ->toContain('Missing authorization boundary');
+});
+
+it('resolves the LaravelAuditor facade', function () {
+    expect(LaravelAuditor::rules()->count())->toBeGreaterThanOrEqual(36);
+    expect(LaravelAuditor::collect('project_info'))->toHaveKey('laravel_version');
 });
 
 it('publishes the configuration file', function () {
