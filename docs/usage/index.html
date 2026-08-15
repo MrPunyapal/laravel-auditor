@@ -40,6 +40,43 @@
                 </header>
                 <div class="doc-body">
                     <p>The CLI is an installation, diagnostics, and reporting layer. The AI agent still does the reasoning.</p>
+<h2 id="auditing-a-project-end-to-end">Auditing a project end-to-end</h2>
+<ol>
+<li>Install as a development dependency:</li>
+</ol>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">require</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dev</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">mrpunyapal/laravel-auditor</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<ol start="2">
+<li>
+<p>Expose the audit knowledge to your agent. With Laravel Boost: <code>php artisan boost:install</code> (re-run <code>php artisan boost:update</code> after package updates, or <code>boost:update --discover</code> to pick up newly installed packages). Without Boost: <code>php artisan auditor:install</code>.</p>
+</li>
+<li>
+<p>(Optional) Register the read-only MCP context tools with your agent:</p>
+</li>
+</ol>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:mcp</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>For example, with Claude Code:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">claude</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">mcp</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">add</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">s</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">local</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">t</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">stdio</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:mcp</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>The agent can also gather the same facts without MCP via <code>auditor:context</code>.</p>
+<ol start="4">
+<li>Ask your agent to audit the project:</li>
+</ol>
+<blockquote>
+<p>Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.</p>
+</blockquote>
+<p>The agent follows the skill workflow: <strong>Discover</strong> deterministic facts, <strong>Scope</strong> the domains that apply, <strong>Investigate</strong> with source and context, <strong>Verify</strong> high-severity claims, and <strong>Report</strong> structured findings with evidence.</p>
+<ol start="5">
+<li>Render or gate the findings the agent produced:</li>
+</ol>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-format=markdown</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:ci</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-fail-on=high</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
 <h2 id="inspect-the-project">Inspect the project</h2>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:status</span><span class="token">
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:context</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-list</span><span class="token">
@@ -90,7 +127,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../installation/"><span>Previous</span><strong>Installation</strong></a><a class="pager-link pager-link-next" href="../agents/"><span>Next</span><strong>Agent setup</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#inspect-the-project" data-docsmith-toc-link="inspect-the-project">Inspect the project</a><a class="toc-link toc-link-level-2" href="#list-rules" data-docsmith-toc-link="list-rules">List rules</a><a class="toc-link toc-link-level-2" href="#render-a-report" data-docsmith-toc-link="render-a-report">Render a report</a><a class="toc-link toc-link-level-2" href="#ci" data-docsmith-toc-link="ci">CI</a><a class="toc-link toc-link-level-2" href="#configuration" data-docsmith-toc-link="configuration">Configuration</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#auditing-a-project-end-to-end" data-docsmith-toc-link="auditing-a-project-end-to-end">Auditing a project end-to-end</a><a class="toc-link toc-link-level-2" href="#inspect-the-project" data-docsmith-toc-link="inspect-the-project">Inspect the project</a><a class="toc-link toc-link-level-2" href="#list-rules" data-docsmith-toc-link="list-rules">List rules</a><a class="toc-link toc-link-level-2" href="#render-a-report" data-docsmith-toc-link="render-a-report">Render a report</a><a class="toc-link toc-link-level-2" href="#ci" data-docsmith-toc-link="ci">CI</a><a class="toc-link toc-link-level-2" href="#configuration" data-docsmith-toc-link="configuration">Configuration</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

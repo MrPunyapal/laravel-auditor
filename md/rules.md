@@ -20,7 +20,7 @@ The authoritative definitions live in `resources/auditor/rules/*.php`. The human
 
 | Domain | What it looks for |
 | --- | --- |
-| Security | Authorization, mass assignment, secrets, redirects, file handling, debug exposure |
+| Security | Authorization, mass assignment, secrets, redirects, file handling, CSRF, XSS, SQL injection, debug exposure |
 | Performance | N+1, request-lifecycle work, indexes, queues, cache only when justified |
 | Architecture | Boundaries, duplication, unnecessary abstraction — no cargo-cult repositories |
 | Database | Relationship/schema mismatch, destructive migrations, missing FKs |

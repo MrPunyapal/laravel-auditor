@@ -50,6 +50,8 @@ Fall back to `composer.json`, `bootstrap/app.php`, `config/app.php`, and the fil
 
 Record the application type (web, API, admin panel, package) and any ecosystem packages (Livewire, Filament, Inertia, Pest, Sanctum, Horizon, etc.) — these determine which rules apply.
 
+Build a **feature inventory** from the route surface and UI entry points before scoping. List each feature (login, checkout, admin dashboard, etc.), the routes and views that implement it, and the model/service behind it. This inventory drives testing and authorization coverage later, and surfaces stubbed or hallucinated features (a route pointing at a missing controller, an empty view, a TODO handler) early.
+
 ### Phase B: Scope
 
 Select only the audit domains relevant to this application. Do not blindly run every check. Reason about which domains matter and state the scope before investigating.
@@ -80,6 +82,8 @@ Before reporting a high-severity finding, attempt to verify it:
 - Inspect the tests.
 - Review logs/errors when relevant.
 - Run a **safe, read-only** runtime check only when a tool exists (never run anything that mutates data).
+
+When migration reliability is in scope, verify the **fresh-start migration path**: on a disposable empty database, run `php artisan migrate` from zero (never against the real database). Confirm the schema matches the migration intent, then discard the disposable database.
 
 If you cannot verify, lower the confidence and say so explicitly.
 

@@ -18,6 +18,10 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-SEC-008 | Unsafe validation assumptions | medium | medium |
 | AUD-SEC-009 | Unsafe configuration usage | medium | high |
 | AUD-SEC-010 | Insecure authentication pattern | high | medium |
+| AUD-SEC-011 | Weak or missing CSRF protection | high | medium |
+| AUD-SEC-012 | Unescaped output or XSS risk | high | medium |
+| AUD-SEC-013 | Raw SQL with user-controlled input | high | medium |
+| AUD-DEP-001 | Known vulnerable dependency | high | high |
 
 ## Performance
 
@@ -72,6 +76,8 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-CON-004 | Framework anti-pattern | medium | medium |
 | AUD-CON-005 | Incorrect framework assumption | medium | high |
 | AUD-CON-006 | Validation or form-request convention gap | low | medium |
+| AUD-DEP-002 | Abandoned dependency | low | high |
+| AUD-DEP-003 | License risk in a commercial product | low | medium |
 
 ## Ecosystem packs
 

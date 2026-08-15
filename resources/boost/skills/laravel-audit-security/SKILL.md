@@ -2,8 +2,9 @@
 name: laravel-audit-security
 description: >
   Audit a Laravel application's security boundaries: authorization, mass
-  assignment, sensitive data, file/URL handling, and secrets. Use when auditing
-  security or when asked to review security of a Laravel app.
+  assignment, sensitive data, file/URL handling, CSRF, XSS, injection, and
+  secrets. Use when auditing security or when asked to review security of a
+  Laravel app.
 metadata:
   agent: any
 ---
@@ -25,6 +26,10 @@ Audit the security boundaries of the Laravel application. **Do not invent vulner
 - Unsafe URL/redirect handling: open redirects from user-controlled targets.
 - Insecure authentication/authorization patterns: storing secrets in plaintext, weak session config, missing rate limits on auth.
 - Secrets accidentally committed or exposed where detectable (`.env` committed, keys in source).
+- Weak or missing CSRF protection: `VerifyCsrfToken::except` whitelists, removed/reordered CSRF middleware, forms or post endpoints missing the token.
+- Unescaped output / XSS risk: Blade `{!! !!}`, `->get()`, `->toHtml()` rendering user-controlled or stored data.
+- Raw SQL with user-controlled input: `DB::raw`, `whereRaw`, `selectRaw`, `orderByRaw`, or `statement` interpolating request input.
+- Known vulnerable, abandoned, or license-conflicting dependencies via `composer audit` (reported under `dependencies` context).
 
 ## Evidence requirements
 

@@ -126,7 +126,7 @@ php artisan auditor:rules --domain=security
 php artisan auditor:rules --json
 ```
 
-V1 ships **52** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, Pest, and queue packs that only apply when those packages are installed. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
+V1 ships **61** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, Pest, and queue packs that only apply when those packages are installed. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
 
 ```bash
 php artisan auditor:rules --applicable
@@ -232,8 +232,9 @@ Tools:
 | `dependencies` | Direct Composer requirements and versions |
 | `configuration` | Config keys and a small set of non-secret values |
 | `policies_authorization` | Gates, policies, auth middleware |
-| `jobs_events_schedules` | Jobs, events/listeners, scheduled commands |
+| `jobs_events_schedules` | Jobs, events/listeners, schedules |
 | `tests` | Framework, file counts, suite layout |
+| `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 
 These tools are read-only. They return structured facts, not unfiltered source dumps.
 

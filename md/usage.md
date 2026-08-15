@@ -7,6 +7,43 @@ slug: usage
 
 The CLI is an installation, diagnostics, and reporting layer. The AI agent still does the reasoning.
 
+## Auditing a project end-to-end
+
+1. Install as a development dependency:
+
+```bash
+composer require --dev mrpunyapal/laravel-auditor
+```
+
+2. Expose the audit knowledge to your agent. With Laravel Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install`.
+
+3. (Optional) Register the read-only MCP context tools with your agent:
+
+```bash
+php artisan auditor:mcp
+```
+
+For example, with Claude Code:
+
+```bash
+claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
+```
+
+The agent can also gather the same facts without MCP via `auditor:context`.
+
+4. Ask your agent to audit the project:
+
+> Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.
+
+The agent follows the skill workflow: **Discover** deterministic facts, **Scope** the domains that apply, **Investigate** with source and context, **Verify** high-severity claims, and **Report** structured findings with evidence.
+
+5. Render or gate the findings the agent produced:
+
+```bash
+php artisan auditor:report --findings=storage/auditor-findings.json --format=markdown
+php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
+```
+
 ## Inspect the project
 
 ```bash

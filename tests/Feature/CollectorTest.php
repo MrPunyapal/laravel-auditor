@@ -91,12 +91,24 @@ it('collects the registered routes', function () {
 });
 
 it('collects composer dependencies', function () {
+    config(['laravel-auditor.context.composer_audit' => false]);
+
     $data = app(DependenciesCollector::class)->collect();
 
     expect($data['count'])->toBeGreaterThan(0);
     expect($data['packages'])->toHaveKey('laravel/framework');
     expect($data['requires'])->toBeArray();
     expect($data['requires_dev'])->toBeArray();
+    expect($data['composer_audit'])->toHaveKeys(['available', 'reason']);
+    expect($data['composer_audit']['available'])->toBeFalse();
+});
+
+it('reports the composer audit disabled by configuration', function () {
+    config(['laravel-auditor.context.composer_audit' => false]);
+
+    $audit = app(DependenciesCollector::class)->collect()['composer_audit'];
+
+    expect($audit['reason'])->toBe('composer audit is disabled by configuration');
 });
 
 it('collects configuration keys safely', function () {

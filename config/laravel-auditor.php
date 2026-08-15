@@ -54,6 +54,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Context Collector Options
+    |--------------------------------------------------------------------------
+    |
+    | Toggles for individual context collectors. These affect read-only data
+    | gathering only; nothing here ever mutates the audited application.
+    |
+    */
+
+    'context' => [
+        /*
+        | Best-effort `composer audit` call from the dependencies collector.
+        | Disable to avoid shelling out to composer during context gathering.
+        */
+        'composer_audit' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Report Defaults
     |--------------------------------------------------------------------------
     |
