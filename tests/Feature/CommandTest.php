@@ -190,7 +190,7 @@ it('publishes the configuration file', function () {
 });
 
 it('installs resources in dry-run mode without writing files', function () {
-    $this->artisan('auditor:install', ['--dry-run' => true])
+    $this->artisan('auditor:install', ['--dry-run' => true, '--no-interaction' => true])
         ->expectsOutputToContain('Dry run: no files were written.')
         ->assertSuccessful();
 });

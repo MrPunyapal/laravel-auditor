@@ -17,15 +17,22 @@ For a data-structure / ownership pass:
 
 ## Standalone adapters
 
-`php artisan auditor:install` writes pointers only when the file is missing:
+`php artisan auditor:install` asks which AI agent(s) the project uses, then writes pointers only when the file is missing:
 
-- `AGENTS.md`
-- `CLAUDE.md`
-- `GEMINI.md`
-- `.cursor/rules/laravel-auditor.mdc`
-- `.github/copilot-instructions.md`
+- OpenCode: `AGENTS.md` + `.agents/skills`
+- Claude Code: `CLAUDE.md` + `.claude/skills`
+- Cursor: `.cursor/rules/laravel-auditor.mdc` + `.cursor/skills`
+- Copilot: `.github/copilot-instructions.md` + `.github/skills`
+- Gemini: `GEMINI.md` + `.gemini/skills` (no MCP)
+- Codex: `AGENTS.md` + `.agents/skills` + `.codex/config.toml`
+- Junie: `AGENTS.md` + `.junie/skills` + `.junie/mcp/mcp.json`
+- Zed: `AGENTS.md` + `.agents/skills` + `.zed/settings.json`
 
-They point at `.ai/skills/laravel-audit` and `.ai/guidelines/core.md`. They do not copy the full audit knowledge into every vendor file.
+The adapters point at `.ai/skills/laravel-audit` and `.ai/guidelines/core.md`. They do not copy the full audit knowledge into every vendor file.
+
+For the agents that support MCP, the installer also registers the `laravel-auditor` server so tools like `audit`, `context`, and `rules` are available to the agent.
+
+Non-interactive runs (CI, `--no-interaction`) resolve agents from `--agents`, then project detection, then the `laravel-auditor.agents` config, then all supported agents.
 
 ## Laravel Boost
 

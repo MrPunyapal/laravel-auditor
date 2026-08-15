@@ -49,15 +49,20 @@
 <p>Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.</p>
 </blockquote>
 <h2 id="standalone-adapters">Standalone adapters</h2>
-<p><code>php artisan auditor:install</code> writes pointers only when the file is missing:</p>
+<p><code>php artisan auditor:install</code> asks which AI agent(s) the project uses, then writes pointers only when the file is missing:</p>
 <ul>
-<li><code>AGENTS.md</code></li>
-<li><code>CLAUDE.md</code></li>
-<li><code>GEMINI.md</code></li>
-<li><code>.cursor/rules/laravel-auditor.mdc</code></li>
-<li><code>.github/copilot-instructions.md</code></li>
+<li>OpenCode: <code>AGENTS.md</code> + <code>.agents/skills</code></li>
+<li>Claude Code: <code>CLAUDE.md</code> + <code>.claude/skills</code></li>
+<li>Cursor: <code>.cursor/rules/laravel-auditor.mdc</code> + <code>.cursor/skills</code></li>
+<li>Copilot: <code>.github/copilot-instructions.md</code> + <code>.github/skills</code></li>
+<li>Gemini: <code>GEMINI.md</code> + <code>.gemini/skills</code> (no MCP)</li>
+<li>Codex: <code>AGENTS.md</code> + <code>.agents/skills</code> + <code>.codex/config.toml</code></li>
+<li>Junie: <code>AGENTS.md</code> + <code>.junie/skills</code> + <code>.junie/mcp/mcp.json</code></li>
+<li>Zed: <code>AGENTS.md</code> + <code>.agents/skills</code> + <code>.zed/settings.json</code></li>
 </ul>
-<p>They point at <code>.ai/skills/laravel-audit</code> and <code>.ai/guidelines/core.md</code>. They do not copy the full audit knowledge into every vendor file.</p>
+<p>The adapters point at <code>.ai/skills/laravel-audit</code> and <code>.ai/guidelines/core.md</code>. They do not copy the full audit knowledge into every vendor file.</p>
+<p>For the agents that support MCP, the installer also registers the <code>laravel-auditor</code> server so tools like <code>audit</code>, <code>context</code>, and <code>rules</code> are available to the agent.</p>
+<p>Non-interactive runs (CI, <code>--no-interaction</code>) resolve agents from <code>--agents</code>, then project detection, then the <code>laravel-auditor.agents</code> config, then all supported agents.</p>
 <h2 id="laravel-boost">Laravel Boost</h2>
 <p>When Boost is present, skip the standalone installer and run <code>boost:install</code> / <code>boost:update</code>.</p>
 <p>Boost skills shipped by this package:</p>

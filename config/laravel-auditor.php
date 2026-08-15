@@ -54,6 +54,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default Agents
+    |--------------------------------------------------------------------------
+    |
+    | Agents configured when `auditor:install` runs non-interactively. When
+    | empty, the installer detects agents from project markers and falls back
+    | to all supported agents. Accepted values: opencode, claude_code, cursor,
+    | copilot, gemini, codex, junie, zed.
+    |
+    */
+
+    'agents' => [],
+
+    /*
+    |--------------------------------------------------------------------------
     | Context Collector Options
     |--------------------------------------------------------------------------
     |

@@ -31,7 +31,7 @@ it('registers the rules command', function () {
 });
 
 it('registers the install command', function () {
-    $this->artisan('auditor:install', ['--dry-run' => true])->assertSuccessful();
+    $this->artisan('auditor:install', ['--dry-run' => true, '--no-interaction' => true])->assertSuccessful();
 });
 
 it('exposes the six core audit domains', function () {

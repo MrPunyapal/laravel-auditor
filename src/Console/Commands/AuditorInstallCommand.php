@@ -6,6 +6,11 @@ namespace LaravelAuditor\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
+use LaravelAuditor\Support\Agents\Agent;
+use LaravelAuditor\Support\Agents\AgentDetector;
+use LaravelAuditor\Support\Agents\AgentRegistry;
+use LaravelAuditor\Support\Agents\McpConfigWriter;
 use LaravelAuditor\Support\BoostDetector;
 
 /**
@@ -13,6 +18,11 @@ use LaravelAuditor\Support\BoostDetector;
  *
  * Detects the Laravel context and whether Boost is installed, prepares the
  * agent-facing resources, and reports what was created. Idempotent and safe.
+ *
+ * When Boost is absent the standalone path asks which AI agents the project
+ * uses (or resolves them from the `--agents` option, project detection, or
+ * the `laravel-auditor.agents` config) and wires skills, guideline adapters,
+ * and the MCP server only for the selected agents.
  */
 class AuditorInstallCommand extends Command
 {
@@ -21,7 +31,8 @@ class AuditorInstallCommand extends Command
      */
     protected $signature = 'auditor:install
         {--force : Overwrite existing Auditor-owned resources}
-        {--dry-run : Show what would be created without writing anything}';
+        {--dry-run : Show what would be created without writing anything}
+        {--agents=* : Agents to configure (opencode, claude_code, cursor, copilot, gemini, codex, junie, zed)}';
 
     /**
      * The command description.
@@ -58,13 +69,24 @@ class AuditorInstallCommand extends Command
             $this->components->info('Laravel Boost not detected. Using the standalone setup path.');
         }
 
-        $created = $updated = [];
+        $created = $updated = $skipped = [];
+        $agents = collect();
 
         if ($this->boost->isInstalled()) {
             [$created, $updated] = $this->prepareBoostResources($dryRun, $force, $created, $updated);
         } else {
+            $agents = $this->resolveAgents();
+
             [$created, $updated] = $this->prepareStandaloneResources($dryRun, $force, $created, $updated);
-            [$created, $updated] = $this->prepareAgentAdapters($dryRun, $force, $created, $updated);
+
+            foreach ($agents as $agent) {
+                [$created, $updated] = $this->writeAdapter($this->guidelinesPath($agent), $dryRun, $force, $created, $updated);
+                [$created, $updated] = $this->copySkills($agent, $dryRun, $force, $created, $updated);
+            }
+
+            [$created, $updated, $skipped] = $this->prepareMcp($agents, $dryRun, $created, $updated, $skipped);
+
+            $this->renderAgents($agents);
         }
 
         $this->components->twoColumnDetail('Configuration', config_path('laravel-auditor.php'));
@@ -73,10 +95,12 @@ class AuditorInstallCommand extends Command
             $this->publishConfig($dryRun, $created, $updated);
         }
 
-        $this->renderSummary($dryRun, $created, $updated);
+        $this->renderSummary($dryRun, $created, $updated, $skipped);
 
         if ($this->boost->isInstalled()) {
             $this->components->info('Run `php artisan boost:install` (or `boost:update`) to expose Auditor resources to Boost.');
+        } elseif ($agents->isEmpty()) {
+            $this->components->info('No agents selected. Run again with `--agents` to wire skills and MCP for a specific tool.');
         }
 
         return self::SUCCESS;
@@ -101,6 +125,107 @@ class AuditorInstallCommand extends Command
         $this->components->twoColumnDetail('Boost skills', 'Provided by package (resources/boost/skills)');
 
         return [$created, $updated];
+    }
+
+    /**
+     * Resolve which agents to wire in the standalone path.
+     *
+     * Priority: explicit `--agents` option, interactive selection (defaulting
+     * to detected agents), the `laravel-auditor.agents` config, project
+     * detection, and finally all supported agents.
+     *
+     * @return Collection<int, Agent>
+     */
+    private function resolveAgents(): Collection
+    {
+        $explicit = $this->agentsOption();
+
+        if ($explicit !== []) {
+            return AgentRegistry::resolve($explicit);
+        }
+
+        $names = $this->input->isInteractive()
+            ? $this->promptForAgents()
+            : $this->defaultAgents();
+
+        return AgentRegistry::resolve($names);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function agentsOption(): array
+    {
+        $names = [];
+
+        foreach ((array) $this->option('agents') as $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            foreach (preg_split('/[\s,]+/', trim($value)) ?: [] as $name) {
+                if ($name !== '') {
+                    $names[] = $name;
+                }
+            }
+        }
+
+        return $names;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function promptForAgents(): array
+    {
+        $options = collect(AgentRegistry::all())
+            ->mapWithKeys(fn (Agent $agent): array => [$agent->name => $agent->displayName])
+            ->all();
+
+        $detected = (new AgentDetector($this->files))->detect(base_path());
+        $defaults = $detected !== [] ? $detected : array_keys($options);
+
+        $selected = $this->choice(
+            question: 'Which AI agents would you like to configure?',
+            choices: $options,
+            default: implode(',', $defaults),
+            attempts: null,
+            multiple: true,
+        );
+
+        if (is_array($selected)) {
+            return array_values($selected);
+        }
+
+        return preg_split('/[\s,]+/', (string) $selected) ?: [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function defaultAgents(): array
+    {
+        $configured = array_values(array_filter(array_map('strval', (array) config('laravel-auditor.agents', []))));
+
+        if ($configured !== []) {
+            return $configured;
+        }
+
+        $detected = (new AgentDetector($this->files))->detect(base_path());
+
+        return $detected !== [] ? $detected : array_keys(AgentRegistry::all());
+    }
+
+    /**
+     * @param  Collection<int, Agent>  $agents
+     */
+    private function renderAgents(Collection $agents): void
+    {
+        if ($agents->isEmpty()) {
+            return;
+        }
+
+        $this->components->twoColumnDetail('Agents', $agents->map(fn (Agent $agent): string => $agent->displayName)->implode(', '));
     }
 
     /**
@@ -183,38 +308,76 @@ class AuditorInstallCommand extends Command
         ];
     }
 
+    private function guidelinesPath(Agent $agent): string
+    {
+        return base_path($agent->guidelinesPath);
+    }
+
     /**
      * @param  list<string>  $created
      * @param  list<string>  $updated
      * @return array{list<string>, list<string>}
      */
-    private function prepareAgentAdapters(bool $dryRun, bool $force, array $created, array $updated): array
+    private function copySkills(Agent $agent, bool $dryRun, bool $force, array $created, array $updated): array
     {
-        foreach ($this->adapterTargets() as $path) {
-            $directory = dirname($path);
+        $source = __DIR__.'/../../../resources/auditor/skills';
+        $dest = base_path($agent->skillsPath);
 
-            if (! $dryRun) {
-                $this->files->ensureDirectoryExists($directory);
+        if (! $dryRun) {
+            $this->files->ensureDirectoryExists($dest);
+        }
+
+        foreach ($this->files->allDirectories($source) as $skillDir) {
+            $relative = ltrim(str_replace('\\', '/', substr($skillDir, strlen($source))), '/');
+
+            if (! $this->files->exists($skillDir.DIRECTORY_SEPARATOR.'SKILL.md')) {
+                continue;
             }
 
-            [$created, $updated] = $this->writeAdapter($path, $dryRun, $force, $created, $updated);
+            $to = $dest.DIRECTORY_SEPARATOR.$relative;
+
+            if ($this->files->exists($to) && ! $force) {
+                $updated[] = $this->relative($to.DIRECTORY_SEPARATOR.'SKILL.md');
+
+                continue;
+            }
+
+            if (! $dryRun) {
+                $this->files->copyDirectory($skillDir, $to);
+            }
+
+            $created[] = $this->relative($to.DIRECTORY_SEPARATOR.'SKILL.md');
         }
 
         return [$created, $updated];
     }
 
     /**
-     * @return list<string>
+     * @param  Collection<int, Agent>  $agents
+     * @param  list<string>  $created
+     * @param  list<string>  $updated
+     * @param  list<string>  $skipped
+     * @return array{list<string>, list<string>, list<string>}
      */
-    private function adapterTargets(): array
+    private function prepareMcp(Collection $agents, bool $dryRun, array $created, array $updated, array $skipped): array
     {
-        return [
-            base_path('AGENTS.md'),
-            base_path('CLAUDE.md'),
-            base_path('GEMINI.md'),
-            base_path('.cursor/rules/laravel-auditor.mdc'),
-            base_path('.github/copilot-instructions.md'),
-        ];
+        if ($agents->isEmpty()) {
+            return [$created, $updated, $skipped];
+        }
+
+        $writer = new McpConfigWriter($this->files);
+
+        foreach ($agents as $agent) {
+            if (! $agent->supportsMcp()) {
+                continue;
+            }
+
+            $this->components->twoColumnDetail('MCP server', 'Registering laravel-auditor for '.$agent->displayName);
+
+            [$created, $updated, $skipped] = $writer->write($agent, $dryRun, $created, $updated, $skipped);
+        }
+
+        return [$created, $updated, $skipped];
     }
 
     /**
@@ -228,6 +391,7 @@ class AuditorInstallCommand extends Command
 
         if (! $this->files->exists($path)) {
             if (! $dryRun) {
+                $this->files->ensureDirectoryExists(dirname($path));
                 $this->files->put($path, $block);
             }
 
@@ -329,8 +493,9 @@ MARKDOWN;
     /**
      * @param  list<string>  $created
      * @param  list<string>  $updated
+     * @param  list<string>  $skipped
      */
-    private function renderSummary(bool $dryRun, array $created, array $updated): void
+    private function renderSummary(bool $dryRun, array $created, array $updated, array $skipped): void
     {
         if ($dryRun) {
             $this->components->info('Dry run: no files were written.');
@@ -354,7 +519,14 @@ MARKDOWN;
             }
         }
 
-        if ($created === [] && $updated === []) {
+        if ($skipped !== []) {
+            $this->components->twoColumnDetail('Skipped', count($skipped).' file(s)');
+            foreach ($skipped as $path) {
+                $this->line('  <error>-</error> '.$path);
+            }
+        }
+
+        if ($created === [] && $updated === [] && $skipped === []) {
             $this->line('  Nothing to do.');
         }
     }
