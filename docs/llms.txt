@@ -3,13 +3,13 @@
 
 ## Docs
 
-- https://mrpunyapal.github.io/laravel-auditor/: Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.
-- https://mrpunyapal.github.io/laravel-auditor/installation: Install Laravel Auditor in a Laravel application with or without Laravel Boost.
-- https://mrpunyapal.github.io/laravel-auditor/usage: Run status, context, rules, reports, and CI with Laravel Auditor.
-- https://mrpunyapal.github.io/laravel-auditor/agents: Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.
-- https://mrpunyapal.github.io/laravel-auditor/mcp: Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.
-- https://mrpunyapal.github.io/laravel-auditor/rules: The evidence-first audit catalog and how applicability works.
-- https://mrpunyapal.github.io/laravel-auditor/findings: Finding schema, example payloads, and how reports are rendered.
-- https://mrpunyapal.github.io/laravel-auditor/dsa: Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.
-- https://mrpunyapal.github.io/laravel-auditor/future: Features that may influence architecture but are not part of V1.
-- https://mrpunyapal.github.io/laravel-auditor/contributing: How to work on Laravel Auditor locally, including documentation.
+- https://MrPunyapal.github.io/laravel-auditor/: Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.
+- https://MrPunyapal.github.io/laravel-auditor/installation: Install Laravel Auditor in a Laravel application with or without Laravel Boost.
+- https://MrPunyapal.github.io/laravel-auditor/usage: Run status, context, rules, reports, and CI with Laravel Auditor.
+- https://MrPunyapal.github.io/laravel-auditor/agents: Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.
+- https://MrPunyapal.github.io/laravel-auditor/mcp: Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.
+- https://MrPunyapal.github.io/laravel-auditor/rules: The evidence-first audit catalog and how applicability works.
+- https://MrPunyapal.github.io/laravel-auditor/findings: Finding schema, example payloads, and how reports are rendered.
+- https://MrPunyapal.github.io/laravel-auditor/dsa: Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.
+- https://MrPunyapal.github.io/laravel-auditor/future: Features that may influence architecture but are not part of V1.
+- https://MrPunyapal.github.io/laravel-auditor/contributing: How to work on Laravel Auditor locally, including documentation.
