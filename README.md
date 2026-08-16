@@ -270,7 +270,7 @@ Tools:
 | `configuration` | Config keys and a small set of non-secret values |
 | `policies_authorization` | Gates, policies, auth middleware |
 | `jobs_events_schedules` | Jobs, events/listeners, schedules |
-| `tests` | Framework, file counts, suite layout |
+| `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 
 These tools are read-only. They return structured facts, not unfiltered source dumps.

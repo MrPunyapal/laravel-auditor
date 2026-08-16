@@ -254,7 +254,7 @@ For a data-structure / ownership pass:
 >    - `configuration` — config keys in use
 >    - `policies_authorization` — gates, policies, auth middleware
 >    - `jobs_events_schedules` — queues, events, cron
->    - `tests` — test coverage layout
+>    - `tests` — test suite: framework, case counts (feature/unit)
 > 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
 > 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 > 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
@@ -336,7 +336,7 @@ A client snippet lives in `resources/auditor/mcp/mcp.json.example`.
 | `configuration` | Config keys and a small set of non-secret values |
 | `policies_authorization` | Gates, policies, auth middleware |
 | `jobs_events_schedules` | Jobs, events/listeners, schedules |
-| `tests` | Framework, file counts, suite layout |
+| `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 
 The same payloads are available without MCP via `php artisan auditor:context {tool}`.

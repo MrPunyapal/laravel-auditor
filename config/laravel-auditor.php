@@ -82,6 +82,14 @@ return [
         | Disable to avoid shelling out to composer during context gathering.
         */
         'composer_audit' => true,
+
+        /*
+        | Best-effort `pest --list-tests` / `phpunit --list-tests` call from
+        | the tests collector to report accurate test case counts. Disable to
+        | avoid shelling out to the test runner; the collector then falls back
+        | to counting test files.
+        */
+        'test_listing' => true,
     ],
 
     /*

@@ -148,8 +148,32 @@ it('collects migration files', function () {
 it('collects the test suite layout', function () {
     $data = app(TestsCollector::class)->collect();
 
-    expect($data)->toHaveKeys(['framework', 'count', 'feature_tests', 'unit_tests', 'uses_pest', 'files']);
+    expect($data)->toHaveKeys(['framework', 'count', 'feature_tests', 'unit_tests', 'count_source', 'file_count', 'feature_file_count', 'unit_file_count', 'uses_pest', 'files']);
     expect($data['framework'])->toBeString();
+    expect($data['count'])->toBeInt();
+    expect($data['file_count'])->toBeInt();
+    expect($data['count_source'])->toBeIn(['list-tests', 'file-count']);
+});
+
+it('parses the test runner listing into feature/unit/total counts', function () {
+    $output = implode("\n", [
+        'PHPUnit 10.5 by Sebastian Bergmann and contributors.',
+        '',
+        'Available tests:',
+        ' - P\Tests\Feature\Http\Controllers\PostControllerTest::__pest_evaluable_can_create_post',
+        ' - P\Tests\Feature\Http\Controllers\PostControllerTest::__pest_evaluable_can_delete_post',
+        ' - P\Tests\Unit\Actions\CreatePostActionTest::__pest_evaluable_it_creates_a_post',
+        ' - P\Tests\Unit\Actions\DeletePostActionTest::__pest_evaluable_it_deletes_a_post',
+        ' - P\Tests\Unit\Support\QueryResolverTest::__pest_evaluable_it_can_resolve_sort_query"([1], [2])"',
+    ]);
+
+    $parsed = TestsCollector::parseTestListing($output);
+
+    expect($parsed)->toBe([
+        'total' => 5,
+        'feature' => 2,
+        'unit' => 3,
+    ]);
 });
 
 it('collects the database schema read-only', function () {

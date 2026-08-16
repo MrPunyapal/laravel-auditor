@@ -34,7 +34,7 @@ A client snippet lives in `resources/auditor/mcp/mcp.json.example`.
 | `configuration` | Config keys and a small set of non-secret values |
 | `policies_authorization` | Gates, policies, auth middleware |
 | `jobs_events_schedules` | Jobs, events/listeners, schedules |
-| `tests` | Framework, file counts, suite layout |
+| `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 
 The same payloads are available without MCP via `php artisan auditor:context {tool}`.
