@@ -1,6 +1,8 @@
 ---
 title: DSA audit
 description: Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.
+og_title: DSA audit — bounded subsystem review
+og_description: A bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.
 order: 8
 slug: dsa
 ---

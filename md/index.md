@@ -1,6 +1,8 @@
 ---
 title: Laravel Auditor
 description: Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.
+og_title: Laravel Auditor — Evidence-based auditing for Laravel
+og_description: Equip your AI agent with a repeatable audit workflow, deterministic context tools, and evidence-first findings.
 order: 1
 slug: index
 sidebar_label: Overview

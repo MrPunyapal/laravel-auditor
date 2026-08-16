@@ -12,3 +12,7 @@ composer.lock
 /workbench/vendor
 /workbench/database/*.sqlite
 /workbench/bootstrap/cache/
+/node_modules
+/docs/og/preview/
+/docs/capturist.config.json
+/docs/og/.capturist-cache.json

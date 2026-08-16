@@ -22,3 +22,26 @@ it('has a Docsmith build entry point', function () {
     expect(file_exists(dirname(__DIR__, 2).'/build-docs.php'))->toBeTrue();
     expect((string) file_get_contents(dirname(__DIR__, 2).'/build-docs.php'))->toContain('Docsmith::make()');
 });
+
+it('configures per-page Open Graph image generation', function () {
+    $build = (string) file_get_contents(dirname(__DIR__, 2).'/build-docs.php');
+
+    expect($build)
+        ->toContain('ogTemplate')
+        ->toContain('favicon(')
+        ->toContain('accentColor(')
+        ->toContain('captureOg(');
+});
+
+it('keeps an Open Graph card template with docsmith tokens', function () {
+    $template = (string) file_get_contents(dirname(__DIR__, 2).'/resources/docs/og-card.html');
+
+    expect($template)
+        ->toContain('{title}')
+        ->toContain('{description}')
+        ->toContain('{accent_color}');
+});
+
+it('keeps a favicon for the docs site', function () {
+    expect(file_exists(dirname(__DIR__, 2).'/resources/docs/favicon.svg'))->toBeTrue();
+});

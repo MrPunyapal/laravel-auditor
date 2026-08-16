@@ -1,6 +1,8 @@
 ---
 title: Installation
 description: Install Laravel Auditor in a Laravel application with or without Laravel Boost.
+og_title: Install Laravel Auditor
+og_description: Add Laravel Auditor as a development dependency, then wire it into your AI agent or Laravel Boost.
 order: 2
 slug: installation
 ---

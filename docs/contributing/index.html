@@ -6,6 +6,15 @@
     <title>Contributing | Laravel Auditor</title>
     <meta name="description" content="Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">
     <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Contribute to Laravel Auditor">
+    <meta property="og:description" content="How to work on Laravel Auditor locally — tests, lint, static analysis, and docs.">
+    <meta property="og:url" content="https://mrpunyapal.github.io/laravel-auditor/contributing">
+    <meta property="og:image" content="https://mrpunyapal.github.io/laravel-auditor/og/contributing.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Contribute to Laravel Auditor">
+    <meta name="twitter:description" content="How to work on Laravel Auditor locally — tests, lint, static analysis, and docs.">
+    <meta name="twitter:image" content="https://mrpunyapal.github.io/laravel-auditor/og/contributing.png">
     <link rel="stylesheet" href="../assets/app.css">
     <script src="../assets/app.js" defer></script>
 </head>
@@ -57,6 +66,12 @@
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
 <p>Add a page as <code>md/your-page.md</code> with frontmatter (<code>title</code>, <code>description</code>, <code>order</code>, <code>slug</code>). Then rebuild.</p>
+<p>Open Graph images are generated per page. They need Node.js, Playwright, and capturist installed once:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">npm</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">install</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">npx</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">playwright</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">install</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">chromium</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>Set <code>DOCS_CAPTURE_OG=0</code> to skip capture (for example, without Node.js). Page-specific social titles and descriptions use <code>og_title</code> and <code>og_description</code> frontmatter; <code>og_image</code> overrides the card image.</p>
 <p>If Docsmith is missing a feature this package needs, contribute it upstream in <code>mrpunyapal/docsmith</code> rather than forking the builder here.</p>
 
                 </div>

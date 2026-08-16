@@ -1,6 +1,8 @@
 ---
 title: Rules
 description: The evidence-first audit catalog and how applicability works.
+og_title: Laravel Auditor rules
+og_description: The evidence-first audit catalog across security, performance, architecture, database, testing, and conventions.
 order: 6
 slug: rules
 ---

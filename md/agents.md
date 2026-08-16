@@ -1,6 +1,8 @@
 ---
 title: Agent setup
 description: Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.
+og_title: Agent setup for Laravel Auditor
+og_description: Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, Junie, Zed, and Laravel Boost.
 order: 4
 slug: agents
 ---

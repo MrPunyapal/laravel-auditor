@@ -1,6 +1,8 @@
 ---
 title: Usage
 description: Run status, context, rules, reports, and CI with Laravel Auditor.
+og_title: Using Laravel Auditor
+og_description: Run status, context, rules, reports, and CI with the Laravel Auditor command line.
 order: 3
 slug: usage
 ---

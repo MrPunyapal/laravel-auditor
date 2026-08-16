@@ -49,3 +49,14 @@ Markdown source lives in `md/`. Generate the static site with Docsmith:
 ```bash
 composer docs:build
 ```
+
+The docs build also generates Open Graph images per page. These need Node.js,
+Playwright, and capturist installed once:
+
+```bash
+npm install
+npx playwright install chromium
+```
+
+Set `DOCS_CAPTURE_OG=0` to skip Open Graph image capture (for example, in
+environments without Node.js).

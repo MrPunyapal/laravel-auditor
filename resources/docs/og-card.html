@@ -1,0 +1,83 @@
+<div class="og-card">
+    <div class="og-card-accent" aria-hidden="true"></div>
+    <header class="og-card-header">
+        <span class="og-card-brand">Laravel Auditor</span>
+    </header>
+    <main class="og-card-body">
+        <h1 class="og-card-title">{title}</h1>
+        <p class="og-card-description">{description}</p>
+    </main>
+    <footer class="og-card-footer">
+        <span class="og-card-site">Evidence-based auditing for Laravel</span>
+        <span class="og-card-meta">P0–P3 findings &middot; file, route, schema evidence</span>
+    </footer>
+</div>
+<style>
+    .og-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 1200px;
+        height: 630px;
+        padding: 72px 84px 64px;
+        color: #e9f1fb;
+        background: radial-gradient(circle at 0% 0%, #16293c 0%, #0c141d 62%, #08131f 100%);
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    }
+
+    .og-card-accent {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 10px;
+        height: 630px;
+        background: {accent_color};
+    }
+
+    .og-card-header {
+        display: flex;
+        align-items: center;
+    }
+
+    .og-card-brand {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #a6b8cc;
+    }
+
+    .og-card-title {
+        max-width: 940px;
+        font-size: 64px;
+        line-height: 1.08;
+        letter-spacing: -0.025em;
+        margin-bottom: 26px;
+    }
+
+    .og-card-description {
+        max-width: 900px;
+        font-size: 28px;
+        line-height: 1.4;
+        color: #a6b8cc;
+    }
+
+    .og-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 30px;
+        border-top: 1px solid #2a4157;
+    }
+
+    .og-card-site {
+        font-size: 22px;
+        font-weight: 600;
+        color: {accent_color};
+    }
+
+    .og-card-meta {
+        font-size: 18px;
+        color: #7e93a8;
+    }
+</style>

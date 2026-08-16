@@ -1,0 +1,13 @@
+{
+    "name": "laravel-auditor-docs",
+    "private": true,
+    "description": "Build tooling for the Laravel Auditor documentation site (Open Graph capture).",
+    "scripts": {
+        "og:setup": "npm install && npx playwright install chromium",
+        "docs:build": "composer docs:build"
+    },
+    "devDependencies": {
+        "capturist": "^0.1.3",
+        "playwright": "^1.62.0"
+    }
+}
