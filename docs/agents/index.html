@@ -48,6 +48,35 @@
 <blockquote>
 <p>Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.</p>
 </blockquote>
+<h3 id="full-example-prompt">Full example prompt</h3>
+<blockquote>
+<p>You are auditing the Laravel application in this project using the Laravel Auditor methodology.</p>
+<ol>
+<li>Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.</li>
+<li>Start by calling the context MCP tools to gather deterministic facts BEFORE reading code:
+<ul>
+<li><code>project_info</code> — PHP/Laravel versions, database, ecosystem signals</li>
+<li><code>routes</code> — the full route surface</li>
+<li><code>models</code> — all models with fillable/guarded, casts, relationships</li>
+<li><code>migrations</code> — schema changes over time</li>
+<li><code>database_schema</code> — actual tables/columns/indexes</li>
+<li><code>dependencies</code> — installed packages and versions</li>
+<li><code>configuration</code> — config keys in use</li>
+<li><code>authorization</code> — gates, policies, auth middleware</li>
+<li><code>jobs_events_schedules</code> — queues, events, cron</li>
+<li><code>tests</code> — test coverage layout</li>
+</ul>
+</li>
+<li>Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.</li>
+<li>For every potential finding, verify against actual files, routes, or schema. Never report a guess.</li>
+<li>Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.</li>
+<li>Be read-only. Do not modify any application code.</li>
+</ol>
+</blockquote>
+<p>For a quick Discover-only pass:</p>
+<blockquote>
+<p>Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.</p>
+</blockquote>
 <h2 id="standalone-adapters">Standalone adapters</h2>
 <p><code>php artisan auditor:install</code> asks which AI agent(s) the project uses, then writes pointers only when the file is missing:</p>
 <ul>
@@ -83,7 +112,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../usage/"><span>Previous</span><strong>Usage</strong></a><a class="pager-link pager-link-next" href="../mcp/"><span>Next</span><strong>MCP tools</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#ask-the-agent" data-docsmith-toc-link="ask-the-agent">Ask the agent</a><a class="toc-link toc-link-level-2" href="#standalone-adapters" data-docsmith-toc-link="standalone-adapters">Standalone adapters</a><a class="toc-link toc-link-level-2" href="#laravel-boost" data-docsmith-toc-link="laravel-boost">Laravel Boost</a><a class="toc-link toc-link-level-2" href="#read-only" data-docsmith-toc-link="read-only">Read-only</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#ask-the-agent" data-docsmith-toc-link="ask-the-agent">Ask the agent</a><a class="toc-link toc-link-level-3" href="#full-example-prompt" data-docsmith-toc-link="full-example-prompt">Full example prompt</a><a class="toc-link toc-link-level-2" href="#standalone-adapters" data-docsmith-toc-link="standalone-adapters">Standalone adapters</a><a class="toc-link toc-link-level-2" href="#laravel-boost" data-docsmith-toc-link="laravel-boost">Laravel Boost</a><a class="toc-link toc-link-level-2" href="#read-only" data-docsmith-toc-link="read-only">Read-only</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

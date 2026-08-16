@@ -152,6 +152,35 @@ The agent should:
 4. Verify high-severity claims before reporting them
 5. Produce structured findings and a report
 
+### Full example prompt
+
+> You are auditing the Laravel application in this project using the Laravel Auditor methodology.
+>
+> 1. Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.
+> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code:
+>    - `project_info` — PHP/Laravel versions, database, ecosystem signals
+>    - `routes` — the full route surface
+>    - `models` — all models with fillable/guarded, casts, relationships
+>    - `migrations` — schema changes over time
+>    - `database_schema` — actual tables/columns/indexes
+>    - `dependencies` — installed packages and versions
+>    - `configuration` — config keys in use
+>    - `authorization` — gates, policies, auth middleware
+>    - `jobs_events_schedules` — queues, events, cron
+>    - `tests` — test coverage layout
+> 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
+> 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
+> 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
+> 6. Be read-only. Do not modify any application code.
+
+For a quick Discover-only pass:
+
+> Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+
+For a data-structure / ownership pass:
+
+> Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
+
 ## Example finding
 
 ```json

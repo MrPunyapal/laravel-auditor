@@ -110,6 +110,21 @@ Ask the agent:
 
 A finding should include `rule_id`, `severity`, `confidence`, `summary`, `why_it_matters`, `evidence`, and `recommendation`.
 
+Full audit prompt:
+
+> You are auditing the Laravel application in this project using the Laravel Auditor methodology.
+>
+> 1. Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.
+> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code: `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `authorization`, `jobs_events_schedules`, `tests`.
+> 3. Scope the relevant domains (security, database, architecture, testing, ...). Pick the domains with the most risk signal and go deep.
+> 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
+> 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
+> 6. Be read-only. Do not modify any application code.
+
+Discover-only quick pass:
+
+> Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+
 ## Anti-patterns
 
 - Do not require Boost just to use Auditor.
