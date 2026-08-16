@@ -62,7 +62,7 @@
 <li><code>database_schema</code> — actual tables/columns/indexes</li>
 <li><code>dependencies</code> — installed packages and versions</li>
 <li><code>configuration</code> — config keys in use</li>
-<li><code>authorization</code> — gates, policies, auth middleware</li>
+<li><code>policies_authorization</code> — gates, policies, auth middleware</li>
 <li><code>jobs_events_schedules</code> — queues, events, cron</li>
 <li><code>tests</code> — test coverage layout</li>
 </ul>
@@ -94,7 +94,7 @@
 <p>Non-interactive runs (CI, <code>--no-interaction</code>) resolve agents from <code>--agents</code>, then project detection, then the <code>laravel-auditor.agents</code> config, then all supported agents.</p>
 <h2 id="laravel-boost">Laravel Boost</h2>
 <p>When Boost is present, skip the standalone installer and run <code>boost:install</code> / <code>boost:update</code>.</p>
-<p>When Boost is installed, the package also registers its read-only context tools (<code>project_info</code>, <code>routes</code>, <code>models</code>, <code>migrations</code>, <code>database_schema</code>, <code>dependencies</code>, <code>configuration</code>, <code>authorization</code>, <code>jobs_events_schedules</code>, <code>tests</code>, <code>subsystems</code>) inside Boost's MCP server automatically through <code>boost.mcp.tools.include</code>.</p>
+<p>When Boost is installed, the package also registers its read-only context tools (<code>project_info</code>, <code>routes</code>, <code>models</code>, <code>migrations</code>, <code>database_schema</code>, <code>dependencies</code>, <code>configuration</code>, <code>policies_authorization</code>, <code>jobs_events_schedules</code>, <code>tests</code>, <code>subsystems</code>) inside Boost's MCP server automatically through <code>boost.mcp.tools.include</code>.</p>
 <p>Boost skills shipped by this package:</p>
 <ul>
 <li><code>laravel-audit</code> — six-domain evidence-based audit</li>

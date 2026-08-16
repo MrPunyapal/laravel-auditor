@@ -107,7 +107,7 @@
 <p>The same payloads are available without MCP via <code>php artisan auditor:context {tool}</code>.</p>
 <p>Output is structured and concise. Tools never mutate the application.</p>
 <h2 id="laravel-boost">Laravel Boost</h2>
-<p>When Laravel Boost is installed, the service provider registers the same context collectors as read-only tools (<code>project_info</code>, <code>routes</code>, <code>models</code>, <code>migrations</code>, <code>database_schema</code>, <code>dependencies</code>, <code>configuration</code>, <code>authorization</code>, <code>jobs_events_schedules</code>, <code>tests</code>, <code>subsystems</code>) inside Boost's <code>laravel-boost</code> MCP server through <code>boost.mcp.tools.include</code>. No extra setup is needed — the tools appear in Boost's <code>tools/list</code> and run through Boost's subprocess executor.</p>
+<p>When Laravel Boost is installed, the service provider registers the same context collectors as read-only tools (<code>project_info</code>, <code>routes</code>, <code>models</code>, <code>migrations</code>, <code>database_schema</code>, <code>dependencies</code>, <code>configuration</code>, <code>policies_authorization</code>, <code>jobs_events_schedules</code>, <code>tests</code>, <code>subsystems</code>) inside Boost's <code>laravel-boost</code> MCP server through <code>boost.mcp.tools.include</code>. No extra setup is needed — the tools appear in Boost's <code>tools/list</code> and run through Boost's subprocess executor.</p>
 
                 </div>
                 <footer class="doc-meta">

@@ -43,5 +43,5 @@ Output is structured and concise. Tools never mutate the application.
 
 ## Laravel Boost
 
-When Laravel Boost is installed, the service provider registers the same context collectors as read-only tools (`project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `authorization`, `jobs_events_schedules`, `tests`, `subsystems`) inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
+When Laravel Boost is installed, the service provider registers the same context collectors as read-only tools (`project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`) inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
 

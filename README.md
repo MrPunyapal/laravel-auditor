@@ -165,7 +165,7 @@ The agent should:
 >    - `database_schema` — actual tables/columns/indexes
 >    - `dependencies` — installed packages and versions
 >    - `configuration` — config keys in use
->    - `authorization` — gates, policies, auth middleware
+>    - `policies_authorization` — gates, policies, auth middleware
 >    - `jobs_events_schedules` — queues, events, cron
 >    - `tests` — test coverage layout
 > 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.

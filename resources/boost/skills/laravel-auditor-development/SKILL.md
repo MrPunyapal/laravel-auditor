@@ -115,7 +115,7 @@ Full audit prompt:
 > You are auditing the Laravel application in this project using the Laravel Auditor methodology.
 >
 > 1. Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.
-> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code: `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `authorization`, `jobs_events_schedules`, `tests`.
+> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code: `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`.
 > 3. Scope the relevant domains (security, database, architecture, testing, ...). Pick the domains with the most risk signal and go deep.
 > 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 > 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
