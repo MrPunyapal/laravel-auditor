@@ -47,3 +47,20 @@ if (! $captureOg) {
 }
 
 $builder->build();
+
+// The sitemap <lastmod> is derived from file mtimes, which differ between
+// local builds and CI checkouts. Strip it so the generated site is
+// deterministic and CI never produces a docs commit loop.
+$sitemap = $output.'/sitemap.xml';
+
+if (is_file($sitemap)) {
+    $normalized = (string) preg_replace(
+        '/\s*<lastmod>[^<]*<\/lastmod>/',
+        '',
+        (string) file_get_contents($sitemap),
+    );
+
+    if ($normalized !== '') {
+        file_put_contents($sitemap, $normalized);
+    }
+}
