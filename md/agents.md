@@ -38,6 +38,8 @@ Non-interactive runs (CI, `--no-interaction`) resolve agents from `--agents`, th
 
 When Boost is present, skip the standalone installer and run `boost:install` / `boost:update`.
 
+When Boost is installed, the package also registers its read-only context tools (`project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `authorization`, `jobs_events_schedules`, `tests`, `subsystems`) inside Boost's MCP server automatically through `boost.mcp.tools.include`.
+
 Boost skills shipped by this package:
 
 - `laravel-audit` — six-domain evidence-based audit

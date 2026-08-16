@@ -82,6 +82,8 @@ php artisan auditor:mcp
 
 Register that stdio command with the agent so it can call `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, and `tests`.
 
+With Laravel Boost installed, the same context tools are registered automatically inside Boost's MCP server (via `boost.mcp.tools.include`); no extra setup is needed.
+
 ## References
 
 - Install: `composer require --dev mrpunyapal/laravel-auditor`

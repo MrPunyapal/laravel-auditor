@@ -27,6 +27,7 @@
         "laravel/pint": "^1.29",
         "laravel/prompts": "^0.3",
         "laravel/pao": "^1.0",
+        "laravel/mcp": "^0.7.1|^0.8.0|^0.9.0",
         "mrpunyapal/docsmith": "^0.1.8",
         "orchestra/testbench": "^10.0||^11.0",
         "pestphp/pest": "^4.6||^5.0",

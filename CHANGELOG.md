@@ -16,6 +16,7 @@
 - `auditor:ci`, SARIF reports, and `auditor:rules --applicable`
 - DSA coordinator skill, `subsystems` context tool, and P0–P3 report ranking
 - Docsmith documentation site (`md/` source, `docs/` output, `composer docs:build`)
+- Automatic registration of context tools inside Laravel Boost's MCP server (`boost.mcp.tools.include`)
 
 
 ## [v0.1.0](https://github.com/mrpunyapal/laravel-auditor/compare/...v0.1.0) - 202x-xx-xx

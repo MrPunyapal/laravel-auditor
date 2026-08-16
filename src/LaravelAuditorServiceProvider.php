@@ -29,6 +29,7 @@ use LaravelAuditor\Context\Collectors\SubsystemsCollector;
 use LaravelAuditor\Context\Collectors\TestsCollector;
 use LaravelAuditor\Context\ContextRegistry;
 use LaravelAuditor\Context\ProjectContext;
+use LaravelAuditor\MCP\Boost\BoostMcpRegistrar;
 use LaravelAuditor\MCP\McpToolRegistry;
 use LaravelAuditor\Support\BoostDetector;
 
@@ -86,6 +87,8 @@ class LaravelAuditorServiceProvider extends ServiceProvider
                 AuditorMcpCommand::class,
             ]);
         }
+
+        $this->app->make(BoostMcpRegistrar::class)->register();
     }
 
     private function registerRuleRegistry(): void
@@ -150,6 +153,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
     private function registerMcp(): void
     {
         $this->app->singleton(McpToolRegistry::class);
+        $this->app->singleton(BoostMcpRegistrar::class);
     }
 
     /**

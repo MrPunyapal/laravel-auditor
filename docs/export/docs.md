@@ -262,6 +262,8 @@ Non-interactive runs (CI, `--no-interaction`) resolve agents from `--agents`, th
 
 When Boost is present, skip the standalone installer and run `boost:install` / `boost:update`.
 
+When Boost is installed, the package also registers its read-only context tools (`project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `authorization`, `jobs_events_schedules`, `tests`, `subsystems`) inside Boost's MCP server automatically through `boost.mcp.tools.include`.
+
 Boost skills shipped by this package:
 
 - `laravel-audit` — six-domain evidence-based audit
@@ -280,7 +282,9 @@ Auditing must not modify application code. Installation may write Auditor-owned 
 
 > Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.
 
-Laravel Auditor ships a local stdio MCP server. Boost does **not** currently document a third-party MCP extension API, so this server stays standalone.
+Laravel Auditor ships a local stdio MCP server, plus automatic registration of its context tools inside Laravel Boost's MCP server when Boost is installed.
+
+The standalone server is available for agents that manage their own MCP config:
 
 ```bash
 php artisan auditor:mcp
@@ -313,6 +317,11 @@ A client snippet lives in `resources/auditor/mcp/mcp.json.example`.
 The same payloads are available without MCP via `php artisan auditor:context {tool}`.
 
 Output is structured and concise. Tools never mutate the application.
+
+## Laravel Boost
+
+When Laravel Boost is installed, the service provider registers the same context collectors as read-only tools (`project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `authorization`, `jobs_events_schedules`, `tests`, `subsystems`) inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
+
 
 
 ---

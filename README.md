@@ -226,6 +226,8 @@ Example Claude Code registration:
 claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
 ```
 
+When Laravel Boost is installed, the same context collectors are also registered automatically as read-only tools inside Boost's `laravel-boost` MCP server (via `boost.mcp.tools.include`), so no extra setup is needed there.
+
 Tools:
 
 | Tool | Returns |
