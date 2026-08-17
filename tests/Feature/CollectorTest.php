@@ -205,3 +205,12 @@ it('collects model metadata for the workbench app', function () {
     expect($data['count'])->toBeGreaterThanOrEqual(1);
     expect($data['models'][0])->toHaveKeys(['class', 'table', 'fillable', 'guarded', 'casts', 'primary_key', 'relationships']);
 });
+
+it('skips models that cannot be instantiated without crashing the collector', function () {
+    $collector = app(ModelsCollector::class);
+
+    $data = $collector->collect();
+
+    expect($data)->toHaveKeys(['count', 'models']);
+    expect($data['count'])->toBeInt();
+});

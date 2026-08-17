@@ -13,6 +13,7 @@ use LaravelAuditor\Support\ApplicationPaths;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
+use Throwable;
 
 /**
  * Inspects the application's Eloquent models and their declared metadata.
@@ -47,7 +48,13 @@ final class ModelsCollector implements ContextCollector
         $models = [];
 
         foreach ($this->discoverModels() as $class) {
-            $models[] = $this->inspect($class);
+            try {
+                $models[] = $this->inspect($class);
+            } catch (Throwable) {
+                // Skip models whose constructor cannot be satisfied in the
+                // current container context (e.g. required parameters, side
+                // effects). The collector must not crash on one bad model.
+            }
         }
 
         usort($models, static fn (array $a, array $b): int => strcmp((string) $a['class'], (string) $b['class']));

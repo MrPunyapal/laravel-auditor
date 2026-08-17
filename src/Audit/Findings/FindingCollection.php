@@ -12,7 +12,10 @@ use LaravelAuditor\Audit\Enums\Severity;
 use Traversable;
 
 /**
- * An immutable, sortable collection of findings.
+ * A sortable collection of findings.
+ *
+ * Supports ArrayAccess, iteration, and counting. The `sorted()` and
+ * `atLeast()` methods return new instances; `add()` mutates in place.
  *
  * @implements ArrayAccess<int, Finding>
  * @implements IteratorAggregate<int, Finding>
