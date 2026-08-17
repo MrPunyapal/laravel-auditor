@@ -48,34 +48,101 @@
                     <p class="doc-description">Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.</p>
                 </header>
                 <div class="doc-body">
-                    <p>Laravel Auditor equips an existing AI coding agent with a specialized, evidence-based methodology and toolset for auditing Laravel applications.</p>
-<p>It is <strong>not</strong> a generic code-review prompt, a replacement for Laravel Boost, or an autonomous AI product. The agent remains the reasoning engine. This package provides the audit workflow, domain knowledge, rules, finding schema, and structured Laravel context tools.</p>
+                    <p>Laravel Auditor gives an AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.</p>
+<p>It is <strong>not</strong> an autonomous AI service, a generic code-review prompt, or a replacement for Laravel Boost. The AI agent remains the reasoning engine. Laravel Auditor provides the audit workflow, domain knowledge, rules, finding schema, and structured Laravel context tools.</p>
 <h2 id="why-it-exists">Why it exists</h2>
-<p>AI agents can already read a Laravel codebase. They still tend to:</p>
+<p>AI agents can already read a Laravel codebase. Ask one to "audit my app" without specialized methodology and you will likely get:</p>
 <ul>
-<li>guess at framework behavior instead of collecting project facts</li>
-<li>report style opinions as high-severity findings</li>
-<li>invent vulnerabilities from uncommon patterns</li>
-<li>skip verification before reporting a serious finding</li>
+<li><strong>Guesses about framework behavior</strong> instead of collected project facts. The agent assumes how a package works rather than checking the installed version and its actual configuration.</li>
+<li><strong>Style opinions reported as high-severity issues</strong>. The agent flags a naming convention it dislikes as a security risk.</li>
+<li><strong>Invented vulnerabilities from uncommon patterns</strong>. The agent reports a theoretical attack vector that does not apply to this application's actual setup.</li>
+<li><strong>Serious findings reported without verification</strong>. The agent claims a missing authorization boundary without checking the routes, middleware, or policies.</li>
 </ul>
-<p>Laravel Auditor gives the agent a repeatable audit workflow and deterministic project context so findings stay specific, evidenced, and trustworthy.</p>
-<h2 id="first-five-minutes">First five minutes</h2>
-<ol>
-<li>Install the package as a development dependency</li>
-<li>Run Boost setup or <code>auditor:install</code></li>
-<li>Open your preferred AI agent</li>
-<li>Ask it to audit the project</li>
-<li>Receive structured findings with evidence</li>
-</ol>
-<h2 id="what-v1-covers">What V1 covers</h2>
-<p>Six core domains: <strong>security</strong>, <strong>performance</strong>, <strong>architecture</strong>, <strong>database</strong>, <strong>testing</strong>, and <strong>Laravel conventions</strong>.</p>
-<p>Optional ecosystem packs apply only when those packages are installed: Livewire, Filament, Inertia, Sanctum, Pest, and queues.</p>
-<p>A separate <strong>DSA / organizing-model</strong> pass inventories subsystems, reviews them in bounded lanes, and ranks findings P0–P3.</p>
+<p>Laravel Auditor fixes this by giving the agent a repeatable audit workflow and deterministic project context. Findings stay specific, evidenced, and trustworthy.</p>
+<h2 id="how-it-works">How it works</h2>
+<p>The audit follows a structured flow. The agent drives each stage; Laravel Auditor provides the tools and knowledge at each step.</p>
+<pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Discover → Scope → Investigate → Verify → Report
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p><strong>Discover.</strong> The agent gathers deterministic project facts: PHP and Laravel versions, database engine, route surface, models, migrations, dependencies, authorization setup, tests, and ecosystem packages. These facts come from Laravel Auditor's context tools, not from guessing.</p>
+<p><strong>Scope.</strong> The agent selects which audit domains actually apply. A queue-less app does not need queue analysis. A pure API app does not need Blade template review.</p>
+<p><strong>Investigate.</strong> The agent examines source code, traces behavior across files, and cross-checks evidence against multiple sources. Rules describe what to look for and what evidence is required.</p>
+<p><strong>Verify.</strong> Before reporting a high-severity finding, the agent verifies it against actual routes, middleware, models, schema, config, or tests. If verification fails, the finding is labeled with lower confidence.</p>
+<p><strong>Report.</strong> The agent produces structured findings with evidence. Laravel Auditor renders them as Markdown, JSON, text, or SARIF.</p>
+<h2 id="what-the-package-provides">What the package provides</h2>
+<p>Laravel Auditor contributes seven things to the audit:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Skills</strong></td>
+<td>Step-by-step audit workflows the agent follows</td>
+</tr>
+<tr>
+<td><strong>Guidelines</strong></td>
+<td>Principles that govern every finding (evidence-first, read-only, no severity inflation)</td>
+</tr>
+<tr>
+<td><strong>Rules</strong></td>
+<td>61 audit criteria across 6 core domains, describing what to look for and what evidence is required</td>
+</tr>
+<tr>
+<td><strong>Context collectors</strong></td>
+<td>11 read-only tools that provide deterministic Laravel facts (routes, models, schema, etc.)</td>
+</tr>
+<tr>
+<td><strong>MCP server</strong></td>
+<td>A bridge that lets a supported AI agent call the context tools directly</td>
+</tr>
+<tr>
+<td><strong>Finding schema</strong></td>
+<td>A structured format for findings with severity, confidence, evidence, and recommendations</td>
+</tr>
+<tr>
+<td><strong>Report and CI tooling</strong></td>
+<td>Commands that render findings as Markdown, JSON, text, or SARIF, and gate CI on severity</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-the-ai-agent-provides">What the AI agent provides</h2>
+<p>The agent provides the reasoning. It reads source code, traces behavior, evaluates context, applies judgment, and produces findings. Laravel Auditor does not replace the agent's intelligence — it focuses it.</p>
+<h2 id="what-it-does-not-do">What it does not do</h2>
+<ul>
+<li><strong>Not an autonomous service.</strong> No AI runs without your trigger. You ask your agent to audit; the agent does the work.</li>
+<li><strong>Not a generic code reviewer.</strong> Laravel Auditor is specifically designed for evidence-based Laravel auditing, not general code quality opinions.</li>
+<li><strong>Not a replacement for Laravel Boost.</strong> When Boost is installed, Auditor extends it. When Boost is absent, Auditor works standalone.</li>
+<li><strong>Not a production monitor.</strong> Auditor inspects code and configuration at a point in time. It does not observe runtime behavior.</li>
+<li><strong>Not an automatic fixer.</strong> V1 is read-only. The agent recommends fixes; it does not apply them.</li>
+</ul>
+<h2 id="who-is-it-for">Who is it for</h2>
+<p>Laravel developers and teams who already use an AI coding agent and want a more systematic, evidence-driven way to audit an application. If you have ever asked an agent to "review my Laravel app" and received a noisy, unhelpful list of opinions, this package is for you.</p>
+<h2 id="quick-start">Quick start</h2>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">require</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dev</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">mrpunyapal/laravel-auditor</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>Then either:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> With Laravel Boost installed:
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">boost:install</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Without Boost:
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>Open your AI agent and ask:</p>
+<blockquote>
+<p>Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.</p>
+</blockquote>
+<p>The agent follows the skill workflow, uses the context tools to gather facts, applies the rules, and produces structured findings with evidence.</p>
 <h2 id="next">Next</h2>
 <ul>
-<li><a href="/installation/">Installation</a></li>
-<li><a href="/usage/">Usage</a></li>
-<li><a href="/agents/">Agent setup</a></li>
+<li><a href="/installation/">Installation</a> — install and wire the package</li>
+<li><a href="/usage/">Usage</a> — commands, workflow, and reporting</li>
+<li><a href="/agents/">Agent setup</a> — connect to your specific AI agent</li>
 </ul>
 
                 </div>
@@ -85,7 +152,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link pager-link-next" href="installation/"><span>Next</span><strong>Installation</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#why-it-exists" data-docsmith-toc-link="why-it-exists">Why it exists</a><a class="toc-link toc-link-level-2" href="#first-five-minutes" data-docsmith-toc-link="first-five-minutes">First five minutes</a><a class="toc-link toc-link-level-2" href="#what-v1-covers" data-docsmith-toc-link="what-v1-covers">What V1 covers</a><a class="toc-link toc-link-level-2" href="#next" data-docsmith-toc-link="next">Next</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#why-it-exists" data-docsmith-toc-link="why-it-exists">Why it exists</a><a class="toc-link toc-link-level-2" href="#how-it-works" data-docsmith-toc-link="how-it-works">How it works</a><a class="toc-link toc-link-level-2" href="#what-the-package-provides" data-docsmith-toc-link="what-the-package-provides">What the package provides</a><a class="toc-link toc-link-level-2" href="#what-the-ai-agent-provides" data-docsmith-toc-link="what-the-ai-agent-provides">What the AI agent provides</a><a class="toc-link toc-link-level-2" href="#what-it-does-not-do" data-docsmith-toc-link="what-it-does-not-do">What it does not do</a><a class="toc-link toc-link-level-2" href="#who-is-it-for" data-docsmith-toc-link="who-is-it-for">Who is it for</a><a class="toc-link toc-link-level-2" href="#quick-start" data-docsmith-toc-link="quick-start">Quick start</a><a class="toc-link toc-link-level-2" href="#next" data-docsmith-toc-link="next">Next</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

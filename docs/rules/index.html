@@ -49,13 +49,32 @@
                 </header>
                 <div class="doc-body">
                     <p>Rules are metadata for the reasoning agent. They are not executable scanners.</p>
-<p>List them:</p>
-<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:rules</span><span class="token">
-</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:rules</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-applicable</span><span class="token">
+<p>A rule tells the agent what to investigate, what evidence is required, and what the typical severity and confidence are when a confirmed instance is found. The agent reads the rule, examines the application, and decides whether the rule actually applies.</p>
+<pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Rule
+</span></span><span class="line"><span class="token">  ↓
+</span></span><span class="line"><span class="token">Tells the agent what to investigate
+</span></span><span class="line"><span class="token">  ↓
+</span></span><span class="line"><span class="token">Specifies what evidence is required
+</span></span><span class="line"><span class="token">  ↓
+</span></span><span class="line"><span class="token">Agent investigates the application
+</span></span><span class="line"><span class="token">  ↓
+</span></span><span class="line"><span class="token">Agent decides whether the rule applies
+</span></span><span class="line"><span class="token">  ↓
+</span></span><span class="line"><span class="token">Agent produces a finding (or does not)
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p>The authoritative definitions live in <code>resources/auditor/rules/*.php</code>. The human catalog is <code>resources/auditor/rules/RULES.md</code>.</p>
+<p>This is fundamentally different from a static analysis tool that flags code patterns automatically. Rules guide the agent's reasoning. The agent decides.</p>
+<h2 id="list-rules">List rules</h2>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:rules</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:rules</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-applicable</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:rules</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-domain=security</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:rules</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-json</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p><code>--applicable</code> hides ecosystem packs whose packages are not installed. For example, Livewire rules are hidden when Livewire is not a dependency.</p>
+<p>The authoritative definitions live in <code>resources/auditor/rules/*.php</code>. The human-readable catalog is <code>resources/auditor/rules/RULES.md</code>.</p>
 <h2 id="core-domains">Core domains</h2>
+<p>V1 ships 61 rules across six core domains:</p>
 <table>
 <thead>
 <tr>
@@ -91,19 +110,62 @@
 </tbody>
 </table>
 <h2 id="ecosystem-packs">Ecosystem packs</h2>
-<p>These rules include <code>applicability.packages</code> and stay hidden from <code>--applicable</code> when the package is absent:</p>
+<p>Additional rules apply only when specific packages are installed. These are included in <code>--applicable</code> only when the required package is detected:</p>
+<table>
+<thead>
+<tr>
+<th>Pack</th>
+<th>Package required</th>
+<th>Rule prefix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Livewire</td>
+<td><code>livewire/livewire</code></td>
+<td><code>AUD-LW-*</code></td>
+</tr>
+<tr>
+<td>Filament</td>
+<td><code>filament/filament</code></td>
+<td><code>AUD-FIL-*</code></td>
+</tr>
+<tr>
+<td>Inertia</td>
+<td><code>inertiajs/inertia-laravel</code></td>
+<td><code>AUD-IN-*</code></td>
+</tr>
+<tr>
+<td>Sanctum</td>
+<td><code>laravel/sanctum</code></td>
+<td><code>AUD-API-*</code></td>
+</tr>
+<tr>
+<td>Pest</td>
+<td><code>pestphp/pest</code></td>
+<td><code>AUD-PEST-*</code></td>
+</tr>
+<tr>
+<td>Queues</td>
+<td>—</td>
+<td><code>AUD-QUE-*</code></td>
+</tr>
+</tbody>
+</table>
+<p>DSA organizing-model rules (<code>AUD-DSA-*</code>) support the <a href="/dsa/">DSA audit</a> skill.</p>
+<h2 id="severity-and-confidence">Severity and confidence</h2>
+<p>Each rule defines a typical severity and confidence:</p>
 <ul>
-<li>Livewire (<code>AUD-LW-*</code>)</li>
-<li>Filament (<code>AUD-FIL-*</code>)</li>
-<li>Inertia (<code>AUD-IN-*</code>)</li>
-<li>Sanctum (<code>AUD-API-*</code>)</li>
-<li>Pest (<code>AUD-PEST-*</code>)</li>
-<li>Queues (<code>AUD-QUE-*</code>)</li>
+<li><strong>Severity</strong>: <code>critical</code>, <code>high</code>, <code>medium</code>, <code>low</code>, <code>info</code> — the impact of a confirmed instance.</li>
+<li><strong>Confidence</strong>: how certain a properly-evidenced finding is for this rule.</li>
 </ul>
-<p>DSA organizing-model rules (<code>AUD-DSA-*</code>) support the <code>laravel-audit-dsa</code> skill.</p>
-<h2 id="writing-a-rule">Writing a rule</h2>
-<p>Each rule needs a stable ID, domain, severity, confidence, description, why it matters, recommendation, evidence requirements, and false-positive considerations.</p>
-<p>Do not add a rule unless it can stay evidence-first. Few high-quality rules beat a noisy catalog.</p>
+<p>A rule with high severity and high confidence means confirmed instances are typically serious. A rule with high severity and medium confidence means the pattern can be serious but evidence requirements are stricter.</p>
+<h2 id="evidence-first-principle">Evidence-first principle</h2>
+<p>Every rule specifies what evidence is required to support a finding. The agent must produce that evidence. A finding without evidence does not enter the report.</p>
+<p>This is the core design constraint. Few high-quality rules beat a noisy catalog. Every rule in V1 was shipped only because it can meet the evidence-first standard.</p>
+<h2 id="writing-custom-rules">Writing custom rules</h2>
+<p>Each rule needs a stable ID, domain, severity, confidence, description, why it matters, recommendation, evidence requirements, and false-positive considerations. Rules are PHP files in a directory — add your custom directory to the <code>rules</code> config key.</p>
+<p>Do not add a rule unless it can stay evidence-first.</p>
 
                 </div>
                 <footer class="doc-meta">
@@ -112,7 +174,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../mcp/"><span>Previous</span><strong>MCP tools</strong></a><a class="pager-link pager-link-next" href="../findings/"><span>Next</span><strong>Findings and reports</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#core-domains" data-docsmith-toc-link="core-domains">Core domains</a><a class="toc-link toc-link-level-2" href="#ecosystem-packs" data-docsmith-toc-link="ecosystem-packs">Ecosystem packs</a><a class="toc-link toc-link-level-2" href="#writing-a-rule" data-docsmith-toc-link="writing-a-rule">Writing a rule</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#list-rules" data-docsmith-toc-link="list-rules">List rules</a><a class="toc-link toc-link-level-2" href="#core-domains" data-docsmith-toc-link="core-domains">Core domains</a><a class="toc-link toc-link-level-2" href="#ecosystem-packs" data-docsmith-toc-link="ecosystem-packs">Ecosystem packs</a><a class="toc-link toc-link-level-2" href="#severity-and-confidence" data-docsmith-toc-link="severity-and-confidence">Severity and confidence</a><a class="toc-link toc-link-level-2" href="#evidence-first-principle" data-docsmith-toc-link="evidence-first-principle">Evidence-first principle</a><a class="toc-link toc-link-level-2" href="#writing-custom-rules" data-docsmith-toc-link="writing-custom-rules">Writing custom rules</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

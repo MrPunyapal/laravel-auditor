@@ -7,21 +7,33 @@ order: 10
 slug: contributing
 ---
 
-Please also read [CONTRIBUTING.md](https://github.com/mrpunyapal/laravel-auditor/blob/main/.github/CONTRIBUTING.md).
+Thank you for considering contributing to Laravel Auditor. Please also read [CONTRIBUTING.md](https://github.com/mrpunyapal/laravel-auditor/blob/main/.github/CONTRIBUTING.md).
 
-## Setup
+## Local setup
 
 ```bash
 composer install
+composer build
+```
+
+The `build` command sets up the workbench with a SQLite database and runs migrations.
+
+## Run the full validation suite
+
+```bash
 composer test
 ```
 
-## Quality
+This runs PHPStan, Pint, type coverage, and Pest in sequence.
+
+## Individual checks
 
 ```bash
-composer lint
-composer analyse
-composer test:unit
+composer lint          # Fix code style with Pint
+composer lint:check    # Check code style without modifying
+composer analyse       # Static analysis with PHPStan
+composer test:unit     # Run Pest tests in parallel
+composer test:types    # Type coverage (must be 100%)
 ```
 
 ## Documentation
@@ -32,15 +44,37 @@ Markdown source lives in `md/`. The static site is generated into `docs/` with [
 composer docs:build
 ```
 
-Add a page as `md/your-page.md` with frontmatter (`title`, `description`, `order`, `slug`). Then rebuild.
+**Do not edit `docs/` directly.** Edit the Markdown source in `md/` and rebuild.
 
-Open Graph images are generated per page. They need Node.js, Playwright, and capturist installed once:
+### Adding a page
+
+1. Create `md/your-page.md` with frontmatter:
+   ```yaml
+   ---
+   title: Your Page
+   description: What this page covers.
+   og_title: Social title for the page
+   og_description: Social description for the page
+   order: 11
+   slug: your-page
+   ---
+   ```
+2. Run `composer docs:build`.
+3. The page appears in the navigation based on its `order` value.
+
+### Open Graph images
+
+OG images are generated per page. They need Node.js, Playwright, and capturist installed once:
 
 ```bash
 npm install
 npx playwright install chromium
 ```
 
-Set `DOCS_CAPTURE_OG=0` to skip capture (for example, without Node.js). Page-specific social titles and descriptions use `og_title` and `og_description` frontmatter; `og_image` overrides the card image.
+Set `DOCS_CAPTURE_OG=0` to skip capture (for example, in environments without Node.js).
 
-If Docsmith is missing a feature this package needs, contribute it upstream in `mrpunyapal/docsmith` rather than forking the builder here.
+Page-specific social titles and descriptions use `og_title` and `og_description` frontmatter. The `og_image` frontmatter key overrides the generated card image.
+
+### Docsmith
+
+If Docsmith is missing a feature this package needs, contribute it upstream in [mrpunyapal/docsmith](https://github.com/MrPunyapal/docsmith) rather than forking the builder.

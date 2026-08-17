@@ -48,25 +48,49 @@
                     <p class="doc-description">Features that may influence architecture but are not part of V1.</p>
                 </header>
                 <div class="doc-body">
-                    <p>These features may influence architecture. They are <strong>not</strong> required to ship V1.</p>
-<h2 id="f1-legacy-standalone-runner">F1: Legacy / standalone runner</h2>
-<p>Audit older Laravel applications without forcing those apps to upgrade PHP or Laravel just to install Auditor.</p>
-<h2 id="f2-standalone-cli-distribution">F2: Standalone CLI distribution</h2>
-<p>A package-runner style command for projects whose runtime is too old for the current package.</p>
-<h2 id="f3-auto-fix-remediation">F3: Auto-fix / remediation</h2>
-<p>Turn a verified finding into a proposed fix, tests, and a patch. Any implementation must require explicit user approval and stay read-only by default.</p>
-<h2 id="f4-f5-ci-policies-and-baselines">F4 / F5: CI policies and baselines</h2>
-<p><code>auditor:ci</code> already fails on severity. Still open: ignored findings, historical baselines, new-vs-existing, trends.</p>
-<h2 id="f6-f7-more-domains-and-deeper-ecosystem-packs">F6 / F7: More domains and deeper ecosystem packs</h2>
-<p>Deployment, observability, API design, Tailwind/Passport/PHPUnit-specific packs — only when they stay evidence-first.</p>
-<h2 id="f8-runtime-verification">F8: Runtime verification</h2>
-<p>Safe, opt-in checks that turn likely findings into confirmed ones.</p>
-<h2 id="f9-richer-reporting">F9: Richer reporting</h2>
-<p>HTML, GitHub annotations, PR comments, TUI, IDE integration. SARIF is already available.</p>
-<h2 id="f10-f12">F10–F12</h2>
-<p>Organization policy packs, an agent profiler, and other-framework auditors are separate products.</p>
+                    <p>These features may influence the architecture. They are <strong>not</strong> required to ship V1 and are not promises.</p>
+<h2 id="legacy-and-standalone-support">Legacy and standalone support</h2>
+<ul>
+<li><strong>F1: Legacy runner</strong> — Audit older Laravel applications without forcing PHP or Laravel upgrades.</li>
+<li><strong>F2: Standalone CLI</strong> — A package-runner style command for projects whose runtime is too old for the current package.</li>
+</ul>
+<h2 id="agent-and-runtime-improvements">Agent and runtime improvements</h2>
+<ul>
+<li><strong>F8: Runtime verification</strong> — Safe, opt-in checks that turn likely findings into confirmed ones by observing actual behavior.</li>
+</ul>
+<h2 id="remediation">Remediation</h2>
+<ul>
+<li><strong>F3: Auto-fix / remediation</strong> — Turn a verified finding into a proposed fix, tests, and a patch. Any implementation must require explicit user approval and stay read-only by default.</li>
+</ul>
+<h2 id="ci-and-baselines">CI and baselines</h2>
+<ul>
+<li><strong>F4: CI policies</strong> — Ignored findings, historical baselines, new-vs-existing detection, trend tracking. <code>auditor:ci</code> already fails on severity.</li>
+</ul>
+<h2 id="audit-depth">Audit depth</h2>
+<ul>
+<li><strong>F5: More domains</strong> — Deployment, observability, API design domains — only when they stay evidence-first.</li>
+<li><strong>F6: Deeper ecosystem packs</strong> — Tailwind, Passport, PHPUnit-specific packs — only when they stay evidence-first.</li>
+</ul>
+<h2 id="reporting">Reporting</h2>
+<ul>
+<li><strong>F7: Richer reporting</strong> — HTML output, GitHub annotations, PR comments, TUI, IDE integration. SARIF is already available.</li>
+</ul>
+<h2 id="broader-scope">Broader scope</h2>
+<ul>
+<li><strong>F9: Organization policy packs</strong> — Multi-tenant or organization-level rule configuration.</li>
+<li><strong>F10: Agent profiler</strong> — Understand which agents produce the best findings.</li>
+<li><strong>F11: Other-framework auditors</strong> — Separate products for non-Laravel frameworks.</li>
+</ul>
 <h2 id="constraints-that-survive">Constraints that survive</h2>
-<p>Agent-agnostic core. Boost optional. Evidence over guesses. Read-only by default. Few high-quality rules. Never claim more certainty than the evidence.</p>
+<p>These principles apply regardless of which features ship:</p>
+<ul>
+<li>Agent-agnostic core</li>
+<li>Boost optional</li>
+<li>Evidence over guesses</li>
+<li>Read-only by default</li>
+<li>Few high-quality rules</li>
+<li>Never claim more certainty than the evidence supports</li>
+</ul>
 
                 </div>
                 <footer class="doc-meta">
@@ -75,7 +99,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../dsa/"><span>Previous</span><strong>DSA audit</strong></a><a class="pager-link pager-link-next" href="../contributing/"><span>Next</span><strong>Contributing</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#f1-legacy-standalone-runner" data-docsmith-toc-link="f1-legacy-standalone-runner">F1: Legacy / standalone runner</a><a class="toc-link toc-link-level-2" href="#f2-standalone-cli-distribution" data-docsmith-toc-link="f2-standalone-cli-distribution">F2: Standalone CLI distribution</a><a class="toc-link toc-link-level-2" href="#f3-auto-fix-remediation" data-docsmith-toc-link="f3-auto-fix-remediation">F3: Auto-fix / remediation</a><a class="toc-link toc-link-level-2" href="#f4-f5-ci-policies-and-baselines" data-docsmith-toc-link="f4-f5-ci-policies-and-baselines">F4 / F5: CI policies and baselines</a><a class="toc-link toc-link-level-2" href="#f6-f7-more-domains-and-deeper-ecosystem-packs" data-docsmith-toc-link="f6-f7-more-domains-and-deeper-ecosystem-packs">F6 / F7: More domains and deeper ecosystem packs</a><a class="toc-link toc-link-level-2" href="#f8-runtime-verification" data-docsmith-toc-link="f8-runtime-verification">F8: Runtime verification</a><a class="toc-link toc-link-level-2" href="#f9-richer-reporting" data-docsmith-toc-link="f9-richer-reporting">F9: Richer reporting</a><a class="toc-link toc-link-level-2" href="#f10-f12" data-docsmith-toc-link="f10-f12">F10–F12</a><a class="toc-link toc-link-level-2" href="#constraints-that-survive" data-docsmith-toc-link="constraints-that-survive">Constraints that survive</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#legacy-and-standalone-support" data-docsmith-toc-link="legacy-and-standalone-support">Legacy and standalone support</a><a class="toc-link toc-link-level-2" href="#agent-and-runtime-improvements" data-docsmith-toc-link="agent-and-runtime-improvements">Agent and runtime improvements</a><a class="toc-link toc-link-level-2" href="#remediation" data-docsmith-toc-link="remediation">Remediation</a><a class="toc-link toc-link-level-2" href="#ci-and-baselines" data-docsmith-toc-link="ci-and-baselines">CI and baselines</a><a class="toc-link toc-link-level-2" href="#audit-depth" data-docsmith-toc-link="audit-depth">Audit depth</a><a class="toc-link toc-link-level-2" href="#reporting" data-docsmith-toc-link="reporting">Reporting</a><a class="toc-link toc-link-level-2" href="#broader-scope" data-docsmith-toc-link="broader-scope">Broader scope</a><a class="toc-link toc-link-level-2" href="#constraints-that-survive" data-docsmith-toc-link="constraints-that-survive">Constraints that survive</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

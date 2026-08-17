@@ -48,16 +48,24 @@
                     <p class="doc-description">How to work on Laravel Auditor locally, including documentation.</p>
                 </header>
                 <div class="doc-body">
-                    <p>Please also read <a href="https://github.com/mrpunyapal/laravel-auditor/blob/main/.github/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
-<h2 id="setup">Setup</h2>
+                    <p>Thank you for considering contributing to Laravel Auditor. Please also read <a href="https://github.com/mrpunyapal/laravel-auditor/blob/main/.github/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+<h2 id="local-setup">Local setup</h2>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">install</span><span class="token">
-</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">test</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">build</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<h2 id="quality">Quality</h2>
-<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">lint</span><span class="token">
-</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">analyse</span><span class="token">
-</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">test:unit</span><span class="token">
+<p>The <code>build</code> command sets up the workbench with a SQLite database and runs migrations.</p>
+<h2 id="run-the-full-validation-suite">Run the full validation suite</h2>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">test</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>This runs PHPStan, Pint, type coverage, and Pest in sequence.</p>
+<h2 id="individual-checks">Individual checks</h2>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">lint</span><span class="token">          </span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Fix code style with Pint
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">lint:check</span><span class="token">    </span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Check code style without modifying
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">analyse</span><span class="token">       </span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Static analysis with PHPStan
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">test:unit</span><span class="token">     </span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Run Pest tests in parallel
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">test:types</span><span class="token">    </span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Type coverage (must be 100%)
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
 <h2 id="documentation">Documentation</h2>
@@ -65,14 +73,34 @@
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">docs:build</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p>Add a page as <code>md/your-page.md</code> with frontmatter (<code>title</code>, <code>description</code>, <code>order</code>, <code>slug</code>). Then rebuild.</p>
-<p>Open Graph images are generated per page. They need Node.js, Playwright, and capturist installed once:</p>
+<p><strong>Do not edit <code>docs/</code> directly.</strong> Edit the Markdown source in <code>md/</code> and rebuild.</p>
+<h3 id="adding-a-page">Adding a page</h3>
+<ol>
+<li>Create <code>md/your-page.md</code> with frontmatter:
+<pre class="phiki language-yaml github-light phiki-themes github-dark" data-language="yaml" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">---</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">t</span><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">itle</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">Y</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">our Page</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">d</span><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">escription</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">W</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">hat this page covers.</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">o</span><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">g_title</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">S</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">ocial title for the page</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">o</span><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">g_description</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">S</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">ocial description for the page</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">o</span><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">rder</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">11</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">s</span><span class="token" style="color: #22863a;--phiki-dark-color: #85e89d;">lug</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">y</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">our-page</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">---</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+</li>
+<li>Run <code>composer docs:build</code>.</li>
+<li>The page appears in the navigation based on its <code>order</code> value.</li>
+</ol>
+<h3 id="open-graph-images">Open Graph images</h3>
+<p>OG images are generated per page. They need Node.js, Playwright, and capturist installed once:</p>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">npm</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">install</span><span class="token">
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">npx</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">playwright</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">install</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">chromium</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p>Set <code>DOCS_CAPTURE_OG=0</code> to skip capture (for example, without Node.js). Page-specific social titles and descriptions use <code>og_title</code> and <code>og_description</code> frontmatter; <code>og_image</code> overrides the card image.</p>
-<p>If Docsmith is missing a feature this package needs, contribute it upstream in <code>mrpunyapal/docsmith</code> rather than forking the builder here.</p>
+<p>Set <code>DOCS_CAPTURE_OG=0</code> to skip capture (for example, in environments without Node.js).</p>
+<p>Page-specific social titles and descriptions use <code>og_title</code> and <code>og_description</code> frontmatter. The <code>og_image</code> frontmatter key overrides the generated card image.</p>
+<h3 id="docsmith">Docsmith</h3>
+<p>If Docsmith is missing a feature this package needs, contribute it upstream in <a href="https://github.com/MrPunyapal/docsmith">mrpunyapal/docsmith</a> rather than forking the builder.</p>
 
                 </div>
                 <footer class="doc-meta">
@@ -81,7 +109,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../future/"><span>Previous</span><strong>Future scope</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#setup" data-docsmith-toc-link="setup">Setup</a><a class="toc-link toc-link-level-2" href="#quality" data-docsmith-toc-link="quality">Quality</a><a class="toc-link toc-link-level-2" href="#documentation" data-docsmith-toc-link="documentation">Documentation</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#local-setup" data-docsmith-toc-link="local-setup">Local setup</a><a class="toc-link toc-link-level-2" href="#run-the-full-validation-suite" data-docsmith-toc-link="run-the-full-validation-suite">Run the full validation suite</a><a class="toc-link toc-link-level-2" href="#individual-checks" data-docsmith-toc-link="individual-checks">Individual checks</a><a class="toc-link toc-link-level-2" href="#documentation" data-docsmith-toc-link="documentation">Documentation</a><a class="toc-link toc-link-level-3" href="#adding-a-page" data-docsmith-toc-link="adding-a-page">Adding a page</a><a class="toc-link toc-link-level-3" href="#open-graph-images" data-docsmith-toc-link="open-graph-images">Open Graph images</a><a class="toc-link toc-link-level-3" href="#docsmith" data-docsmith-toc-link="docsmith">Docsmith</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

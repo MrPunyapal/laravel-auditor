@@ -48,20 +48,100 @@
                     <p class="doc-description">Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.</p>
                 </header>
                 <div class="doc-body">
-                    <p>Audit knowledge lives once, agent-agnostic, under <code>resources/auditor</code>. Adapters stay thin.</p>
-<h2 id="ask-the-agent">Ask the agent</h2>
+                    <p>Laravel Auditor keeps its audit knowledge in one agent-neutral location under <code>resources/auditor</code>. Agent-specific files are thin adapters that point the agent at that shared knowledge.</p>
+<p>This means the same skills, guidelines, and rules work across every supported agent. The adapter files are just pointers — they do not copy the full audit knowledge into each vendor directory.</p>
+<h2 id="integration-modes">Integration modes</h2>
+<h3 id="laravel-boost">Laravel Boost</h3>
+<p>When Boost is installed, Auditor extends it. Boost consumes Auditor's skills and guidelines directly from <code>resources/boost/</code>. The context tools are also registered inside Boost's MCP server automatically through <code>boost.mcp.tools.include</code>.</p>
+<p>If your project already uses Boost, this is the simplest path. Run <code>boost:install</code> or <code>boost:update</code> and everything is wired.</p>
+<h3 id="standalone">Standalone</h3>
+<p>When Boost is absent, <code>auditor:install</code> handles the wiring. It publishes skills, guidelines, and schemas to <code>.ai/</code>, writes agent adapter files, and registers the MCP server for agents that support it.</p>
+<p>Both paths produce the same audit knowledge — they just deliver it differently.</p>
+<h2 id="supported-agents">Supported agents</h2>
+<p>The standalone installer supports eight agents:</p>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Guidelines</th>
+<th>Skills</th>
+<th>MCP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenCode</td>
+<td><code>AGENTS.md</code></td>
+<td><code>.agents/skills</code></td>
+<td><code>opencode.json</code></td>
+</tr>
+<tr>
+<td>Claude Code</td>
+<td><code>CLAUDE.md</code></td>
+<td><code>.claude/skills</code></td>
+<td><code>.mcp.json</code></td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td><code>.cursor/rules/laravel-auditor.mdc</code></td>
+<td><code>.cursor/skills</code></td>
+<td><code>.cursor/mcp.json</code></td>
+</tr>
+<tr>
+<td>GitHub Copilot</td>
+<td><code>.github/copilot-instructions.md</code></td>
+<td><code>.github/skills</code></td>
+<td><code>.vscode/mcp.json</code></td>
+</tr>
+<tr>
+<td>Gemini CLI</td>
+<td><code>GEMINI.md</code></td>
+<td><code>.gemini/skills</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Codex</td>
+<td><code>AGENTS.md</code></td>
+<td><code>.agents/skills</code></td>
+<td><code>.codex/config.toml</code></td>
+</tr>
+<tr>
+<td>Junie</td>
+<td><code>AGENTS.md</code></td>
+<td><code>.junie/skills</code></td>
+<td><code>.junie/mcp/mcp.json</code></td>
+</tr>
+<tr>
+<td>Zed</td>
+<td><code>AGENTS.md</code></td>
+<td><code>.agents/skills</code></td>
+<td><code>.zed/settings.json</code></td>
+</tr>
+</tbody>
+</table>
+<p>Gemini does not support MCP. All other agents receive MCP registration when the installer runs.</p>
+<h2 id="what-an-adapter-file-contains">What an adapter file contains</h2>
+<p>An adapter is a short file that tells the agent where to find the audit skill and guidelines. For example, the <code>CLAUDE.md</code> adapter contains:</p>
+<pre class="phiki language-markdown github-light phiki-themes github-dark" data-language="markdown" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #005cc5;font-weight: bold;--phiki-dark-color: #79b8ff;--phiki-dark-font-weight: bold;">#</span><span class="token" style="color: #005cc5;font-weight: bold;--phiki-dark-color: #79b8ff;--phiki-dark-font-weight: bold;"> </span><span class="token" style="color: #6f42c1;font-weight: bold;--phiki-dark-color: #b392f0;--phiki-dark-font-weight: bold;">Laravel Auditor</span><span class="token" style="color: #005cc5;font-weight: bold;--phiki-dark-color: #79b8ff;--phiki-dark-font-weight: bold;">
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token">This project uses Laravel Auditor for evidence-based Laravel audits.
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token">When asked to audit, review, or assess this application, use the </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">`</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">laravel-audit` skill in `.ai/skills/laravel-audit` and follow `.ai/guidelines/core.md`.
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token">Do not modify application code during an audit. Prefer deterministic project facts from </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">`</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">php artisan auditor:status`, `php artisan auditor:rules`, and the Laravel Auditor MCP tools.
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>The adapter does not contain the full skill, guidelines, or rules. It points at the shared copies in <code>.ai/</code>.</p>
+<h2 id="asking-the-agent-to-audit">Asking the agent to audit</h2>
+<p>Once the agent is wired, give it a clear instruction:</p>
 <blockquote>
-<p>Use the laravel-audit skill. Discover this Laravel app, scope the relevant domains, and report only findings with file, route, or schema evidence.</p>
-</blockquote>
-<p>For a data-structure / ownership pass:</p>
-<blockquote>
-<p>Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.</p>
+<p>Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.</p>
 </blockquote>
 <h3 id="full-example-prompt">Full example prompt</h3>
 <blockquote>
 <p>You are auditing the Laravel application in this project using the Laravel Auditor methodology.</p>
 <ol>
-<li>Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.</li>
+<li>Use the laravel-audit skill. Follow its Discover -&gt; Scope -&gt; Verify -&gt; Report workflow.</li>
 <li>Start by calling the context MCP tools to gather deterministic facts BEFORE reading code:
 <ul>
 <li><code>project_info</code> — PHP/Laravel versions, database, ecosystem signals</li>
@@ -74,6 +154,7 @@
 <li><code>policies_authorization</code> — gates, policies, auth middleware</li>
 <li><code>jobs_events_schedules</code> — queues, events, cron</li>
 <li><code>tests</code> — test suite: framework, case counts (feature/unit)</li>
+<li><code>subsystems</code> — ownership-bounded inventory for a DSA-style coordinator audit</li>
 </ul>
 </li>
 <li>Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.</li>
@@ -82,37 +163,19 @@
 <li>Be read-only. Do not modify any application code.</li>
 </ol>
 </blockquote>
-<p>For a quick Discover-only pass:</p>
+<h3 id="quick-discover-pass">Quick discover pass</h3>
+<p>For a faster, non-exhaustive first pass:</p>
 <blockquote>
 <p>Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.</p>
 </blockquote>
-<h2 id="standalone-adapters">Standalone adapters</h2>
-<p><code>php artisan auditor:install</code> asks which AI agent(s) the project uses, then writes pointers only when the file is missing:</p>
-<ul>
-<li>OpenCode: <code>AGENTS.md</code> + <code>.agents/skills</code></li>
-<li>Claude Code: <code>CLAUDE.md</code> + <code>.claude/skills</code></li>
-<li>Cursor: <code>.cursor/rules/laravel-auditor.mdc</code> + <code>.cursor/skills</code></li>
-<li>Copilot: <code>.github/copilot-instructions.md</code> + <code>.github/skills</code></li>
-<li>Gemini: <code>GEMINI.md</code> + <code>.gemini/skills</code> (no MCP)</li>
-<li>Codex: <code>AGENTS.md</code> + <code>.agents/skills</code> + <code>.codex/config.toml</code></li>
-<li>Junie: <code>AGENTS.md</code> + <code>.junie/skills</code> + <code>.junie/mcp/mcp.json</code></li>
-<li>Zed: <code>AGENTS.md</code> + <code>.agents/skills</code> + <code>.zed/settings.json</code></li>
-</ul>
-<p>The adapters point at <code>.ai/skills/laravel-audit</code> and <code>.ai/guidelines/core.md</code>. They do not copy the full audit knowledge into every vendor file.</p>
-<p>For the agents that support MCP, the installer also registers the <code>laravel-auditor</code> server so tools like <code>audit</code>, <code>context</code>, and <code>rules</code> are available to the agent.</p>
-<p>Non-interactive runs (CI, <code>--no-interaction</code>) resolve agents from <code>--agents</code>, then project detection, then the <code>laravel-auditor.agents</code> config, then all supported agents.</p>
-<h2 id="laravel-boost">Laravel Boost</h2>
-<p>When Boost is present, skip the standalone installer and run <code>boost:install</code> / <code>boost:update</code>.</p>
-<p>When Boost is installed, the package also registers its read-only context tools (<code>project_info</code>, <code>routes</code>, <code>models</code>, <code>migrations</code>, <code>database_schema</code>, <code>dependencies</code>, <code>configuration</code>, <code>policies_authorization</code>, <code>jobs_events_schedules</code>, <code>tests</code>, <code>subsystems</code>) inside Boost's MCP server automatically through <code>boost.mcp.tools.include</code>.</p>
-<p>Boost skills shipped by this package:</p>
-<ul>
-<li><code>laravel-audit</code> — six-domain evidence-based audit</li>
-<li><code>laravel-audit-dsa</code> — bounded subsystem / DSA audit</li>
-<li><code>laravel-audit-security</code>, <code>performance</code>, <code>architecture</code>, <code>database</code>, <code>testing</code>, <code>conventions</code></li>
-<li><code>laravel-auditor-development</code> — install and wire the package</li>
-</ul>
-<h2 id="read-only">Read-only</h2>
-<p>Auditing must not modify application code. Installation may write Auditor-owned resources; it will not overwrite user-owned files without <code>--force</code>.</p>
+<h3 id="dsa-subsystem-audit">DSA / subsystem audit</h3>
+<p>For a bounded data-structure and ownership review:</p>
+<blockquote>
+<p>Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.</p>
+</blockquote>
+<p>See <a href="/dsa/">DSA audit</a>.</p>
+<h2 id="read-only-boundary">Read-only boundary</h2>
+<p>Auditing must not modify application code. Installation may write Auditor-owned resources (skills, guidelines, adapters, MCP config); it will not overwrite user-owned files without <code>--force</code>.</p>
 
                 </div>
                 <footer class="doc-meta">
@@ -121,7 +184,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../usage/"><span>Previous</span><strong>Usage</strong></a><a class="pager-link pager-link-next" href="../mcp/"><span>Next</span><strong>MCP tools</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#ask-the-agent" data-docsmith-toc-link="ask-the-agent">Ask the agent</a><a class="toc-link toc-link-level-3" href="#full-example-prompt" data-docsmith-toc-link="full-example-prompt">Full example prompt</a><a class="toc-link toc-link-level-2" href="#standalone-adapters" data-docsmith-toc-link="standalone-adapters">Standalone adapters</a><a class="toc-link toc-link-level-2" href="#laravel-boost" data-docsmith-toc-link="laravel-boost">Laravel Boost</a><a class="toc-link toc-link-level-2" href="#read-only" data-docsmith-toc-link="read-only">Read-only</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#integration-modes" data-docsmith-toc-link="integration-modes">Integration modes</a><a class="toc-link toc-link-level-3" href="#laravel-boost" data-docsmith-toc-link="laravel-boost">Laravel Boost</a><a class="toc-link toc-link-level-3" href="#standalone" data-docsmith-toc-link="standalone">Standalone</a><a class="toc-link toc-link-level-2" href="#supported-agents" data-docsmith-toc-link="supported-agents">Supported agents</a><a class="toc-link toc-link-level-2" href="#what-an-adapter-file-contains" data-docsmith-toc-link="what-an-adapter-file-contains">What an adapter file contains</a><a class="toc-link toc-link-level-2" href="#asking-the-agent-to-audit" data-docsmith-toc-link="asking-the-agent-to-audit">Asking the agent to audit</a><a class="toc-link toc-link-level-3" href="#full-example-prompt" data-docsmith-toc-link="full-example-prompt">Full example prompt</a><a class="toc-link toc-link-level-3" href="#quick-discover-pass" data-docsmith-toc-link="quick-discover-pass">Quick discover pass</a><a class="toc-link toc-link-level-3" href="#dsa-subsystem-audit" data-docsmith-toc-link="dsa-subsystem-audit">DSA / subsystem audit</a><a class="toc-link toc-link-level-2" href="#read-only-boundary" data-docsmith-toc-link="read-only-boundary">Read-only boundary</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

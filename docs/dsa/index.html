@@ -48,27 +48,34 @@
                     <p class="doc-description">Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.</p>
                 </header>
                 <div class="doc-body">
-                    <p>The <code>laravel-audit-dsa</code> skill is a Laravel-native version of a bounded, read-only coordinator audit (the method Aaron Francis described: inventory → fresh workers → validate, dedupe, rank).</p>
+                    <p>A DSA (Data Structures, State, Algorithms) audit is a different kind of review from a standard vulnerability audit. Instead of looking for security bugs or performance issues, it examines the application's internal organization: how data is structured, how state is represented, where behavior is owned, and whether the code could be materially simplified.</p>
 <p>This is <strong>audit only</strong>. Do not edit files, implement fixes, commit, or push.</p>
-<h2 id="flow">Flow</h2>
-<ol>
-<li><strong>Coverage contract</strong> — inventory every subsystem (<code>php artisan auditor:context subsystems</code>), then add leftover <code>app/</code> areas.</li>
-<li><strong>Bounded reviews</strong> — one worker per ownership boundary. At most <strong>two</strong> material simplifications, or <code>skip</code>.</li>
-<li><strong>Validate</strong> — the coordinator verifies every finding against the repo. Reject vague, duplicate, or complexity-relocating ideas.</li>
-<li><strong>Audit the audit</strong> — coverage, overlap, over-abstraction, then rank.</li>
-</ol>
-<h2 id="what-workers-look-for">What workers look for</h2>
+<h2 id="what-dsa-looks-for">What DSA looks for</h2>
 <ul>
-<li>Invalid boolean/nullable combinations that should be a state</li>
-<li>Repeated object-shape assumptions</li>
-<li>Copied switches a small registry would remove</li>
+<li>Scattered booleans or nullable fields that permit invalid combinations and should be a state machine</li>
+<li>Repeated assumptions about object shape that need a shared typed model</li>
+<li>Duplicated branching that a small registry would remove</li>
 <li>Unclear ownership of state or behavior</li>
-<li>Repeated scans that need an index</li>
-<li>Lifecycle/async representations that allow stale or contradictory state</li>
+<li>Repeated scans, transformations, or lookups where a more appropriate collection or index would simplify</li>
+<li>Lifecycle or async states whose representation permits stale or contradictory state</li>
 </ul>
-<p>Do not force an abstraction. Prefer boring local code when it is already clear.</p>
+<p>The goal is not cosmetic consistency. It is material simplification — finding places where a small, boring structural change would remove complexity.</p>
+<h2 id="what-a-subsystem-is">What a subsystem is</h2>
+<p>A subsystem is an ownership boundary within the application. The <code>subsystems</code> context tool inventories them automatically: HTTP controllers, Eloquent models, authorization, database/migrations, tests, configuration, and dependencies.</p>
+<p>Each subsystem gets a stable ID, a descriptive name, an exact boundary (which files belong to it), and relevant collectors. The audit reviews one subsystem at a time.</p>
+<h2 id="how-it-works">How it works</h2>
+<p>The <code>laravel-audit-dsa</code> skill uses a coordinator pattern:</p>
+<h3 id="1-establish-the-coverage-contract">1. Establish the coverage contract</h3>
+<p>Inventory every subsystem. Start from <code>php artisan auditor:context subsystems</code>, then add any leftover <code>app/</code> areas. Each subsystem gets a status: <code>queued</code>, <code>in review</code>, <code>recommend</code>, or <code>skip</code>.</p>
+<h3 id="2-run-bounded-reviews">2. Run bounded reviews</h3>
+<p>One worker per subsystem. Each worker looks for at most two materially useful simplifications within its boundary. Workers are bounded — they do not expand into other subsystems.</p>
+<p>Boundedness matters because unbounded agents tend to recommend cross-cutting refactors that relocate complexity rather than removing it. Bounded workers stay focused.</p>
+<h3 id="3-validate-and-synthesize">3. Validate and synthesize</h3>
+<p>The coordinator independently verifies every finding against the repository. Vague, duplicate, or complexity-relocating recommendations are rejected. Accepted findings are deduplicated and assigned to one authoritative subsystem.</p>
+<h3 id="4-audit-the-audit">4. Audit the audit</h3>
+<p>Before finishing, the coordinator checks for coverage gaps, duplication, over-abstraction, and schema completeness. Then ranks findings by impact, confidence, effort, blast radius, and prerequisites.</p>
 <h2 id="ranking">Ranking</h2>
-<p>Rank by impact, confidence, effort, blast radius, and prerequisites. Then assign:</p>
+<p>Findings are ranked into four tiers:</p>
 <table>
 <thead>
 <tr>
@@ -96,10 +103,16 @@
 </tbody>
 </table>
 <p>Every promoted ID appears exactly once.</p>
+<h2 id="running-a-dsa-audit">Running a DSA audit</h2>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:context</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">subsystems</span><span class="token">
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
+<p>Ask your agent:</p>
+<blockquote>
+<p>Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.</p>
+</blockquote>
+<p>The full workflow and worker brief are defined in the <code>laravel-audit-dsa</code> skill at <code>.ai/skills/laravel-audit-dsa/SKILL.md</code>.</p>
 
                 </div>
                 <footer class="doc-meta">
@@ -108,7 +121,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../findings/"><span>Previous</span><strong>Findings and reports</strong></a><a class="pager-link pager-link-next" href="../future/"><span>Next</span><strong>Future scope</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#flow" data-docsmith-toc-link="flow">Flow</a><a class="toc-link toc-link-level-2" href="#what-workers-look-for" data-docsmith-toc-link="what-workers-look-for">What workers look for</a><a class="toc-link toc-link-level-2" href="#ranking" data-docsmith-toc-link="ranking">Ranking</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#what-dsa-looks-for" data-docsmith-toc-link="what-dsa-looks-for">What DSA looks for</a><a class="toc-link toc-link-level-2" href="#what-a-subsystem-is" data-docsmith-toc-link="what-a-subsystem-is">What a subsystem is</a><a class="toc-link toc-link-level-2" href="#how-it-works" data-docsmith-toc-link="how-it-works">How it works</a><a class="toc-link toc-link-level-3" href="#1-establish-the-coverage-contract" data-docsmith-toc-link="1-establish-the-coverage-contract">1. Establish the coverage contract</a><a class="toc-link toc-link-level-3" href="#2-run-bounded-reviews" data-docsmith-toc-link="2-run-bounded-reviews">2. Run bounded reviews</a><a class="toc-link toc-link-level-3" href="#3-validate-and-synthesize" data-docsmith-toc-link="3-validate-and-synthesize">3. Validate and synthesize</a><a class="toc-link toc-link-level-3" href="#4-audit-the-audit" data-docsmith-toc-link="4-audit-the-audit">4. Audit the audit</a><a class="toc-link toc-link-level-2" href="#ranking" data-docsmith-toc-link="ranking">Ranking</a><a class="toc-link toc-link-level-2" href="#running-a-dsa-audit" data-docsmith-toc-link="running-a-dsa-audit">Running a DSA audit</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

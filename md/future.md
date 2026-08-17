@@ -7,40 +7,47 @@ order: 9
 slug: future
 ---
 
-These features may influence architecture. They are **not** required to ship V1.
+These features may influence the architecture. They are **not** required to ship V1 and are not promises.
 
-## F1: Legacy / standalone runner
+## Legacy and standalone support
 
-Audit older Laravel applications without forcing those apps to upgrade PHP or Laravel just to install Auditor.
+- **F1: Legacy runner** — Audit older Laravel applications without forcing PHP or Laravel upgrades.
+- **F2: Standalone CLI** — A package-runner style command for projects whose runtime is too old for the current package.
 
-## F2: Standalone CLI distribution
+## Agent and runtime improvements
 
-A package-runner style command for projects whose runtime is too old for the current package.
+- **F8: Runtime verification** — Safe, opt-in checks that turn likely findings into confirmed ones by observing actual behavior.
 
-## F3: Auto-fix / remediation
+## Remediation
 
-Turn a verified finding into a proposed fix, tests, and a patch. Any implementation must require explicit user approval and stay read-only by default.
+- **F3: Auto-fix / remediation** — Turn a verified finding into a proposed fix, tests, and a patch. Any implementation must require explicit user approval and stay read-only by default.
 
-## F4 / F5: CI policies and baselines
+## CI and baselines
 
-`auditor:ci` already fails on severity. Still open: ignored findings, historical baselines, new-vs-existing, trends.
+- **F4: CI policies** — Ignored findings, historical baselines, new-vs-existing detection, trend tracking. `auditor:ci` already fails on severity.
 
-## F6 / F7: More domains and deeper ecosystem packs
+## Audit depth
 
-Deployment, observability, API design, Tailwind/Passport/PHPUnit-specific packs — only when they stay evidence-first.
+- **F5: More domains** — Deployment, observability, API design domains — only when they stay evidence-first.
+- **F6: Deeper ecosystem packs** — Tailwind, Passport, PHPUnit-specific packs — only when they stay evidence-first.
 
-## F8: Runtime verification
+## Reporting
 
-Safe, opt-in checks that turn likely findings into confirmed ones.
+- **F7: Richer reporting** — HTML output, GitHub annotations, PR comments, TUI, IDE integration. SARIF is already available.
 
-## F9: Richer reporting
+## Broader scope
 
-HTML, GitHub annotations, PR comments, TUI, IDE integration. SARIF is already available.
-
-## F10–F12
-
-Organization policy packs, an agent profiler, and other-framework auditors are separate products.
+- **F9: Organization policy packs** — Multi-tenant or organization-level rule configuration.
+- **F10: Agent profiler** — Understand which agents produce the best findings.
+- **F11: Other-framework auditors** — Separate products for non-Laravel frameworks.
 
 ## Constraints that survive
 
-Agent-agnostic core. Boost optional. Evidence over guesses. Read-only by default. Few high-quality rules. Never claim more certainty than the evidence.
+These principles apply regardless of which features ship:
+
+- Agent-agnostic core
+- Boost optional
+- Evidence over guesses
+- Read-only by default
+- Few high-quality rules
+- Never claim more certainty than the evidence supports

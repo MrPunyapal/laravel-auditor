@@ -7,19 +7,25 @@ order: 3
 slug: usage
 ---
 
-The CLI is an installation, diagnostics, and reporting layer. The AI agent still does the reasoning.
+The CLI provides diagnostics, context gathering, rule listing, and report rendering. The AI agent does the reasoning and produces the findings.
 
-## Auditing a project end-to-end
+## Audit workflow
 
-1. Install as a development dependency:
+A complete audit follows these steps:
+
+### 1. Install
 
 ```bash
 composer require --dev mrpunyapal/laravel-auditor
 ```
 
-2. Expose the audit knowledge to your agent. With Laravel Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install`.
+### 2. Connect the agent
 
-3. (Optional) Register the read-only MCP context tools with your agent:
+With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install`. See [Installation](/installation/).
+
+### 3. Register context tools (optional)
+
+If your agent supports MCP, register the read-only context tools so the agent can call them directly:
 
 ```bash
 php artisan auditor:mcp
@@ -31,26 +37,39 @@ For example, with Claude Code:
 claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
 ```
 
-The agent can also gather the same facts without MCP via `auditor:context`.
+The agent can also gather the same facts without MCP via `auditor:context`. See [MCP tools](/mcp/).
 
-4. Ask your agent to audit the project:
+### 4. Ask the agent to audit
+
+Give the agent a clear instruction:
 
 > Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.
 
 The agent follows the skill workflow: **Discover** deterministic facts, **Scope** the domains that apply, **Investigate** with source and context, **Verify** high-severity claims, and **Report** structured findings with evidence.
 
-5. Render or gate the findings the agent produced:
+### 5. Render the report
+
+The agent writes findings as JSON. Auditor renders them:
 
 ```bash
 php artisan auditor:report --findings=storage/auditor-findings.json --format=markdown
+```
+
+### 6. Gate CI (optional)
+
+```bash
 php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 ```
 
+CI fails when an open finding meets or exceeds the severity threshold.
+
 ## Inspect the project
+
+These commands help you understand what Auditor sees in your application.
 
 ```bash
 php artisan auditor:status
-php artisan auditor:context --list
+php auditor:context --list
 php artisan auditor:context project_info
 php artisan auditor:context subsystems
 php artisan auditor:context routes --output=storage/auditor-routes.json
@@ -74,11 +93,9 @@ php artisan auditor:rules --applicable
 php artisan auditor:rules --json
 ```
 
-`--applicable` hides packs whose packages are not installed (for example Livewire rules on an app without Livewire).
+`--applicable` hides ecosystem packs whose packages are not installed. For example, Livewire rules are hidden when Livewire is not a dependency.
 
-## Render a report
-
-The agent writes findings JSON. Auditor renders it.
+## Render reports
 
 ```bash
 php artisan auditor:report --example
@@ -90,7 +107,7 @@ php artisan auditor:report --findings=storage/auditor-findings.json --output=sto
 
 Formats: `markdown`, `json`, `text`, `sarif`.
 
-Reports include project facts, severity and domain counts, a **P0–P3 priority synthesis**, evidence, and recommendations.
+Reports include project facts, severity and domain counts, a **P0-P3 priority synthesis**, evidence, and recommendations. See [Findings and reports](/findings/).
 
 ## CI
 
@@ -99,8 +116,24 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high --format=sarif --output=auditor.sarif
 ```
 
-CI fails when an **open** finding meets or exceeds `--fail-on` (`critical`, `high`, `medium`, `low`, `info`).
+CI output formats: `text`, `json`, `sarif`.
+
+The `--fail-on` threshold accepts: `critical`, `high`, `medium`, `low`, `info`.
 
 ## Configuration
 
 Publish `config/laravel-auditor.php` to change the default domain list, extra rule directories, standalone resource target, and default report format.
+
+```bash
+php artisan vendor:publish --tag="laravel-auditor-config"
+```
+
+Key settings:
+
+- `domains` — which audit domains are advertised in reports
+- `rules` — additional directories containing rule definition files
+- `resources_target` — where the standalone installer publishes agent resources (default: `.ai`)
+- `agents` — default agents for non-interactive installation
+- `context.composer_audit` — toggle the `composer audit` call from the dependencies collector
+- `context.test_listing` — toggle accurate test case counting via `--list-tests`
+- `report.format` — default format for `auditor:report`

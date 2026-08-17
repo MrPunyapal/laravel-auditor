@@ -7,31 +7,52 @@ order: 8
 slug: dsa
 ---
 
-The `laravel-audit-dsa` skill is a Laravel-native version of a bounded, read-only coordinator audit (the method Aaron Francis described: inventory → fresh workers → validate, dedupe, rank).
+A DSA (Data Structures, State, Algorithms) audit is a different kind of review from a standard vulnerability audit. Instead of looking for security bugs or performance issues, it examines the application's internal organization: how data is structured, how state is represented, where behavior is owned, and whether the code could be materially simplified.
 
 This is **audit only**. Do not edit files, implement fixes, commit, or push.
 
-## Flow
+## What DSA looks for
 
-1. **Coverage contract** — inventory every subsystem (`php artisan auditor:context subsystems`), then add leftover `app/` areas.
-2. **Bounded reviews** — one worker per ownership boundary. At most **two** material simplifications, or `skip`.
-3. **Validate** — the coordinator verifies every finding against the repo. Reject vague, duplicate, or complexity-relocating ideas.
-4. **Audit the audit** — coverage, overlap, over-abstraction, then rank.
-
-## What workers look for
-
-- Invalid boolean/nullable combinations that should be a state
-- Repeated object-shape assumptions
-- Copied switches a small registry would remove
+- Scattered booleans or nullable fields that permit invalid combinations and should be a state machine
+- Repeated assumptions about object shape that need a shared typed model
+- Duplicated branching that a small registry would remove
 - Unclear ownership of state or behavior
-- Repeated scans that need an index
-- Lifecycle/async representations that allow stale or contradictory state
+- Repeated scans, transformations, or lookups where a more appropriate collection or index would simplify
+- Lifecycle or async states whose representation permits stale or contradictory state
 
-Do not force an abstraction. Prefer boring local code when it is already clear.
+The goal is not cosmetic consistency. It is material simplification — finding places where a small, boring structural change would remove complexity.
+
+## What a subsystem is
+
+A subsystem is an ownership boundary within the application. The `subsystems` context tool inventories them automatically: HTTP controllers, Eloquent models, authorization, database/migrations, tests, configuration, and dependencies.
+
+Each subsystem gets a stable ID, a descriptive name, an exact boundary (which files belong to it), and relevant collectors. The audit reviews one subsystem at a time.
+
+## How it works
+
+The `laravel-audit-dsa` skill uses a coordinator pattern:
+
+### 1. Establish the coverage contract
+
+Inventory every subsystem. Start from `php artisan auditor:context subsystems`, then add any leftover `app/` areas. Each subsystem gets a status: `queued`, `in review`, `recommend`, or `skip`.
+
+### 2. Run bounded reviews
+
+One worker per subsystem. Each worker looks for at most two materially useful simplifications within its boundary. Workers are bounded — they do not expand into other subsystems.
+
+Boundedness matters because unbounded agents tend to recommend cross-cutting refactors that relocate complexity rather than removing it. Bounded workers stay focused.
+
+### 3. Validate and synthesize
+
+The coordinator independently verifies every finding against the repository. Vague, duplicate, or complexity-relocating recommendations are rejected. Accepted findings are deduplicated and assigned to one authoritative subsystem.
+
+### 4. Audit the audit
+
+Before finishing, the coordinator checks for coverage gaps, duplication, over-abstraction, and schema completeness. Then ranks findings by impact, confidence, effort, blast radius, and prerequisites.
 
 ## Ranking
 
-Rank by impact, confidence, effort, blast radius, and prerequisites. Then assign:
+Findings are ranked into four tiers:
 
 | Tier | Meaning |
 | --- | --- |
@@ -42,7 +63,15 @@ Rank by impact, confidence, effort, blast radius, and prerequisites. Then assign
 
 Every promoted ID appears exactly once.
 
+## Running a DSA audit
+
 ```bash
 php artisan auditor:context subsystems
 php artisan auditor:report --findings=storage/auditor-findings.json
 ```
+
+Ask your agent:
+
+> Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
+
+The full workflow and worker brief are defined in the `laravel-audit-dsa` skill at `.ai/skills/laravel-audit-dsa/SKILL.md`.

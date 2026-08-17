@@ -49,37 +49,188 @@
                 </header>
                 <div class="doc-body">
                     <p>Laravel Auditor does not invent findings. The agent produces them; the package stores, validates, and renders them.</p>
-<h2 id="finding-json">Finding JSON</h2>
+<p>This separation is deliberate. The agent reasons about the code and produces structured findings. Laravel Auditor validates those findings against its schema and renders them as reports. The package never decides what is a vulnerability — the agent does.</p>
+<h2 id="finding-lifecycle">Finding lifecycle</h2>
+<pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">AI agent
+</span></span><span class="line"><span class="token">   ↓
+</span></span><span class="line"><span class="token">reads code, applies rules, gathers evidence
+</span></span><span class="line"><span class="token">   ↓
+</span></span><span class="line"><span class="token">creates finding (JSON)
+</span></span><span class="line"><span class="token">   ↓
+</span></span><span class="line"><span class="token">Auditor loads and validates the finding
+</span></span><span class="line"><span class="token">   ↓
+</span></span><span class="line"><span class="token">Auditor renders it as Markdown, JSON, text, or SARIF
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<h2 id="finding-schema">Finding schema</h2>
 <p>See <code>resources/auditor/schema/finding.schema.json</code> and <code>resources/auditor/examples/findings.json</code>.</p>
-<p>Required fields: <code>id</code>, <code>rule_id</code>, <code>title</code>, <code>domain</code>, <code>severity</code>, <code>confidence</code>, <code>summary</code>, <code>why_it_matters</code>.</p>
-<p>Include whenever possible: <code>evidence</code>, <code>affected_resources</code>, <code>symbol</code>, <code>recommendation</code>, <code>remediation</code>, <code>verification_notes</code>.</p>
+<p>Required fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Unique finding instance ID (e.g. <code>F-2026-0001</code>)</td>
+</tr>
+<tr>
+<td><code>rule_id</code></td>
+<td>Stable rule ID when one matches (e.g. <code>AUD-SEC-001</code>)</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>Short, specific description</td>
+</tr>
+<tr>
+<td><code>domain</code></td>
+<td>Audit domain (<code>security</code>, <code>performance</code>, <code>architecture</code>, <code>database</code>, <code>testing</code>, <code>conventions</code>)</td>
+</tr>
+<tr>
+<td><code>severity</code></td>
+<td>Impact level</td>
+</tr>
+<tr>
+<td><code>confidence</code></td>
+<td>How certain the finding is given available evidence</td>
+</tr>
+<tr>
+<td><code>summary</code></td>
+<td>What is wrong</td>
+</tr>
+<tr>
+<td><code>why_it_matters</code></td>
+<td>Why it matters for this application</td>
+</tr>
+</tbody>
+</table>
+<p>Include whenever possible:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>evidence</code></td>
+<td>Concrete references (file paths, lines, routes, symbols, config keys)</td>
+</tr>
+<tr>
+<td><code>affected_resources</code></td>
+<td>Files, routes, config keys involved</td>
+</tr>
+<tr>
+<td><code>symbol</code></td>
+<td>Class, method, or route reference</td>
+</tr>
+<tr>
+<td><code>recommendation</code></td>
+<td>What to do about it</td>
+</tr>
+<tr>
+<td><code>remediation</code></td>
+<td>Optional step-by-step fix guidance</td>
+</tr>
+<tr>
+<td><code>verification_notes</code></td>
+<td>How the finding was verified, or why it could not be</td>
+</tr>
+</tbody>
+</table>
 <p>Optional <code>metadata</code>:</p>
 <ul>
 <li><code>subsystem</code> — inventory ID from <code>auditor:context subsystems</code></li>
 <li><code>priority</code> — <code>p0</code>, <code>p1</code>, <code>p2</code>, or <code>p3</code></li>
 </ul>
 <h2 id="severity-and-confidence">Severity and confidence</h2>
+<p>These are separate dimensions.</p>
+<p><strong>Severity</strong> describes impact: how much damage a confirmed instance could cause.</p>
+<p><strong>Confidence</strong> describes certainty: how well the evidence supports the claim.</p>
+<p>A potentially critical issue with thin evidence should carry low confidence. A confirmed issue with verified evidence carries <code>confirmed</code> confidence. This distinction prevents the agent from inflating findings without proof.</p>
 <ul>
-<li>Severity: <code>critical</code>, <code>high</code>, <code>medium</code>, <code>low</code>, <code>info</code></li>
-<li>Confidence: <code>confirmed</code>, <code>high</code>, <code>medium</code>, <code>low</code></li>
+<li><strong>Severity</strong>: <code>critical</code>, <code>high</code>, <code>medium</code>, <code>low</code>, <code>info</code></li>
+<li><strong>Confidence</strong>: <code>confirmed</code>, <code>high</code>, <code>medium</code>, <code>low</code></li>
 </ul>
-<p>A high-severity claim with thin evidence should carry medium or low confidence.</p>
 <h2 id="priority-tiers">Priority tiers</h2>
-<p>If <code>metadata.priority</code> is omitted, Auditor derives a tier:</p>
-<ul>
-<li><strong>P0</strong> — critical, or high security/database</li>
-<li><strong>P1</strong> — other high, or medium security</li>
-<li><strong>P2</strong> — medium</li>
-<li><strong>P3</strong> — low / info</li>
-</ul>
-<p>Reports print a <strong>Priority synthesis</strong> so every promoted ID appears once.</p>
-<h2 id="commands">Commands</h2>
-<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-format=markdown</span><span class="token">
-</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-example</span><span class="token">
-</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-format=sarif</span><span class="token">
-</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:ci</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-fail-on=high</span><span class="token">
+<p>Reports assign each finding a priority tier (P0-P3). If <code>metadata.priority</code> is not set, Auditor derives it:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Meaning</th>
+<th>Auto-assigned when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>Correctness, security, or data-loss risk</td>
+<td>Critical severity, or high severity in security/database</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Concrete correctness or high-leverage work</td>
+<td>High severity, or medium severity in security</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>Material invariant improvements</td>
+<td>Medium severity</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>Telemetry, diagnostics, maintainability</td>
+<td>Low or info severity</td>
+</tr>
+</tbody>
+</table>
+<p>Every promoted ID appears exactly once in the priority synthesis.</p>
+<h2 id="example-finding">Example finding</h2>
+<pre class="phiki language-json github-light phiki-themes github-dark" data-language="json" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">{</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">id</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">F-2026-0001</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">rule_id</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">AUD-SEC-001</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">title</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">Missing authorization boundary</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">domain</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">security</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">severity</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">high</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">confidence</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">confirmed</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">status</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">open</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">summary</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">Any authenticated user can delete another user's post.</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">why_it_matters</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">The destroy action never authorizes the Post policy.</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">evidence</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token">[</span><span class="token">
+</span></span><span class="line"><span class="token">    </span><span class="token">{</span><span class="token">
+</span></span><span class="line"><span class="token">      </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">type</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">file</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">      </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">reference</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">app/Http/Controllers/PostController.php</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">      </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">line</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">42</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">      </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">end_line</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">48</span><span class="token">
+</span></span><span class="line"><span class="token">    </span><span class="token">}</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token">]</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">affected_resources</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token">[</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">app/Http/Controllers/PostController.php</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">]</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">symbol</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">App</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\\</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">Http</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\\</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">Controllers</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\\</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">PostController@destroy</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">,</span><span class="token">
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">recommendation</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">"</span><span class="token">:</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">Authorize the deletion with a PostPolicy or route middleware.</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">
+</span></span><span class="line"><span class="token">}</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
+<h2 id="reports">Reports</h2>
+<p>The agent writes findings as JSON. Auditor renders them:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-format=markdown</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-format=json</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-format=text</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-format=sarif</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:report</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-example</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>Reports include project facts, severity and domain counts, a priority synthesis, key risks, and all findings with evidence and recommendations.</p>
+<h2 id="ci-gating">CI gating</h2>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:ci</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-fail-on=high</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:ci</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-fail-on=high</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-format=sarif</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-output=auditor.sarif</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>CI fails when an open finding meets or exceeds the <code>--fail-on</code> threshold.</p>
 
                 </div>
                 <footer class="doc-meta">
@@ -88,7 +239,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../rules/"><span>Previous</span><strong>Rules</strong></a><a class="pager-link pager-link-next" href="../dsa/"><span>Next</span><strong>DSA audit</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#finding-json" data-docsmith-toc-link="finding-json">Finding JSON</a><a class="toc-link toc-link-level-2" href="#severity-and-confidence" data-docsmith-toc-link="severity-and-confidence">Severity and confidence</a><a class="toc-link toc-link-level-2" href="#priority-tiers" data-docsmith-toc-link="priority-tiers">Priority tiers</a><a class="toc-link toc-link-level-2" href="#commands" data-docsmith-toc-link="commands">Commands</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#finding-lifecycle" data-docsmith-toc-link="finding-lifecycle">Finding lifecycle</a><a class="toc-link toc-link-level-2" href="#finding-schema" data-docsmith-toc-link="finding-schema">Finding schema</a><a class="toc-link toc-link-level-2" href="#severity-and-confidence" data-docsmith-toc-link="severity-and-confidence">Severity and confidence</a><a class="toc-link toc-link-level-2" href="#priority-tiers" data-docsmith-toc-link="priority-tiers">Priority tiers</a><a class="toc-link toc-link-level-2" href="#example-finding" data-docsmith-toc-link="example-finding">Example finding</a><a class="toc-link toc-link-level-2" href="#reports" data-docsmith-toc-link="reports">Reports</a><a class="toc-link toc-link-level-2" href="#ci-gating" data-docsmith-toc-link="ci-gating">CI gating</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

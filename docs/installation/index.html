@@ -48,13 +48,24 @@
                     <p class="doc-description">Install Laravel Auditor in a Laravel application with or without Laravel Boost.</p>
                 </header>
                 <div class="doc-body">
-                    <p>Install Laravel Auditor as a <strong>development</strong> dependency.</p>
+                    <p>Laravel Auditor is installed as a <strong>development</strong> dependency. It is an engineering tool used during auditing, not a runtime requirement for the production application.</p>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">require</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dev</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">mrpunyapal/laravel-auditor</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
 <p>Requirements: PHP 8.3+ and Laravel 12 or 13.</p>
+<h2 id="decide-your-integration-path">Decide your integration path</h2>
+<p>The installation path depends on whether your project uses Laravel Boost.</p>
+<pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Install Laravel Auditor
+</span></span><span class="line"><span class="token">        │
+</span></span><span class="line"><span class="token">        ├── Using Laravel Boost?
+</span></span><span class="line"><span class="token">        │       └── Run boost:install / boost:update
+</span></span><span class="line"><span class="token">        │
+</span></span><span class="line"><span class="token">        └── Not using Boost?
+</span></span><span class="line"><span class="token">                └── Run auditor:install
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p><strong>If Laravel Boost is already installed</strong>, do not run <code>auditor:install</code>. Boost consumes Auditor's skills and guidelines directly from the package's <code>resources/boost/</code> directory. Running <code>auditor:install</code> would duplicate what Boost already provides.</p>
 <h2 id="with-laravel-boost">With Laravel Boost</h2>
-<p>If the application already uses <a href="https://laravel.com/docs/boost">Laravel Boost</a>, expose Auditor's guidelines and skills through Boost:</p>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">boost:install</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
@@ -62,32 +73,53 @@
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">boost:update</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p>Do not run <code>auditor:install</code> just to duplicate Boost setup. Boost consumes <code>resources/boost/guidelines</code> and <code>resources/boost/skills</code> from this package directly.</p>
+<p>This exposes Auditor's audit-specific skills and guidelines through Boost. The context tools are also registered inside Boost's MCP server automatically. No additional setup is needed.</p>
 <h2 id="standalone-no-boost">Standalone (no Boost)</h2>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
+<p>The standalone installer handles everything needed to connect Laravel Auditor to your AI agent.</p>
+<h3 id="what-it-does">What it does</h3>
 <p>The installer is idempotent and safe. It:</p>
 <ul>
-<li>detects the Laravel application context</li>
-<li>detects whether Laravel Boost is installed</li>
-<li>publishes agent skills, guidelines, schemas, and examples to <code>.ai/</code></li>
-<li>asks which AI agent(s) the project uses (non-interactive runs resolve from <code>--agents</code>, project detection, or the <code>laravel-auditor.agents</code> config)</li>
-<li>writes thin <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>GEMINI.md</code>, Cursor, Copilot, Codex, Junie, and Zed adapters only when those files are missing</li>
-<li>copies the <code>laravel-audit</code> skill into the selected agent's native skills directory</li>
-<li>registers the <code>laravel-auditor</code> MCP server in the selected agent's config (except Gemini, which has no MCP)</li>
+<li>detects whether Laravel Boost is already installed</li>
+<li>publishes skills, guidelines, schemas, and examples to <code>.ai/</code></li>
+<li>asks which AI agent(s) the project uses (or resolves them automatically)</li>
+<li>writes thin adapter files that point the agent at the shared audit knowledge</li>
+<li>copies the <code>laravel-audit</code> skill into the agent's native skills directory</li>
+<li>registers the <code>laravel-auditor</code> MCP server for agents that support MCP</li>
 <li>publishes <code>config/laravel-auditor.php</code> when it is missing</li>
-<li>reports what it created or left unchanged</li>
+<li>reports exactly what it created or left unchanged</li>
 </ul>
-<p>Useful options:</p>
-<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dry-run</span><span class="token">
+<h3 id="what-it-will-not-overwrite">What it will not overwrite</h3>
+<p>The installer respects your project. It will not:</p>
+<ul>
+<li>overwrite user-owned files (like a <code>CLAUDE.md</code> you wrote yourself) unless you pass <code>--force</code></li>
+<li>duplicate Boost setup when Boost is detected</li>
+<li>modify application code</li>
+</ul>
+<h3 id="agent-selection">Agent selection</h3>
+<p>When run interactively, the installer asks which AI agents to configure. In non-interactive environments (CI, scripts), agents are resolved in this order:</p>
+<ol>
+<li>The <code>--agents</code> option (if provided)</li>
+<li>Project detection (looks for agent config files like <code>CLAUDE.md</code>, <code>opencode.json</code>)</li>
+<li>The <code>laravel-auditor.agents</code> config value</li>
+<li>All supported agents as a fallback</li>
+</ol>
+<h3 id="options">Options</h3>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Preview what would be created without writing anything:
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dry-run</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Refresh Auditor-owned resources (skills, guidelines, adapters):
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-force</span><span class="token">
-</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-agents=opencode,claude_code</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Wire only specific agents:
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-agents=claude_code,opencode</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p><code>--agents</code> restricts wiring to the listed agent keys (<code>opencode</code>, <code>claude_code</code>, <code>cursor</code>, <code>copilot</code>, <code>gemini</code>, <code>codex</code>, <code>junie</code>, <code>zed</code>). In non-interactive runs, agents are resolved from <code>--agents</code>, then project detection, then the <code>laravel-auditor.agents</code> config, then all supported agents.</p>
-<p><code>--force</code> refreshes Auditor-owned resources. It does not overwrite unrelated user-owned files unless you explicitly ask it to refresh an existing adapter.</p>
+<p><code>--force</code> refreshes Auditor-owned resources. It appends to user-owned files rather than overwriting them, unless the file already contains an <code>&lt;!-- laravel-auditor --&gt;</code> marker block, in which case it replaces that block.</p>
 <h2 id="publish-tags">Publish tags</h2>
+<p>You can also publish individual resource groups with Artisan:</p>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">vendor:publish</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-tag=</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">vendor:publish</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-tag=</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor-config</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">vendor:publish</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-tag=</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor-resources</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">"</span><span class="token">
@@ -96,10 +128,18 @@
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
 <h2 id="verify">Verify</h2>
+<p>After installation, confirm everything is wired correctly:</p>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:status</span><span class="token">
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:rules</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-applicable</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
+<p><code>auditor:status</code> shows the installed version, integration mode (Boost or standalone), audit domains, rule counts, and available context tools. <code>auditor:rules --applicable</code> lists only the rules that match your project's installed packages.</p>
+<h2 id="next">Next</h2>
+<ul>
+<li><a href="/agents/">Agent setup</a> — connect to your specific AI agent</li>
+<li><a href="/usage/">Usage</a> — audit workflow and commands</li>
+<li><a href="/mcp/">MCP tools</a> — register context tools with your agent</li>
+</ul>
 
                 </div>
                 <footer class="doc-meta">
@@ -108,7 +148,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../"><span>Previous</span><strong>Laravel Auditor</strong></a><a class="pager-link pager-link-next" href="../usage/"><span>Next</span><strong>Usage</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#with-laravel-boost" data-docsmith-toc-link="with-laravel-boost">With Laravel Boost</a><a class="toc-link toc-link-level-2" href="#standalone-no-boost" data-docsmith-toc-link="standalone-no-boost">Standalone (no Boost)</a><a class="toc-link toc-link-level-2" href="#publish-tags" data-docsmith-toc-link="publish-tags">Publish tags</a><a class="toc-link toc-link-level-2" href="#verify" data-docsmith-toc-link="verify">Verify</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#decide-your-integration-path" data-docsmith-toc-link="decide-your-integration-path">Decide your integration path</a><a class="toc-link toc-link-level-2" href="#with-laravel-boost" data-docsmith-toc-link="with-laravel-boost">With Laravel Boost</a><a class="toc-link toc-link-level-2" href="#standalone-no-boost" data-docsmith-toc-link="standalone-no-boost">Standalone (no Boost)</a><a class="toc-link toc-link-level-3" href="#what-it-does" data-docsmith-toc-link="what-it-does">What it does</a><a class="toc-link toc-link-level-3" href="#what-it-will-not-overwrite" data-docsmith-toc-link="what-it-will-not-overwrite">What it will not overwrite</a><a class="toc-link toc-link-level-3" href="#agent-selection" data-docsmith-toc-link="agent-selection">Agent selection</a><a class="toc-link toc-link-level-3" href="#options" data-docsmith-toc-link="options">Options</a><a class="toc-link toc-link-level-2" href="#publish-tags" data-docsmith-toc-link="publish-tags">Publish tags</a><a class="toc-link toc-link-level-2" href="#verify" data-docsmith-toc-link="verify">Verify</a><a class="toc-link toc-link-level-2" href="#next" data-docsmith-toc-link="next">Next</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

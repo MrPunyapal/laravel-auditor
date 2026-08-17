@@ -7,21 +7,23 @@ order: 5
 slug: mcp
 ---
 
-Laravel Auditor ships a local stdio MCP server, plus automatic registration of its context tools inside Laravel Boost's MCP server when Boost is installed.
+MCP (Model Context Protocol) is the bridge that lets an AI coding agent request structured Laravel application context from Auditor. Instead of reading raw files and guessing, the agent calls a tool and gets deterministic facts: routes, models, schema, dependencies, and more.
 
-The standalone server is available for agents that manage their own MCP config:
+Laravel Auditor ships a local stdio MCP server that exposes 11 read-only context tools. When Laravel Boost is installed, the same tools are also registered inside Boost's MCP server automatically.
+
+## Register the server
 
 ```bash
 php artisan auditor:mcp
 ```
 
-Claude Code:
+For example, with Claude Code:
 
 ```bash
 claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
 ```
 
-A client snippet lives in `resources/auditor/mcp/mcp.json.example`.
+A client configuration example lives in `resources/auditor/mcp/mcp.json.example`.
 
 ## Tools
 
@@ -39,11 +41,34 @@ A client snippet lives in `resources/auditor/mcp/mcp.json.example`.
 | `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 
-The same payloads are available without MCP via `php artisan auditor:context {tool}`.
+## Why structured data instead of source dumps
 
-Output is structured and concise. Tools never mutate the application.
+An agent can read files directly, but that gives it raw text without context. Laravel Auditor's tools return structured, filtered, deterministic data. The agent gets the route table as a list of methods, URIs, and middleware — not a PHP file it has to parse. This makes the agent's reasoning faster and more reliable.
 
-## Laravel Boost
+## Without MCP
 
-When Laravel Boost is installed, the service provider registers the same context collectors as read-only tools (`project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`) inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
+The same context is available without MCP through Artisan:
 
+```bash
+php artisan auditor:context project_info
+php artisan auditor:context routes --output=storage/auditor-routes.json
+php artisan auditor:context --list
+```
+
+From PHP:
+
+```php
+use LaravelAuditor\Facades\LaravelAuditor;
+
+LaravelAuditor::collect('models');
+```
+
+MCP is a convenience for agents that support it. It does not expose any functionality that the Artisan commands do not already provide.
+
+## Read-only
+
+All tools are read-only. They return structured facts about the application. They never mutate code, configuration, or database state.
+
+## Laravel Boost integration
+
+When Laravel Boost is installed, the service provider registers the same 11 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.

@@ -2,42 +2,96 @@
 
 > Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.
 
-Laravel Auditor equips an existing AI coding agent with a specialized, evidence-based methodology and toolset for auditing Laravel applications.
+Laravel Auditor gives an AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.
 
-It is **not** a generic code-review prompt, a replacement for Laravel Boost, or an autonomous AI product. The agent remains the reasoning engine. This package provides the audit workflow, domain knowledge, rules, finding schema, and structured Laravel context tools.
+It is **not** an autonomous AI service, a generic code-review prompt, or a replacement for Laravel Boost. The AI agent remains the reasoning engine. Laravel Auditor provides the audit workflow, domain knowledge, rules, finding schema, and structured Laravel context tools.
 
 ## Why it exists
 
-AI agents can already read a Laravel codebase. They still tend to:
+AI agents can already read a Laravel codebase. Ask one to "audit my app" without specialized methodology and you will likely get:
 
-- guess at framework behavior instead of collecting project facts
-- report style opinions as high-severity findings
-- invent vulnerabilities from uncommon patterns
-- skip verification before reporting a serious finding
+- **Guesses about framework behavior** instead of collected project facts. The agent assumes how a package works rather than checking the installed version and its actual configuration.
+- **Style opinions reported as high-severity issues**. The agent flags a naming convention it dislikes as a security risk.
+- **Invented vulnerabilities from uncommon patterns**. The agent reports a theoretical attack vector that does not apply to this application's actual setup.
+- **Serious findings reported without verification**. The agent claims a missing authorization boundary without checking the routes, middleware, or policies.
 
-Laravel Auditor gives the agent a repeatable audit workflow and deterministic project context so findings stay specific, evidenced, and trustworthy.
+Laravel Auditor fixes this by giving the agent a repeatable audit workflow and deterministic project context. Findings stay specific, evidenced, and trustworthy.
 
-## First five minutes
+## How it works
 
-1. Install the package as a development dependency
-2. Run Boost setup or `auditor:install`
-3. Open your preferred AI agent
-4. Ask it to audit the project
-5. Receive structured findings with evidence
+The audit follows a structured flow. The agent drives each stage; Laravel Auditor provides the tools and knowledge at each step.
 
-## What V1 covers
+```text
+Discover → Scope → Investigate → Verify → Report
+```
 
-Six core domains: **security**, **performance**, **architecture**, **database**, **testing**, and **Laravel conventions**.
+**Discover.** The agent gathers deterministic project facts: PHP and Laravel versions, database engine, route surface, models, migrations, dependencies, authorization setup, tests, and ecosystem packages. These facts come from Laravel Auditor's context tools, not from guessing.
 
-Optional ecosystem packs apply only when those packages are installed: Livewire, Filament, Inertia, Sanctum, Pest, and queues.
+**Scope.** The agent selects which audit domains actually apply. A queue-less app does not need queue analysis. A pure API app does not need Blade template review.
 
-A separate **DSA / organizing-model** pass inventories subsystems, reviews them in bounded lanes, and ranks findings P0–P3.
+**Investigate.** The agent examines source code, traces behavior across files, and cross-checks evidence against multiple sources. Rules describe what to look for and what evidence is required.
+
+**Verify.** Before reporting a high-severity finding, the agent verifies it against actual routes, middleware, models, schema, config, or tests. If verification fails, the finding is labeled with lower confidence.
+
+**Report.** The agent produces structured findings with evidence. Laravel Auditor renders them as Markdown, JSON, text, or SARIF.
+
+## What the package provides
+
+Laravel Auditor contributes seven things to the audit:
+
+| Component | Purpose |
+| --- | --- |
+| **Skills** | Step-by-step audit workflows the agent follows |
+| **Guidelines** | Principles that govern every finding (evidence-first, read-only, no severity inflation) |
+| **Rules** | 61 audit criteria across 6 core domains, describing what to look for and what evidence is required |
+| **Context collectors** | 11 read-only tools that provide deterministic Laravel facts (routes, models, schema, etc.) |
+| **MCP server** | A bridge that lets a supported AI agent call the context tools directly |
+| **Finding schema** | A structured format for findings with severity, confidence, evidence, and recommendations |
+| **Report and CI tooling** | Commands that render findings as Markdown, JSON, text, or SARIF, and gate CI on severity |
+
+## What the AI agent provides
+
+The agent provides the reasoning. It reads source code, traces behavior, evaluates context, applies judgment, and produces findings. Laravel Auditor does not replace the agent's intelligence — it focuses it.
+
+## What it does not do
+
+- **Not an autonomous service.** No AI runs without your trigger. You ask your agent to audit; the agent does the work.
+- **Not a generic code reviewer.** Laravel Auditor is specifically designed for evidence-based Laravel auditing, not general code quality opinions.
+- **Not a replacement for Laravel Boost.** When Boost is installed, Auditor extends it. When Boost is absent, Auditor works standalone.
+- **Not a production monitor.** Auditor inspects code and configuration at a point in time. It does not observe runtime behavior.
+- **Not an automatic fixer.** V1 is read-only. The agent recommends fixes; it does not apply them.
+
+## Who is it for
+
+Laravel developers and teams who already use an AI coding agent and want a more systematic, evidence-driven way to audit an application. If you have ever asked an agent to "review my Laravel app" and received a noisy, unhelpful list of opinions, this package is for you.
+
+## Quick start
+
+```bash
+composer require --dev mrpunyapal/laravel-auditor
+```
+
+Then either:
+
+```bash
+# With Laravel Boost installed:
+php artisan boost:install
+
+# Without Boost:
+php artisan auditor:install
+```
+
+Open your AI agent and ask:
+
+> Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.
+
+The agent follows the skill workflow, uses the context tools to gather facts, applies the rules, and produces structured findings with evidence.
 
 ## Next
 
-- [Installation](/installation/)
-- [Usage](/usage/)
-- [Agent setup](/agents/)
+- [Installation](/installation/) — install and wire the package
+- [Usage](/usage/) — commands, workflow, and reporting
+- [Agent setup](/agents/) — connect to your specific AI agent
 
 
 ---
@@ -46,7 +100,7 @@ A separate **DSA / organizing-model** pass inventories subsystems, reviews them 
 
 > Install Laravel Auditor in a Laravel application with or without Laravel Boost.
 
-Install Laravel Auditor as a **development** dependency.
+Laravel Auditor is installed as a **development** dependency. It is an engineering tool used during auditing, not a runtime requirement for the production application.
 
 ```bash
 composer require --dev mrpunyapal/laravel-auditor
@@ -54,9 +108,23 @@ composer require --dev mrpunyapal/laravel-auditor
 
 Requirements: PHP 8.3+ and Laravel 12 or 13.
 
-## With Laravel Boost
+## Decide your integration path
 
-If the application already uses [Laravel Boost](https://laravel.com/docs/boost), expose Auditor's guidelines and skills through Boost:
+The installation path depends on whether your project uses Laravel Boost.
+
+```text
+Install Laravel Auditor
+        │
+        ├── Using Laravel Boost?
+        │       └── Run boost:install / boost:update
+        │
+        └── Not using Boost?
+                └── Run auditor:install
+```
+
+**If Laravel Boost is already installed**, do not run `auditor:install`. Boost consumes Auditor's skills and guidelines directly from the package's `resources/boost/` directory. Running `auditor:install` would duplicate what Boost already provides.
+
+## With Laravel Boost
 
 ```bash
 php artisan boost:install
@@ -68,7 +136,7 @@ After package updates:
 php artisan boost:update
 ```
 
-Do not run `auditor:install` just to duplicate Boost setup. Boost consumes `resources/boost/guidelines` and `resources/boost/skills` from this package directly.
+This exposes Auditor's audit-specific skills and guidelines through Boost. The context tools are also registered inside Boost's MCP server automatically. No additional setup is needed.
 
 ## Standalone (no Boost)
 
@@ -76,31 +144,56 @@ Do not run `auditor:install` just to duplicate Boost setup. Boost consumes `reso
 php artisan auditor:install
 ```
 
+The standalone installer handles everything needed to connect Laravel Auditor to your AI agent.
+
+### What it does
+
 The installer is idempotent and safe. It:
 
-- detects the Laravel application context
-- detects whether Laravel Boost is installed
-- publishes agent skills, guidelines, schemas, and examples to `.ai/`
-- asks which AI agent(s) the project uses (non-interactive runs resolve from `--agents`, project detection, or the `laravel-auditor.agents` config)
-- writes thin `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, Cursor, Copilot, Codex, Junie, and Zed adapters only when those files are missing
-- copies the `laravel-audit` skill into the selected agent's native skills directory
-- registers the `laravel-auditor` MCP server in the selected agent's config (except Gemini, which has no MCP)
+- detects whether Laravel Boost is already installed
+- publishes skills, guidelines, schemas, and examples to `.ai/`
+- asks which AI agent(s) the project uses (or resolves them automatically)
+- writes thin adapter files that point the agent at the shared audit knowledge
+- copies the `laravel-audit` skill into the agent's native skills directory
+- registers the `laravel-auditor` MCP server for agents that support MCP
 - publishes `config/laravel-auditor.php` when it is missing
-- reports what it created or left unchanged
+- reports exactly what it created or left unchanged
 
-Useful options:
+### What it will not overwrite
+
+The installer respects your project. It will not:
+
+- overwrite user-owned files (like a `CLAUDE.md` you wrote yourself) unless you pass `--force`
+- duplicate Boost setup when Boost is detected
+- modify application code
+
+### Agent selection
+
+When run interactively, the installer asks which AI agents to configure. In non-interactive environments (CI, scripts), agents are resolved in this order:
+
+1. The `--agents` option (if provided)
+2. Project detection (looks for agent config files like `CLAUDE.md`, `opencode.json`)
+3. The `laravel-auditor.agents` config value
+4. All supported agents as a fallback
+
+### Options
 
 ```bash
+# Preview what would be created without writing anything:
 php artisan auditor:install --dry-run
+
+# Refresh Auditor-owned resources (skills, guidelines, adapters):
 php artisan auditor:install --force
-php artisan auditor:install --agents=opencode,claude_code
+
+# Wire only specific agents:
+php artisan auditor:install --agents=claude_code,opencode
 ```
 
-`--agents` restricts wiring to the listed agent keys (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`). In non-interactive runs, agents are resolved from `--agents`, then project detection, then the `laravel-auditor.agents` config, then all supported agents.
-
-`--force` refreshes Auditor-owned resources. It does not overwrite unrelated user-owned files unless you explicitly ask it to refresh an existing adapter.
+`--force` refreshes Auditor-owned resources. It appends to user-owned files rather than overwriting them, unless the file already contains an `<!-- laravel-auditor -->` marker block, in which case it replaces that block.
 
 ## Publish tags
+
+You can also publish individual resource groups with Artisan:
 
 ```bash
 php artisan vendor:publish --tag="laravel-auditor"
@@ -112,10 +205,20 @@ php artisan vendor:publish --tag="laravel-auditor-examples"
 
 ## Verify
 
+After installation, confirm everything is wired correctly:
+
 ```bash
 php artisan auditor:status
 php artisan auditor:rules --applicable
 ```
+
+`auditor:status` shows the installed version, integration mode (Boost or standalone), audit domains, rule counts, and available context tools. `auditor:rules --applicable` lists only the rules that match your project's installed packages.
+
+## Next
+
+- [Agent setup](/agents/) — connect to your specific AI agent
+- [Usage](/usage/) — audit workflow and commands
+- [MCP tools](/mcp/) — register context tools with your agent
 
 
 ---
@@ -124,19 +227,25 @@ php artisan auditor:rules --applicable
 
 > Run status, context, rules, reports, and CI with Laravel Auditor.
 
-The CLI is an installation, diagnostics, and reporting layer. The AI agent still does the reasoning.
+The CLI provides diagnostics, context gathering, rule listing, and report rendering. The AI agent does the reasoning and produces the findings.
 
-## Auditing a project end-to-end
+## Audit workflow
 
-1. Install as a development dependency:
+A complete audit follows these steps:
+
+### 1. Install
 
 ```bash
 composer require --dev mrpunyapal/laravel-auditor
 ```
 
-2. Expose the audit knowledge to your agent. With Laravel Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install`.
+### 2. Connect the agent
 
-3. (Optional) Register the read-only MCP context tools with your agent:
+With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install`. See [Installation](/installation/).
+
+### 3. Register context tools (optional)
+
+If your agent supports MCP, register the read-only context tools so the agent can call them directly:
 
 ```bash
 php artisan auditor:mcp
@@ -148,26 +257,39 @@ For example, with Claude Code:
 claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
 ```
 
-The agent can also gather the same facts without MCP via `auditor:context`.
+The agent can also gather the same facts without MCP via `auditor:context`. See [MCP tools](/mcp/).
 
-4. Ask your agent to audit the project:
+### 4. Ask the agent to audit
+
+Give the agent a clear instruction:
 
 > Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.
 
 The agent follows the skill workflow: **Discover** deterministic facts, **Scope** the domains that apply, **Investigate** with source and context, **Verify** high-severity claims, and **Report** structured findings with evidence.
 
-5. Render or gate the findings the agent produced:
+### 5. Render the report
+
+The agent writes findings as JSON. Auditor renders them:
 
 ```bash
 php artisan auditor:report --findings=storage/auditor-findings.json --format=markdown
+```
+
+### 6. Gate CI (optional)
+
+```bash
 php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 ```
 
+CI fails when an open finding meets or exceeds the severity threshold.
+
 ## Inspect the project
+
+These commands help you understand what Auditor sees in your application.
 
 ```bash
 php artisan auditor:status
-php artisan auditor:context --list
+php auditor:context --list
 php artisan auditor:context project_info
 php artisan auditor:context subsystems
 php artisan auditor:context routes --output=storage/auditor-routes.json
@@ -191,11 +313,9 @@ php artisan auditor:rules --applicable
 php artisan auditor:rules --json
 ```
 
-`--applicable` hides packs whose packages are not installed (for example Livewire rules on an app without Livewire).
+`--applicable` hides ecosystem packs whose packages are not installed. For example, Livewire rules are hidden when Livewire is not a dependency.
 
-## Render a report
-
-The agent writes findings JSON. Auditor renders it.
+## Render reports
 
 ```bash
 php artisan auditor:report --example
@@ -207,7 +327,7 @@ php artisan auditor:report --findings=storage/auditor-findings.json --output=sto
 
 Formats: `markdown`, `json`, `text`, `sarif`.
 
-Reports include project facts, severity and domain counts, a **P0–P3 priority synthesis**, evidence, and recommendations.
+Reports include project facts, severity and domain counts, a **P0-P3 priority synthesis**, evidence, and recommendations. See [Findings and reports](/findings/).
 
 ## CI
 
@@ -216,11 +336,27 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high --format=sarif --output=auditor.sarif
 ```
 
-CI fails when an **open** finding meets or exceeds `--fail-on` (`critical`, `high`, `medium`, `low`, `info`).
+CI output formats: `text`, `json`, `sarif`.
+
+The `--fail-on` threshold accepts: `critical`, `high`, `medium`, `low`, `info`.
 
 ## Configuration
 
 Publish `config/laravel-auditor.php` to change the default domain list, extra rule directories, standalone resource target, and default report format.
+
+```bash
+php artisan vendor:publish --tag="laravel-auditor-config"
+```
+
+Key settings:
+
+- `domains` — which audit domains are advertised in reports
+- `rules` — additional directories containing rule definition files
+- `resources_target` — where the standalone installer publishes agent resources (default: `.ai`)
+- `agents` — default agents for non-interactive installation
+- `context.composer_audit` — toggle the `composer audit` call from the dependencies collector
+- `context.test_listing` — toggle accurate test case counting via `--list-tests`
+- `report.format` — default format for `auditor:report`
 
 
 ---
@@ -229,21 +365,68 @@ Publish `config/laravel-auditor.php` to change the default domain list, extra ru
 
 > Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.
 
-Audit knowledge lives once, agent-agnostic, under `resources/auditor`. Adapters stay thin.
+Laravel Auditor keeps its audit knowledge in one agent-neutral location under `resources/auditor`. Agent-specific files are thin adapters that point the agent at that shared knowledge.
 
-## Ask the agent
+This means the same skills, guidelines, and rules work across every supported agent. The adapter files are just pointers — they do not copy the full audit knowledge into each vendor directory.
 
-> Use the laravel-audit skill. Discover this Laravel app, scope the relevant domains, and report only findings with file, route, or schema evidence.
+## Integration modes
 
-For a data-structure / ownership pass:
+### Laravel Boost
 
-> Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
+When Boost is installed, Auditor extends it. Boost consumes Auditor's skills and guidelines directly from `resources/boost/`. The context tools are also registered inside Boost's MCP server automatically through `boost.mcp.tools.include`.
+
+If your project already uses Boost, this is the simplest path. Run `boost:install` or `boost:update` and everything is wired.
+
+### Standalone
+
+When Boost is absent, `auditor:install` handles the wiring. It publishes skills, guidelines, and schemas to `.ai/`, writes agent adapter files, and registers the MCP server for agents that support it.
+
+Both paths produce the same audit knowledge — they just deliver it differently.
+
+## Supported agents
+
+The standalone installer supports eight agents:
+
+| Agent | Guidelines | Skills | MCP |
+| --- | --- | --- | --- |
+| OpenCode | `AGENTS.md` | `.agents/skills` | `opencode.json` |
+| Claude Code | `CLAUDE.md` | `.claude/skills` | `.mcp.json` |
+| Cursor | `.cursor/rules/laravel-auditor.mdc` | `.cursor/skills` | `.cursor/mcp.json` |
+| GitHub Copilot | `.github/copilot-instructions.md` | `.github/skills` | `.vscode/mcp.json` |
+| Gemini CLI | `GEMINI.md` | `.gemini/skills` | — |
+| Codex | `AGENTS.md` | `.agents/skills` | `.codex/config.toml` |
+| Junie | `AGENTS.md` | `.junie/skills` | `.junie/mcp/mcp.json` |
+| Zed | `AGENTS.md` | `.agents/skills` | `.zed/settings.json` |
+
+Gemini does not support MCP. All other agents receive MCP registration when the installer runs.
+
+## What an adapter file contains
+
+An adapter is a short file that tells the agent where to find the audit skill and guidelines. For example, the `CLAUDE.md` adapter contains:
+
+```markdown
+# Laravel Auditor
+
+This project uses Laravel Auditor for evidence-based Laravel audits.
+
+When asked to audit, review, or assess this application, use the `laravel-audit` skill in `.ai/skills/laravel-audit` and follow `.ai/guidelines/core.md`.
+
+Do not modify application code during an audit. Prefer deterministic project facts from `php artisan auditor:status`, `php artisan auditor:rules`, and the Laravel Auditor MCP tools.
+```
+
+The adapter does not contain the full skill, guidelines, or rules. It points at the shared copies in `.ai/`.
+
+## Asking the agent to audit
+
+Once the agent is wired, give it a clear instruction:
+
+> Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.
 
 ### Full example prompt
 
 > You are auditing the Laravel application in this project using the Laravel Auditor methodology.
 >
-> 1. Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.
+> 1. Use the laravel-audit skill. Follow its Discover -> Scope -> Verify -> Report workflow.
 > 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code:
 >    - `project_info` — PHP/Laravel versions, database, ecosystem signals
 >    - `routes` — the full route surface
@@ -255,50 +438,29 @@ For a data-structure / ownership pass:
 >    - `policies_authorization` — gates, policies, auth middleware
 >    - `jobs_events_schedules` — queues, events, cron
 >    - `tests` — test suite: framework, case counts (feature/unit)
+>    - `subsystems` — ownership-bounded inventory for a DSA-style coordinator audit
 > 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
 > 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 > 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
 > 6. Be read-only. Do not modify any application code.
 
-For a quick Discover-only pass:
+### Quick discover pass
+
+For a faster, non-exhaustive first pass:
 
 > Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
 
-## Standalone adapters
+### DSA / subsystem audit
 
-`php artisan auditor:install` asks which AI agent(s) the project uses, then writes pointers only when the file is missing:
+For a bounded data-structure and ownership review:
 
-- OpenCode: `AGENTS.md` + `.agents/skills`
-- Claude Code: `CLAUDE.md` + `.claude/skills`
-- Cursor: `.cursor/rules/laravel-auditor.mdc` + `.cursor/skills`
-- Copilot: `.github/copilot-instructions.md` + `.github/skills`
-- Gemini: `GEMINI.md` + `.gemini/skills` (no MCP)
-- Codex: `AGENTS.md` + `.agents/skills` + `.codex/config.toml`
-- Junie: `AGENTS.md` + `.junie/skills` + `.junie/mcp/mcp.json`
-- Zed: `AGENTS.md` + `.agents/skills` + `.zed/settings.json`
+> Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
 
-The adapters point at `.ai/skills/laravel-audit` and `.ai/guidelines/core.md`. They do not copy the full audit knowledge into every vendor file.
+See [DSA audit](/dsa/).
 
-For the agents that support MCP, the installer also registers the `laravel-auditor` server so tools like `audit`, `context`, and `rules` are available to the agent.
+## Read-only boundary
 
-Non-interactive runs (CI, `--no-interaction`) resolve agents from `--agents`, then project detection, then the `laravel-auditor.agents` config, then all supported agents.
-
-## Laravel Boost
-
-When Boost is present, skip the standalone installer and run `boost:install` / `boost:update`.
-
-When Boost is installed, the package also registers its read-only context tools (`project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`) inside Boost's MCP server automatically through `boost.mcp.tools.include`.
-
-Boost skills shipped by this package:
-
-- `laravel-audit` — six-domain evidence-based audit
-- `laravel-audit-dsa` — bounded subsystem / DSA audit
-- `laravel-audit-security`, `performance`, `architecture`, `database`, `testing`, `conventions`
-- `laravel-auditor-development` — install and wire the package
-
-## Read-only
-
-Auditing must not modify application code. Installation may write Auditor-owned resources; it will not overwrite user-owned files without `--force`.
+Auditing must not modify application code. Installation may write Auditor-owned resources (skills, guidelines, adapters, MCP config); it will not overwrite user-owned files without `--force`.
 
 
 ---
@@ -307,21 +469,23 @@ Auditing must not modify application code. Installation may write Auditor-owned 
 
 > Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.
 
-Laravel Auditor ships a local stdio MCP server, plus automatic registration of its context tools inside Laravel Boost's MCP server when Boost is installed.
+MCP (Model Context Protocol) is the bridge that lets an AI coding agent request structured Laravel application context from Auditor. Instead of reading raw files and guessing, the agent calls a tool and gets deterministic facts: routes, models, schema, dependencies, and more.
 
-The standalone server is available for agents that manage their own MCP config:
+Laravel Auditor ships a local stdio MCP server that exposes 11 read-only context tools. When Laravel Boost is installed, the same tools are also registered inside Boost's MCP server automatically.
+
+## Register the server
 
 ```bash
 php artisan auditor:mcp
 ```
 
-Claude Code:
+For example, with Claude Code:
 
 ```bash
 claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
 ```
 
-A client snippet lives in `resources/auditor/mcp/mcp.json.example`.
+A client configuration example lives in `resources/auditor/mcp/mcp.json.example`.
 
 ## Tools
 
@@ -339,14 +503,37 @@ A client snippet lives in `resources/auditor/mcp/mcp.json.example`.
 | `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 
-The same payloads are available without MCP via `php artisan auditor:context {tool}`.
+## Why structured data instead of source dumps
 
-Output is structured and concise. Tools never mutate the application.
+An agent can read files directly, but that gives it raw text without context. Laravel Auditor's tools return structured, filtered, deterministic data. The agent gets the route table as a list of methods, URIs, and middleware — not a PHP file it has to parse. This makes the agent's reasoning faster and more reliable.
 
-## Laravel Boost
+## Without MCP
 
-When Laravel Boost is installed, the service provider registers the same context collectors as read-only tools (`project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`) inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
+The same context is available without MCP through Artisan:
 
+```bash
+php artisan auditor:context project_info
+php artisan auditor:context routes --output=storage/auditor-routes.json
+php artisan auditor:context --list
+```
+
+From PHP:
+
+```php
+use LaravelAuditor\Facades\LaravelAuditor;
+
+LaravelAuditor::collect('models');
+```
+
+MCP is a convenience for agents that support it. It does not expose any functionality that the Artisan commands do not already provide.
+
+## Read-only
+
+All tools are read-only. They return structured facts about the application. They never mutate code, configuration, or database state.
+
+## Laravel Boost integration
+
+When Laravel Boost is installed, the service provider registers the same 11 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
 
 
 ---
@@ -357,16 +544,40 @@ When Laravel Boost is installed, the service provider registers the same context
 
 Rules are metadata for the reasoning agent. They are not executable scanners.
 
-List them:
+A rule tells the agent what to investigate, what evidence is required, and what the typical severity and confidence are when a confirmed instance is found. The agent reads the rule, examines the application, and decides whether the rule actually applies.
+
+```text
+Rule
+  ↓
+Tells the agent what to investigate
+  ↓
+Specifies what evidence is required
+  ↓
+Agent investigates the application
+  ↓
+Agent decides whether the rule applies
+  ↓
+Agent produces a finding (or does not)
+```
+
+This is fundamentally different from a static analysis tool that flags code patterns automatically. Rules guide the agent's reasoning. The agent decides.
+
+## List rules
 
 ```bash
 php artisan auditor:rules
 php artisan auditor:rules --applicable
+php artisan auditor:rules --domain=security
+php artisan auditor:rules --json
 ```
 
-The authoritative definitions live in `resources/auditor/rules/*.php`. The human catalog is `resources/auditor/rules/RULES.md`.
+`--applicable` hides ecosystem packs whose packages are not installed. For example, Livewire rules are hidden when Livewire is not a dependency.
+
+The authoritative definitions live in `resources/auditor/rules/*.php`. The human-readable catalog is `resources/auditor/rules/RULES.md`.
 
 ## Core domains
+
+V1 ships 61 rules across six core domains:
 
 | Domain | What it looks for |
 | --- | --- |
@@ -379,22 +590,39 @@ The authoritative definitions live in `resources/auditor/rules/*.php`. The human
 
 ## Ecosystem packs
 
-These rules include `applicability.packages` and stay hidden from `--applicable` when the package is absent:
+Additional rules apply only when specific packages are installed. These are included in `--applicable` only when the required package is detected:
 
-- Livewire (`AUD-LW-*`)
-- Filament (`AUD-FIL-*`)
-- Inertia (`AUD-IN-*`)
-- Sanctum (`AUD-API-*`)
-- Pest (`AUD-PEST-*`)
-- Queues (`AUD-QUE-*`)
+| Pack | Package required | Rule prefix |
+| --- | --- | --- |
+| Livewire | `livewire/livewire` | `AUD-LW-*` |
+| Filament | `filament/filament` | `AUD-FIL-*` |
+| Inertia | `inertiajs/inertia-laravel` | `AUD-IN-*` |
+| Sanctum | `laravel/sanctum` | `AUD-API-*` |
+| Pest | `pestphp/pest` | `AUD-PEST-*` |
+| Queues | — | `AUD-QUE-*` |
 
-DSA organizing-model rules (`AUD-DSA-*`) support the `laravel-audit-dsa` skill.
+DSA organizing-model rules (`AUD-DSA-*`) support the [DSA audit](/dsa/) skill.
 
-## Writing a rule
+## Severity and confidence
 
-Each rule needs a stable ID, domain, severity, confidence, description, why it matters, recommendation, evidence requirements, and false-positive considerations.
+Each rule defines a typical severity and confidence:
 
-Do not add a rule unless it can stay evidence-first. Few high-quality rules beat a noisy catalog.
+- **Severity**: `critical`, `high`, `medium`, `low`, `info` — the impact of a confirmed instance.
+- **Confidence**: how certain a properly-evidenced finding is for this rule.
+
+A rule with high severity and high confidence means confirmed instances are typically serious. A rule with high severity and medium confidence means the pattern can be serious but evidence requirements are stricter.
+
+## Evidence-first principle
+
+Every rule specifies what evidence is required to support a finding. The agent must produce that evidence. A finding without evidence does not enter the report.
+
+This is the core design constraint. Few high-quality rules beat a noisy catalog. Every rule in V1 was shipped only because it can meet the evidence-first standard.
+
+## Writing custom rules
+
+Each rule needs a stable ID, domain, severity, confidence, description, why it matters, recommendation, evidence requirements, and false-positive considerations. Rules are PHP files in a directory — add your custom directory to the `rules` config key.
+
+Do not add a rule unless it can stay evidence-first.
 
 
 ---
@@ -405,13 +633,49 @@ Do not add a rule unless it can stay evidence-first. Few high-quality rules beat
 
 Laravel Auditor does not invent findings. The agent produces them; the package stores, validates, and renders them.
 
-## Finding JSON
+This separation is deliberate. The agent reasons about the code and produces structured findings. Laravel Auditor validates those findings against its schema and renders them as reports. The package never decides what is a vulnerability — the agent does.
+
+## Finding lifecycle
+
+```text
+AI agent
+   ↓
+reads code, applies rules, gathers evidence
+   ↓
+creates finding (JSON)
+   ↓
+Auditor loads and validates the finding
+   ↓
+Auditor renders it as Markdown, JSON, text, or SARIF
+```
+
+## Finding schema
 
 See `resources/auditor/schema/finding.schema.json` and `resources/auditor/examples/findings.json`.
 
-Required fields: `id`, `rule_id`, `title`, `domain`, `severity`, `confidence`, `summary`, `why_it_matters`.
+Required fields:
 
-Include whenever possible: `evidence`, `affected_resources`, `symbol`, `recommendation`, `remediation`, `verification_notes`.
+| Field | Purpose |
+| --- | --- |
+| `id` | Unique finding instance ID (e.g. `F-2026-0001`) |
+| `rule_id` | Stable rule ID when one matches (e.g. `AUD-SEC-001`) |
+| `title` | Short, specific description |
+| `domain` | Audit domain (`security`, `performance`, `architecture`, `database`, `testing`, `conventions`) |
+| `severity` | Impact level |
+| `confidence` | How certain the finding is given available evidence |
+| `summary` | What is wrong |
+| `why_it_matters` | Why it matters for this application |
+
+Include whenever possible:
+
+| Field | Purpose |
+| --- | --- |
+| `evidence` | Concrete references (file paths, lines, routes, symbols, config keys) |
+| `affected_resources` | Files, routes, config keys involved |
+| `symbol` | Class, method, or route reference |
+| `recommendation` | What to do about it |
+| `remediation` | Optional step-by-step fix guidance |
+| `verification_notes` | How the finding was verified, or why it could not be |
 
 Optional `metadata`:
 
@@ -420,30 +684,79 @@ Optional `metadata`:
 
 ## Severity and confidence
 
-- Severity: `critical`, `high`, `medium`, `low`, `info`
-- Confidence: `confirmed`, `high`, `medium`, `low`
+These are separate dimensions.
 
-A high-severity claim with thin evidence should carry medium or low confidence.
+**Severity** describes impact: how much damage a confirmed instance could cause.
+
+**Confidence** describes certainty: how well the evidence supports the claim.
+
+A potentially critical issue with thin evidence should carry low confidence. A confirmed issue with verified evidence carries `confirmed` confidence. This distinction prevents the agent from inflating findings without proof.
+
+- **Severity**: `critical`, `high`, `medium`, `low`, `info`
+- **Confidence**: `confirmed`, `high`, `medium`, `low`
 
 ## Priority tiers
 
-If `metadata.priority` is omitted, Auditor derives a tier:
+Reports assign each finding a priority tier (P0-P3). If `metadata.priority` is not set, Auditor derives it:
 
-- **P0** — critical, or high security/database
-- **P1** — other high, or medium security
-- **P2** — medium
-- **P3** — low / info
+| Tier | Meaning | Auto-assigned when |
+| --- | --- | --- |
+| P0 | Correctness, security, or data-loss risk | Critical severity, or high severity in security/database |
+| P1 | Concrete correctness or high-leverage work | High severity, or medium severity in security |
+| P2 | Material invariant improvements | Medium severity |
+| P3 | Telemetry, diagnostics, maintainability | Low or info severity |
 
-Reports print a **Priority synthesis** so every promoted ID appears once.
+Every promoted ID appears exactly once in the priority synthesis.
 
-## Commands
+## Example finding
+
+```json
+{
+  "id": "F-2026-0001",
+  "rule_id": "AUD-SEC-001",
+  "title": "Missing authorization boundary",
+  "domain": "security",
+  "severity": "high",
+  "confidence": "confirmed",
+  "status": "open",
+  "summary": "Any authenticated user can delete another user's post.",
+  "why_it_matters": "The destroy action never authorizes the Post policy.",
+  "evidence": [
+    {
+      "type": "file",
+      "reference": "app/Http/Controllers/PostController.php",
+      "line": 42,
+      "end_line": 48
+    }
+  ],
+  "affected_resources": ["app/Http/Controllers/PostController.php"],
+  "symbol": "App\\Http\\Controllers\\PostController@destroy",
+  "recommendation": "Authorize the deletion with a PostPolicy or route middleware."
+}
+```
+
+## Reports
+
+The agent writes findings as JSON. Auditor renders them:
 
 ```bash
 php artisan auditor:report --findings=storage/auditor-findings.json --format=markdown
-php artisan auditor:report --example
+php artisan auditor:report --findings=storage/auditor-findings.json --format=json
+php artisan auditor:report --findings=storage/auditor-findings.json --format=text
 php artisan auditor:report --findings=storage/auditor-findings.json --format=sarif
-php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
+php artisan auditor:report --example
 ```
+
+Reports include project facts, severity and domain counts, a priority synthesis, key risks, and all findings with evidence and recommendations.
+
+## CI gating
+
+```bash
+php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
+php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high --format=sarif --output=auditor.sarif
+```
+
+CI fails when an open finding meets or exceeds the `--fail-on` threshold.
 
 
 ---
@@ -452,31 +765,52 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 
 > Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.
 
-The `laravel-audit-dsa` skill is a Laravel-native version of a bounded, read-only coordinator audit (the method Aaron Francis described: inventory → fresh workers → validate, dedupe, rank).
+A DSA (Data Structures, State, Algorithms) audit is a different kind of review from a standard vulnerability audit. Instead of looking for security bugs or performance issues, it examines the application's internal organization: how data is structured, how state is represented, where behavior is owned, and whether the code could be materially simplified.
 
 This is **audit only**. Do not edit files, implement fixes, commit, or push.
 
-## Flow
+## What DSA looks for
 
-1. **Coverage contract** — inventory every subsystem (`php artisan auditor:context subsystems`), then add leftover `app/` areas.
-2. **Bounded reviews** — one worker per ownership boundary. At most **two** material simplifications, or `skip`.
-3. **Validate** — the coordinator verifies every finding against the repo. Reject vague, duplicate, or complexity-relocating ideas.
-4. **Audit the audit** — coverage, overlap, over-abstraction, then rank.
-
-## What workers look for
-
-- Invalid boolean/nullable combinations that should be a state
-- Repeated object-shape assumptions
-- Copied switches a small registry would remove
+- Scattered booleans or nullable fields that permit invalid combinations and should be a state machine
+- Repeated assumptions about object shape that need a shared typed model
+- Duplicated branching that a small registry would remove
 - Unclear ownership of state or behavior
-- Repeated scans that need an index
-- Lifecycle/async representations that allow stale or contradictory state
+- Repeated scans, transformations, or lookups where a more appropriate collection or index would simplify
+- Lifecycle or async states whose representation permits stale or contradictory state
 
-Do not force an abstraction. Prefer boring local code when it is already clear.
+The goal is not cosmetic consistency. It is material simplification — finding places where a small, boring structural change would remove complexity.
+
+## What a subsystem is
+
+A subsystem is an ownership boundary within the application. The `subsystems` context tool inventories them automatically: HTTP controllers, Eloquent models, authorization, database/migrations, tests, configuration, and dependencies.
+
+Each subsystem gets a stable ID, a descriptive name, an exact boundary (which files belong to it), and relevant collectors. The audit reviews one subsystem at a time.
+
+## How it works
+
+The `laravel-audit-dsa` skill uses a coordinator pattern:
+
+### 1. Establish the coverage contract
+
+Inventory every subsystem. Start from `php artisan auditor:context subsystems`, then add any leftover `app/` areas. Each subsystem gets a status: `queued`, `in review`, `recommend`, or `skip`.
+
+### 2. Run bounded reviews
+
+One worker per subsystem. Each worker looks for at most two materially useful simplifications within its boundary. Workers are bounded — they do not expand into other subsystems.
+
+Boundedness matters because unbounded agents tend to recommend cross-cutting refactors that relocate complexity rather than removing it. Bounded workers stay focused.
+
+### 3. Validate and synthesize
+
+The coordinator independently verifies every finding against the repository. Vague, duplicate, or complexity-relocating recommendations are rejected. Accepted findings are deduplicated and assigned to one authoritative subsystem.
+
+### 4. Audit the audit
+
+Before finishing, the coordinator checks for coverage gaps, duplication, over-abstraction, and schema completeness. Then ranks findings by impact, confidence, effort, blast radius, and prerequisites.
 
 ## Ranking
 
-Rank by impact, confidence, effort, blast radius, and prerequisites. Then assign:
+Findings are ranked into four tiers:
 
 | Tier | Meaning |
 | --- | --- |
@@ -487,10 +821,18 @@ Rank by impact, confidence, effort, blast radius, and prerequisites. Then assign
 
 Every promoted ID appears exactly once.
 
+## Running a DSA audit
+
 ```bash
 php artisan auditor:context subsystems
 php artisan auditor:report --findings=storage/auditor-findings.json
 ```
+
+Ask your agent:
+
+> Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
+
+The full workflow and worker brief are defined in the `laravel-audit-dsa` skill at `.ai/skills/laravel-audit-dsa/SKILL.md`.
 
 
 ---
@@ -499,43 +841,50 @@ php artisan auditor:report --findings=storage/auditor-findings.json
 
 > Features that may influence architecture but are not part of V1.
 
-These features may influence architecture. They are **not** required to ship V1.
+These features may influence the architecture. They are **not** required to ship V1 and are not promises.
 
-## F1: Legacy / standalone runner
+## Legacy and standalone support
 
-Audit older Laravel applications without forcing those apps to upgrade PHP or Laravel just to install Auditor.
+- **F1: Legacy runner** — Audit older Laravel applications without forcing PHP or Laravel upgrades.
+- **F2: Standalone CLI** — A package-runner style command for projects whose runtime is too old for the current package.
 
-## F2: Standalone CLI distribution
+## Agent and runtime improvements
 
-A package-runner style command for projects whose runtime is too old for the current package.
+- **F8: Runtime verification** — Safe, opt-in checks that turn likely findings into confirmed ones by observing actual behavior.
 
-## F3: Auto-fix / remediation
+## Remediation
 
-Turn a verified finding into a proposed fix, tests, and a patch. Any implementation must require explicit user approval and stay read-only by default.
+- **F3: Auto-fix / remediation** — Turn a verified finding into a proposed fix, tests, and a patch. Any implementation must require explicit user approval and stay read-only by default.
 
-## F4 / F5: CI policies and baselines
+## CI and baselines
 
-`auditor:ci` already fails on severity. Still open: ignored findings, historical baselines, new-vs-existing, trends.
+- **F4: CI policies** — Ignored findings, historical baselines, new-vs-existing detection, trend tracking. `auditor:ci` already fails on severity.
 
-## F6 / F7: More domains and deeper ecosystem packs
+## Audit depth
 
-Deployment, observability, API design, Tailwind/Passport/PHPUnit-specific packs — only when they stay evidence-first.
+- **F5: More domains** — Deployment, observability, API design domains — only when they stay evidence-first.
+- **F6: Deeper ecosystem packs** — Tailwind, Passport, PHPUnit-specific packs — only when they stay evidence-first.
 
-## F8: Runtime verification
+## Reporting
 
-Safe, opt-in checks that turn likely findings into confirmed ones.
+- **F7: Richer reporting** — HTML output, GitHub annotations, PR comments, TUI, IDE integration. SARIF is already available.
 
-## F9: Richer reporting
+## Broader scope
 
-HTML, GitHub annotations, PR comments, TUI, IDE integration. SARIF is already available.
-
-## F10–F12
-
-Organization policy packs, an agent profiler, and other-framework auditors are separate products.
+- **F9: Organization policy packs** — Multi-tenant or organization-level rule configuration.
+- **F10: Agent profiler** — Understand which agents produce the best findings.
+- **F11: Other-framework auditors** — Separate products for non-Laravel frameworks.
 
 ## Constraints that survive
 
-Agent-agnostic core. Boost optional. Evidence over guesses. Read-only by default. Few high-quality rules. Never claim more certainty than the evidence.
+These principles apply regardless of which features ship:
+
+- Agent-agnostic core
+- Boost optional
+- Evidence over guesses
+- Read-only by default
+- Few high-quality rules
+- Never claim more certainty than the evidence supports
 
 
 ---
@@ -544,21 +893,33 @@ Agent-agnostic core. Boost optional. Evidence over guesses. Read-only by default
 
 > How to work on Laravel Auditor locally, including documentation.
 
-Please also read [CONTRIBUTING.md](https://github.com/mrpunyapal/laravel-auditor/blob/main/.github/CONTRIBUTING.md).
+Thank you for considering contributing to Laravel Auditor. Please also read [CONTRIBUTING.md](https://github.com/mrpunyapal/laravel-auditor/blob/main/.github/CONTRIBUTING.md).
 
-## Setup
+## Local setup
 
 ```bash
 composer install
+composer build
+```
+
+The `build` command sets up the workbench with a SQLite database and runs migrations.
+
+## Run the full validation suite
+
+```bash
 composer test
 ```
 
-## Quality
+This runs PHPStan, Pint, type coverage, and Pest in sequence.
+
+## Individual checks
 
 ```bash
-composer lint
-composer analyse
-composer test:unit
+composer lint          # Fix code style with Pint
+composer lint:check    # Check code style without modifying
+composer analyse       # Static analysis with PHPStan
+composer test:unit     # Run Pest tests in parallel
+composer test:types    # Type coverage (must be 100%)
 ```
 
 ## Documentation
@@ -569,16 +930,38 @@ Markdown source lives in `md/`. The static site is generated into `docs/` with [
 composer docs:build
 ```
 
-Add a page as `md/your-page.md` with frontmatter (`title`, `description`, `order`, `slug`). Then rebuild.
+**Do not edit `docs/` directly.** Edit the Markdown source in `md/` and rebuild.
 
-Open Graph images are generated per page. They need Node.js, Playwright, and capturist installed once:
+### Adding a page
+
+1. Create `md/your-page.md` with frontmatter:
+   ```yaml
+   ---
+   title: Your Page
+   description: What this page covers.
+   og_title: Social title for the page
+   og_description: Social description for the page
+   order: 11
+   slug: your-page
+   ---
+   ```
+2. Run `composer docs:build`.
+3. The page appears in the navigation based on its `order` value.
+
+### Open Graph images
+
+OG images are generated per page. They need Node.js, Playwright, and capturist installed once:
 
 ```bash
 npm install
 npx playwright install chromium
 ```
 
-Set `DOCS_CAPTURE_OG=0` to skip capture (for example, without Node.js). Page-specific social titles and descriptions use `og_title` and `og_description` frontmatter; `og_image` overrides the card image.
+Set `DOCS_CAPTURE_OG=0` to skip capture (for example, in environments without Node.js).
 
-If Docsmith is missing a feature this package needs, contribute it upstream in `mrpunyapal/docsmith` rather than forking the builder here.
+Page-specific social titles and descriptions use `og_title` and `og_description` frontmatter. The `og_image` frontmatter key overrides the generated card image.
+
+### Docsmith
+
+If Docsmith is missing a feature this package needs, contribute it upstream in [mrpunyapal/docsmith](https://github.com/MrPunyapal/docsmith) rather than forking the builder.
 

@@ -48,16 +48,17 @@
                     <p class="doc-description">Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.</p>
                 </header>
                 <div class="doc-body">
-                    <p>Laravel Auditor ships a local stdio MCP server, plus automatic registration of its context tools inside Laravel Boost's MCP server when Boost is installed.</p>
-<p>The standalone server is available for agents that manage their own MCP config:</p>
+                    <p>MCP (Model Context Protocol) is the bridge that lets an AI coding agent request structured Laravel application context from Auditor. Instead of reading raw files and guessing, the agent calls a tool and gets deterministic facts: routes, models, schema, dependencies, and more.</p>
+<p>Laravel Auditor ships a local stdio MCP server that exposes 11 read-only context tools. When Laravel Boost is installed, the same tools are also registered inside Boost's MCP server automatically.</p>
+<h2 id="register-the-server">Register the server</h2>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:mcp</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p>Claude Code:</p>
+<p>For example, with Claude Code:</p>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">claude</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">mcp</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">add</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">s</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">local</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">t</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">stdio</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">laravel-auditor</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:mcp</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p>A client snippet lives in <code>resources/auditor/mcp/mcp.json.example</code>.</p>
+<p>A client configuration example lives in <code>resources/auditor/mcp/mcp.json.example</code>.</p>
 <h2 id="tools">Tools</h2>
 <table>
 <thead>
@@ -113,10 +114,26 @@
 </tr>
 </tbody>
 </table>
-<p>The same payloads are available without MCP via <code>php artisan auditor:context {tool}</code>.</p>
-<p>Output is structured and concise. Tools never mutate the application.</p>
-<h2 id="laravel-boost">Laravel Boost</h2>
-<p>When Laravel Boost is installed, the service provider registers the same context collectors as read-only tools (<code>project_info</code>, <code>routes</code>, <code>models</code>, <code>migrations</code>, <code>database_schema</code>, <code>dependencies</code>, <code>configuration</code>, <code>policies_authorization</code>, <code>jobs_events_schedules</code>, <code>tests</code>, <code>subsystems</code>) inside Boost's <code>laravel-boost</code> MCP server through <code>boost.mcp.tools.include</code>. No extra setup is needed — the tools appear in Boost's <code>tools/list</code> and run through Boost's subprocess executor.</p>
+<h2 id="why-structured-data-instead-of-source-dumps">Why structured data instead of source dumps</h2>
+<p>An agent can read files directly, but that gives it raw text without context. Laravel Auditor's tools return structured, filtered, deterministic data. The agent gets the route table as a list of methods, URIs, and middleware — not a PHP file it has to parse. This makes the agent's reasoning faster and more reliable.</p>
+<h2 id="without-mcp">Without MCP</h2>
+<p>The same context is available without MCP through Artisan:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:context</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">project_info</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:context</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">routes</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-output=storage/auditor-routes.json</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:context</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-list</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>From PHP:</p>
+<pre class="phiki language-php github-light phiki-themes github-dark" data-language="php" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #d73a49;--phiki-dark-color: #f97583;">use</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">LaravelAuditor</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">Facades</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">LaravelAuditor</span><span class="token">;</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">LaravelAuditor</span><span class="token" style="color: #d73a49;--phiki-dark-color: #f97583;">::</span><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">collect</span><span class="token">(</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">'</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">models</span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">'</span><span class="token">)</span><span class="token">;</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span></code></pre>
+<p>MCP is a convenience for agents that support it. It does not expose any functionality that the Artisan commands do not already provide.</p>
+<h2 id="read-only">Read-only</h2>
+<p>All tools are read-only. They return structured facts about the application. They never mutate code, configuration, or database state.</p>
+<h2 id="laravel-boost-integration">Laravel Boost integration</h2>
+<p>When Laravel Boost is installed, the service provider registers the same 11 context collectors as read-only tools inside Boost's <code>laravel-boost</code> MCP server through <code>boost.mcp.tools.include</code>. No extra setup is needed — the tools appear in Boost's <code>tools/list</code> and run through Boost's subprocess executor.</p>
 
                 </div>
                 <footer class="doc-meta">
@@ -125,7 +142,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../agents/"><span>Previous</span><strong>Agent setup</strong></a><a class="pager-link pager-link-next" href="../rules/"><span>Next</span><strong>Rules</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#tools" data-docsmith-toc-link="tools">Tools</a><a class="toc-link toc-link-level-2" href="#laravel-boost" data-docsmith-toc-link="laravel-boost">Laravel Boost</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#register-the-server" data-docsmith-toc-link="register-the-server">Register the server</a><a class="toc-link toc-link-level-2" href="#tools" data-docsmith-toc-link="tools">Tools</a><a class="toc-link toc-link-level-2" href="#why-structured-data-instead-of-source-dumps" data-docsmith-toc-link="why-structured-data-instead-of-source-dumps">Why structured data instead of source dumps</a><a class="toc-link toc-link-level-2" href="#without-mcp" data-docsmith-toc-link="without-mcp">Without MCP</a><a class="toc-link toc-link-level-2" href="#read-only" data-docsmith-toc-link="read-only">Read-only</a><a class="toc-link toc-link-level-2" href="#laravel-boost-integration" data-docsmith-toc-link="laravel-boost-integration">Laravel Boost integration</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

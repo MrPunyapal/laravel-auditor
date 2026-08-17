@@ -7,7 +7,7 @@ order: 2
 slug: installation
 ---
 
-Install Laravel Auditor as a **development** dependency.
+Laravel Auditor is installed as a **development** dependency. It is an engineering tool used during auditing, not a runtime requirement for the production application.
 
 ```bash
 composer require --dev mrpunyapal/laravel-auditor
@@ -15,9 +15,23 @@ composer require --dev mrpunyapal/laravel-auditor
 
 Requirements: PHP 8.3+ and Laravel 12 or 13.
 
-## With Laravel Boost
+## Decide your integration path
 
-If the application already uses [Laravel Boost](https://laravel.com/docs/boost), expose Auditor's guidelines and skills through Boost:
+The installation path depends on whether your project uses Laravel Boost.
+
+```text
+Install Laravel Auditor
+        │
+        ├── Using Laravel Boost?
+        │       └── Run boost:install / boost:update
+        │
+        └── Not using Boost?
+                └── Run auditor:install
+```
+
+**If Laravel Boost is already installed**, do not run `auditor:install`. Boost consumes Auditor's skills and guidelines directly from the package's `resources/boost/` directory. Running `auditor:install` would duplicate what Boost already provides.
+
+## With Laravel Boost
 
 ```bash
 php artisan boost:install
@@ -29,7 +43,7 @@ After package updates:
 php artisan boost:update
 ```
 
-Do not run `auditor:install` just to duplicate Boost setup. Boost consumes `resources/boost/guidelines` and `resources/boost/skills` from this package directly.
+This exposes Auditor's audit-specific skills and guidelines through Boost. The context tools are also registered inside Boost's MCP server automatically. No additional setup is needed.
 
 ## Standalone (no Boost)
 
@@ -37,31 +51,56 @@ Do not run `auditor:install` just to duplicate Boost setup. Boost consumes `reso
 php artisan auditor:install
 ```
 
+The standalone installer handles everything needed to connect Laravel Auditor to your AI agent.
+
+### What it does
+
 The installer is idempotent and safe. It:
 
-- detects the Laravel application context
-- detects whether Laravel Boost is installed
-- publishes agent skills, guidelines, schemas, and examples to `.ai/`
-- asks which AI agent(s) the project uses (non-interactive runs resolve from `--agents`, project detection, or the `laravel-auditor.agents` config)
-- writes thin `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, Cursor, Copilot, Codex, Junie, and Zed adapters only when those files are missing
-- copies the `laravel-audit` skill into the selected agent's native skills directory
-- registers the `laravel-auditor` MCP server in the selected agent's config (except Gemini, which has no MCP)
+- detects whether Laravel Boost is already installed
+- publishes skills, guidelines, schemas, and examples to `.ai/`
+- asks which AI agent(s) the project uses (or resolves them automatically)
+- writes thin adapter files that point the agent at the shared audit knowledge
+- copies the `laravel-audit` skill into the agent's native skills directory
+- registers the `laravel-auditor` MCP server for agents that support MCP
 - publishes `config/laravel-auditor.php` when it is missing
-- reports what it created or left unchanged
+- reports exactly what it created or left unchanged
 
-Useful options:
+### What it will not overwrite
+
+The installer respects your project. It will not:
+
+- overwrite user-owned files (like a `CLAUDE.md` you wrote yourself) unless you pass `--force`
+- duplicate Boost setup when Boost is detected
+- modify application code
+
+### Agent selection
+
+When run interactively, the installer asks which AI agents to configure. In non-interactive environments (CI, scripts), agents are resolved in this order:
+
+1. The `--agents` option (if provided)
+2. Project detection (looks for agent config files like `CLAUDE.md`, `opencode.json`)
+3. The `laravel-auditor.agents` config value
+4. All supported agents as a fallback
+
+### Options
 
 ```bash
+# Preview what would be created without writing anything:
 php artisan auditor:install --dry-run
+
+# Refresh Auditor-owned resources (skills, guidelines, adapters):
 php artisan auditor:install --force
-php artisan auditor:install --agents=opencode,claude_code
+
+# Wire only specific agents:
+php artisan auditor:install --agents=claude_code,opencode
 ```
 
-`--agents` restricts wiring to the listed agent keys (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`). In non-interactive runs, agents are resolved from `--agents`, then project detection, then the `laravel-auditor.agents` config, then all supported agents.
-
-`--force` refreshes Auditor-owned resources. It does not overwrite unrelated user-owned files unless you explicitly ask it to refresh an existing adapter.
+`--force` refreshes Auditor-owned resources. It appends to user-owned files rather than overwriting them, unless the file already contains an `<!-- laravel-auditor -->` marker block, in which case it replaces that block.
 
 ## Publish tags
+
+You can also publish individual resource groups with Artisan:
 
 ```bash
 php artisan vendor:publish --tag="laravel-auditor"
@@ -73,7 +112,17 @@ php artisan vendor:publish --tag="laravel-auditor-examples"
 
 ## Verify
 
+After installation, confirm everything is wired correctly:
+
 ```bash
 php artisan auditor:status
 php artisan auditor:rules --applicable
 ```
+
+`auditor:status` shows the installed version, integration mode (Boost or standalone), audit domains, rule counts, and available context tools. `auditor:rules --applicable` lists only the rules that match your project's installed packages.
+
+## Next
+
+- [Agent setup](/agents/) — connect to your specific AI agent
+- [Usage](/usage/) — audit workflow and commands
+- [MCP tools](/mcp/) — register context tools with your agent

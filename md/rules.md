@@ -9,16 +9,40 @@ slug: rules
 
 Rules are metadata for the reasoning agent. They are not executable scanners.
 
-List them:
+A rule tells the agent what to investigate, what evidence is required, and what the typical severity and confidence are when a confirmed instance is found. The agent reads the rule, examines the application, and decides whether the rule actually applies.
+
+```text
+Rule
+  ↓
+Tells the agent what to investigate
+  ↓
+Specifies what evidence is required
+  ↓
+Agent investigates the application
+  ↓
+Agent decides whether the rule applies
+  ↓
+Agent produces a finding (or does not)
+```
+
+This is fundamentally different from a static analysis tool that flags code patterns automatically. Rules guide the agent's reasoning. The agent decides.
+
+## List rules
 
 ```bash
 php artisan auditor:rules
 php artisan auditor:rules --applicable
+php artisan auditor:rules --domain=security
+php artisan auditor:rules --json
 ```
 
-The authoritative definitions live in `resources/auditor/rules/*.php`. The human catalog is `resources/auditor/rules/RULES.md`.
+`--applicable` hides ecosystem packs whose packages are not installed. For example, Livewire rules are hidden when Livewire is not a dependency.
+
+The authoritative definitions live in `resources/auditor/rules/*.php`. The human-readable catalog is `resources/auditor/rules/RULES.md`.
 
 ## Core domains
+
+V1 ships 61 rules across six core domains:
 
 | Domain | What it looks for |
 | --- | --- |
@@ -31,19 +55,36 @@ The authoritative definitions live in `resources/auditor/rules/*.php`. The human
 
 ## Ecosystem packs
 
-These rules include `applicability.packages` and stay hidden from `--applicable` when the package is absent:
+Additional rules apply only when specific packages are installed. These are included in `--applicable` only when the required package is detected:
 
-- Livewire (`AUD-LW-*`)
-- Filament (`AUD-FIL-*`)
-- Inertia (`AUD-IN-*`)
-- Sanctum (`AUD-API-*`)
-- Pest (`AUD-PEST-*`)
-- Queues (`AUD-QUE-*`)
+| Pack | Package required | Rule prefix |
+| --- | --- | --- |
+| Livewire | `livewire/livewire` | `AUD-LW-*` |
+| Filament | `filament/filament` | `AUD-FIL-*` |
+| Inertia | `inertiajs/inertia-laravel` | `AUD-IN-*` |
+| Sanctum | `laravel/sanctum` | `AUD-API-*` |
+| Pest | `pestphp/pest` | `AUD-PEST-*` |
+| Queues | — | `AUD-QUE-*` |
 
-DSA organizing-model rules (`AUD-DSA-*`) support the `laravel-audit-dsa` skill.
+DSA organizing-model rules (`AUD-DSA-*`) support the [DSA audit](/dsa/) skill.
 
-## Writing a rule
+## Severity and confidence
 
-Each rule needs a stable ID, domain, severity, confidence, description, why it matters, recommendation, evidence requirements, and false-positive considerations.
+Each rule defines a typical severity and confidence:
 
-Do not add a rule unless it can stay evidence-first. Few high-quality rules beat a noisy catalog.
+- **Severity**: `critical`, `high`, `medium`, `low`, `info` — the impact of a confirmed instance.
+- **Confidence**: how certain a properly-evidenced finding is for this rule.
+
+A rule with high severity and high confidence means confirmed instances are typically serious. A rule with high severity and medium confidence means the pattern can be serious but evidence requirements are stricter.
+
+## Evidence-first principle
+
+Every rule specifies what evidence is required to support a finding. The agent must produce that evidence. A finding without evidence does not enter the report.
+
+This is the core design constraint. Few high-quality rules beat a noisy catalog. Every rule in V1 was shipped only because it can meet the evidence-first standard.
+
+## Writing custom rules
+
+Each rule needs a stable ID, domain, severity, confidence, description, why it matters, recommendation, evidence requirements, and false-positive considerations. Rules are PHP files in a directory — add your custom directory to the `rules` config key.
+
+Do not add a rule unless it can stay evidence-first.

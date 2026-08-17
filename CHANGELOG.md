@@ -1,24 +1,35 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.0...1.x)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.0...HEAD)
+
+## [v0.1.0](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.0) - 2026-08-17
+
+Initial release.
 
 ### Added
 
-- Evidence-based audit domain model, rules, findings, and report renderers
-- Standalone installer plus optional Laravel Boost guidelines and skills
-- Read-only context collectors exposed as MCP tools
-- Artisan commands for install, status, rules, report, and MCP
-- V1 rules across security, performance, architecture, database, testing, and conventions
-- Separate future-scope document and Gemini/Cursor/Copilot adapters
-- `auditor:context` command, `LaravelAuditor` facade, finding schemas, and example report
-- Expanded V1 rule catalog and a Workbench demo Post resource
-- Ecosystem rule packs (Livewire, Filament, Inertia, Sanctum, Pest, queues)
-- `auditor:ci`, SARIF reports, and `auditor:rules --applicable`
+- Evidence-based audit domain model with 6 core domains (security, performance, architecture, database, testing, conventions)
+- 61 evidence-first rules across core domains
+- Ecosystem rule packs for Livewire, Filament, Inertia, Sanctum, Pest, and queues
 - DSA coordinator skill, `subsystems` context tool, and P0–P3 report ranking
-- Docsmith documentation site (`md/` source, `docs/` output, `composer docs:build`)
+- 11 read-only context collectors: project info, routes, models, migrations, database schema, dependencies, configuration, authorization, jobs/events/schedules, tests, subsystems
+- Read-only stdio MCP server exposing context collectors as tools
 - Automatic registration of context tools inside Laravel Boost's MCP server (`boost.mcp.tools.include`)
+- 8 agent skills: laravel-audit, laravel-audit-security, laravel-audit-performance, laravel-audit-architecture, laravel-audit-database, laravel-audit-testing, laravel-audit-conventions, laravel-audit-dsa
+- 3 agent guidelines: core, findings, dsa
+- Standalone installer (`auditor:install`) with `--dry-run`, `--force`, `--agents` options
+- Agent adapters for OpenCode, Claude Code, Cursor, Copilot, Gemini, Codex, Junie, and Zed
+- Artisan commands: `auditor:install`, `auditor:status`, `auditor:rules`, `auditor:report`, `auditor:context`, `auditor:ci`, `auditor:mcp`
+- `LaravelAuditor` facade with `collect()`, `rules()`, `context()`, `project()` methods
+- Finding schema with severity, confidence, evidence, and priority tiers (P0–P3)
+- Report renderers: Markdown, JSON, CLI text, SARIF
+- CI gating with `auditor:ci` and configurable severity threshold
+- JSON schemas for findings and reports (`finding.schema.json`, `report.schema.json`)
+- Example findings file for quick testing
+- Docsmith documentation site with OG images, sitemap, and per-page metadata
+- Configuration file (`config/laravel-auditor.php`) with domains, rules, agents, context options, and report defaults
 
+### Fixed
 
-## [v0.1.0](https://github.com/mrpunyapal/laravel-auditor/compare/...v0.1.0) - 202x-xx-xx
-
-Initial pre-release.
+- ModelsCollector now catches exceptions during model instantiation, preventing one broken model from crashing all collectors
+- FindingCollection docblock corrected to accurately describe mutation semantics
