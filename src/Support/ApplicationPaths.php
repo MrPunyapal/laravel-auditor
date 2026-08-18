@@ -47,6 +47,49 @@ final class ApplicationPaths
         return array_values(array_unique($paths));
     }
 
+    public function has(string $subdirectory): bool
+    {
+        return $this->directories($subdirectory) !== [];
+    }
+
+    public function fileCount(string $subdirectory = ''): int
+    {
+        $count = 0;
+
+        foreach ($this->directories($subdirectory) as $directory) {
+            $count += count($this->files->allFiles($directory));
+        }
+
+        return $count;
+    }
+
+    /**
+     * Paths that sit next to an application root (routes/, tests/, database/).
+     *
+     * @return list<string>
+     */
+    public function siblings(string $relative): array
+    {
+        $relative = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relative);
+        $paths = [];
+
+        $fallback = base_path($relative);
+
+        if ($this->files->exists($fallback)) {
+            $paths[] = realpath($fallback) ?: $fallback;
+        }
+
+        foreach ($this->namespaceRoots() as $root) {
+            $candidate = dirname($root).DIRECTORY_SEPARATOR.$relative;
+
+            if ($this->files->exists($candidate)) {
+                $paths[] = realpath($candidate) ?: $candidate;
+            }
+        }
+
+        return array_values(array_unique($paths));
+    }
+
     /**
      * @return list<string>
      */

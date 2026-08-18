@@ -11,6 +11,12 @@ metadata:
 
 Audit the database layer of the Laravel application. **Where possible, use structured schema information** (via the `database_schema` tool) rather than relying only on migrations.
 
+List applicable rules first:
+
+```bash
+php artisan auditor:rules --domain=database --applicable
+```
+
 ## What to look for
 
 - Missing or suspicious indexes when evidence supports them: frequently filtered/joined columns without indexes.

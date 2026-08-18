@@ -11,6 +11,7 @@ use LaravelAuditor\Audit\Domains\DomainRegistry;
 use LaravelAuditor\Audit\Rules\RuleRegistry;
 use LaravelAuditor\Context\ContextRegistry;
 use LaravelAuditor\Support\BoostDetector;
+use LaravelAuditor\Support\PackageVersion;
 use Throwable;
 
 /**
@@ -46,7 +47,7 @@ class AuditorStatusCommand extends Command
         $this->components->info('Laravel Auditor status');
 
         $this->components->twoColumnDetail('Installed', 'yes');
-        $this->components->twoColumnDetail('Version', $this->auditorVersion() ?? 'unknown');
+        $this->components->twoColumnDetail('Version', PackageVersion::current());
         $this->components->twoColumnDetail('Laravel', $this->laravelVersion() ?? 'unknown');
         $this->components->twoColumnDetail('PHP', PHP_VERSION);
 
@@ -97,15 +98,6 @@ class AuditorStatusCommand extends Command
     {
         try {
             return InstalledVersions::getPrettyVersion('laravel/framework');
-        } catch (Throwable) {
-            return null;
-        }
-    }
-
-    private function auditorVersion(): ?string
-    {
-        try {
-            return InstalledVersions::getPrettyVersion('mrpunyapal/laravel-auditor');
         } catch (Throwable) {
             return null;
         }

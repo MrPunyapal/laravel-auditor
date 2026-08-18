@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelAuditor\MCP;
 
 use InvalidArgumentException;
+use LaravelAuditor\Support\PackageVersion;
 use Throwable;
 
 /**
@@ -113,7 +114,7 @@ final class McpServer
             ],
             'serverInfo' => [
                 'name' => 'laravel-auditor',
-                'version' => '0.1.1',
+                'version' => PackageVersion::current(),
             ],
         ];
     }

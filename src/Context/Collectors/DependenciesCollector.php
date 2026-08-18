@@ -26,7 +26,7 @@ final class DependenciesCollector implements ContextCollector
 
     public function description(): string
     {
-        return 'List installed composer packages with versions, dev status, and best-effort security audit results.';
+        return 'List installed composer packages with versions and dev status. Optional composer audit results when enabled.';
     }
 
     /**

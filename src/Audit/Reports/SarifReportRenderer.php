@@ -6,6 +6,7 @@ namespace LaravelAuditor\Audit\Reports;
 
 use LaravelAuditor\Audit\Enums\Severity;
 use LaravelAuditor\Audit\Findings\Finding;
+use LaravelAuditor\Support\PackageVersion;
 
 /**
  * Renders an AuditReport as SARIF 2.1.0 for CI annotations.
@@ -36,7 +37,7 @@ final class SarifReportRenderer
                     'driver' => [
                         'name' => 'laravel-auditor',
                         'informationUri' => 'https://github.com/mrpunyapal/laravel-auditor',
-                        'version' => '0.1.1',
+                        'version' => PackageVersion::current(),
                     ],
                 ],
                 'results' => $results,

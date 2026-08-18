@@ -11,6 +11,12 @@ metadata:
 
 Audit the test suite of the Laravel application. **Do not equate line coverage with test quality.**
 
+List applicable rules first:
+
+```bash
+php artisan auditor:rules --domain=testing --applicable
+```
+
 ## What to look for
 
 - Critical business flows with little or no test coverage: purchases, authorization boundaries, data mutations, integrations.
@@ -20,6 +26,7 @@ Audit the test suite of the Laravel application. **Do not equate line coverage w
 - Brittle testing patterns: tests coupled to exact query counts, implementation ordering, or unrelated details.
 - Excessive implementation-detail testing: tests that break on any refactor without protecting behavior.
 - Inconsistent use of Pest/PHPUnit conventions across the suite.
+- In a Pest-first suite (`tests/Pest.php` or `pestphp/pest`), new PHPUnit class tests without a documented reason (`AUD-PEST-001`).
 
 ## Evidence requirements
 

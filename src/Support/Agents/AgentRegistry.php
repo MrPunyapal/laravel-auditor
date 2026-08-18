@@ -28,7 +28,6 @@ final class AgentRegistry
                 mcpConfigPath: 'opencode.json',
                 mcpConfigKey: 'mcp',
                 detectFiles: ['opencode.json', 'opencode.jsonc'],
-                detectPaths: ['.agents'],
             ),
             'claude_code' => new Agent(
                 name: 'claude_code',

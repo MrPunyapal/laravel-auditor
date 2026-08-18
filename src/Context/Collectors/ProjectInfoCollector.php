@@ -9,6 +9,7 @@ use Filament\FilamentServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
 use LaravelAuditor\Context\ContextCollector;
+use LaravelAuditor\Support\ApplicationPaths;
 use Livewire\Livewire;
 
 /**
@@ -22,6 +23,7 @@ final class ProjectInfoCollector implements ContextCollector
     public function __construct(
         private readonly Application $app,
         private readonly Filesystem $files,
+        private readonly ApplicationPaths $paths,
     ) {}
 
     public function name(): string
@@ -45,7 +47,7 @@ final class ProjectInfoCollector implements ContextCollector
             'name' => $this->appName(),
             'environment' => $this->app->environment(),
             'php_version' => PHP_VERSION,
-            'laravel_version' => InstalledVersions::getVersion('laravel/framework'),
+            'laravel_version' => InstalledVersions::getPrettyVersion('laravel/framework'),
             'laravel_major_version' => $this->laravelMajorVersion(),
             'database' => $this->databaseEngine(),
             'test_framework' => $this->testFramework($installed),
@@ -55,12 +57,12 @@ final class ProjectInfoCollector implements ContextCollector
             'ecosystem' => $this->ecosystem($installed),
             'packages' => $this->notablePackages($installed),
             'paths' => [
-                'app' => $this->relative(app_path()),
+                'app' => $this->relative($this->paths->directories()[0] ?? app_path()),
                 'config' => $this->relative(config_path()),
-                'database' => $this->relative(database_path()),
-                'routes' => $this->relative(base_path('routes')),
+                'database' => $this->relative($this->paths->siblings('database')[0] ?? database_path()),
+                'routes' => $this->relative($this->paths->siblings('routes')[0] ?? base_path('routes')),
                 'resources' => $this->relative(resource_path()),
-                'tests' => $this->relative(base_path('tests')),
+                'tests' => $this->relative($this->paths->siblings('tests')[0] ?? base_path('tests')),
             ],
         ];
     }
@@ -105,7 +107,7 @@ final class ProjectInfoCollector implements ContextCollector
             return 'phpunit';
         }
 
-        if ($this->files->exists(base_path('tests'))) {
+        if ($this->paths->siblings('tests') !== []) {
             return 'detected-test-directory';
         }
 
@@ -161,18 +163,18 @@ final class ProjectInfoCollector implements ContextCollector
     private function architectureSignals(): array
     {
         return [
-            'api' => $this->files->exists(base_path('routes/api.php')) || $this->files->exists(base_path('routes/api')),
-            'console' => $this->files->exists(base_path('routes/console.php')),
-            'websocket_channels' => $this->files->exists(base_path('routes/channels.php')),
-            'queued_jobs' => $this->files->exists(app_path('Jobs')),
-            'policies' => $this->files->exists(app_path('Policies')),
-            'events' => $this->files->exists(app_path('Events')) || $this->files->exists(app_path('Listeners')),
-            'observers' => $this->files->exists(app_path('Observers')),
-            'console_commands' => $this->files->exists(app_path('Console/Commands')),
-            'service_providers' => $this->files->exists(app_path('Providers')),
-            'middleware' => $this->files->exists(app_path('Http/Middleware')),
-            'notifications' => $this->files->exists(app_path('Notifications')),
-            'mail' => $this->files->exists(app_path('Mail')),
+            'api' => $this->paths->siblings('routes/api.php') !== [] || $this->paths->siblings('routes/api') !== [],
+            'console' => $this->paths->siblings('routes/console.php') !== [],
+            'websocket_channels' => $this->paths->siblings('routes/channels.php') !== [],
+            'queued_jobs' => $this->paths->has('Jobs'),
+            'policies' => $this->paths->has('Policies'),
+            'events' => $this->paths->has('Events') || $this->paths->has('Listeners'),
+            'observers' => $this->paths->has('Observers'),
+            'console_commands' => $this->paths->has('Console/Commands'),
+            'service_providers' => $this->paths->has('Providers'),
+            'middleware' => $this->paths->has('Http/Middleware'),
+            'notifications' => $this->paths->has('Notifications'),
+            'mail' => $this->paths->has('Mail'),
         ];
     }
 
@@ -181,14 +183,38 @@ final class ProjectInfoCollector implements ContextCollector
      */
     private function sourceLayout(): array
     {
+        $migrationCount = 0;
+
+        foreach ($this->paths->siblings('database/migrations') as $directory) {
+            if ($this->files->isDirectory($directory)) {
+                $migrationCount += $this->countFiles($directory);
+            }
+        }
+
+        $routeCount = 0;
+
+        foreach ($this->paths->siblings('routes') as $directory) {
+            if ($this->files->isDirectory($directory)) {
+                $routeCount += $this->countFiles($directory);
+            }
+        }
+
+        $testCount = 0;
+
+        foreach ($this->paths->siblings('tests') as $directory) {
+            if ($this->files->isDirectory($directory)) {
+                $testCount += $this->countFiles($directory);
+            }
+        }
+
         return [
-            'app_files' => $this->countFiles(app_path()),
-            'migrations' => $this->countFiles(database_path('migrations')),
-            'routes_files' => $this->countFiles(base_path('routes')),
+            'app_files' => $this->paths->fileCount(),
+            'migrations' => $migrationCount,
+            'routes_files' => $routeCount,
             'config_files' => $this->countFiles(config_path()),
-            'test_files' => $this->countFiles(base_path('tests')),
-            'has_factories' => $this->files->exists(database_path('factories')),
-            'has_seeders' => $this->files->exists(database_path('seeders')),
+            'test_files' => $testCount,
+            'has_factories' => $this->paths->siblings('database/factories') !== [],
+            'has_seeders' => $this->paths->siblings('database/seeders') !== [],
         ];
     }
 
@@ -274,10 +300,17 @@ final class ProjectInfoCollector implements ContextCollector
 
     private function relative(string $path): string
     {
-        $base = str_replace('\\', '/', base_path());
+        $base = str_replace('\\', '/', rtrim(base_path(), '/\\'));
+        $path = str_replace('\\', '/', $path);
 
-        return str_replace('\\', '/', $path) === $base
-            ? '.'
-            : ltrim(str_replace('\\', '/', substr($path, strlen($base))), '/');
+        if ($path === $base) {
+            return '.';
+        }
+
+        if (str_starts_with($path, $base.'/')) {
+            return substr($path, strlen($base) + 1);
+        }
+
+        return $path;
     }
 }

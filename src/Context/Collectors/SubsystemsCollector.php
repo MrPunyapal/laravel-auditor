@@ -41,12 +41,12 @@ final class SubsystemsCollector implements ContextCollector
             $this->row('HTTP', 'HTTP / routing', ['Http', 'Http/Controllers'], 'routes/, app/Http', ['routes']),
             $this->row('MDL', 'Eloquent models', ['Models'], 'app/Models', ['models']),
             $this->row('AUTH', 'Authorization', ['Policies', 'Http/Middleware'], 'app/Policies, gates, auth middleware', ['policies_authorization']),
-            $this->row('DB', 'Database / migrations', [], 'database/migrations and schema', ['migrations', 'database_schema'], database_path('migrations')),
+            $this->row('DB', 'Database / migrations', [], 'database/migrations and schema', ['migrations', 'database_schema'], $this->paths->siblings('database/migrations')[0] ?? database_path('migrations')),
             $this->row('JOB', 'Jobs / queues', ['Jobs'], 'app/Jobs, queue config', ['jobs_events_schedules']),
             $this->row('EVT', 'Events / listeners', ['Events', 'Listeners'], 'app/Events, app/Listeners', ['jobs_events_schedules']),
             $this->row('CMD', 'Console / schedule', ['Console/Commands'], 'app/Console, routes/console.php', ['jobs_events_schedules']),
             $this->row('MAIL', 'Mail / notifications', ['Mail', 'Notifications'], 'app/Mail, app/Notifications', []),
-            $this->row('TST', 'Tests', [], 'tests/', ['tests'], base_path('tests')),
+            $this->row('TST', 'Tests', [], 'tests/', ['tests'], $this->paths->siblings('tests')[0] ?? base_path('tests')),
             $this->row('CFG', 'Configuration', [], 'config/', ['configuration'], config_path()),
             $this->row('DEP', 'Dependencies', [], 'composer.json / installed packages', ['dependencies'], base_path('composer.json')),
         ]));
@@ -120,9 +120,17 @@ final class SubsystemsCollector implements ContextCollector
 
     private function relative(string $path): string
     {
-        $base = str_replace('\\', '/', base_path());
+        $base = str_replace('\\', '/', rtrim(base_path(), '/\\'));
         $path = str_replace('\\', '/', $path);
 
-        return $path === $base ? '.' : ltrim(substr($path, strlen($base)), '/');
+        if ($path === $base) {
+            return '.';
+        }
+
+        if (str_starts_with($path, $base.'/')) {
+            return substr($path, strlen($base) + 1);
+        }
+
+        return $path;
     }
 }

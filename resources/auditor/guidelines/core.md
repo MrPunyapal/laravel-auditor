@@ -31,20 +31,29 @@ Use both precisely. A `confirmed` finding has verified evidence. A `high` severi
 Each finding should carry, at minimum:
 
 - `rule_id` — stable rule ID when one matches (e.g. `AUD-SEC-001`).
-- `title`, `domain`, `severity`, `confidence`, `status`.
+- `id`, `rule_id`, `title`, `domain`, `severity`, `confidence`, `status`.
 - `summary`, `why_it_matters`.
 - `evidence` — concrete references.
 - `affected_resources`, `symbol` — where relevant.
 - `recommendation`, optional `remediation`, optional `verification_notes`.
+- `metadata.priority` — `p0`–`p3` when you rank findings.
+
+Write findings to JSON and render them with `php artisan auditor:report --findings=storage/auditor-findings.json`. See `guidelines/findings.md`.
 
 ## Using the tools
 
 The Laravel Auditor context tools provide deterministic Laravel context:
 
 - `project_info`, `routes`, `models`, `migrations`, `database_schema`.
-- `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`.
+- `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`.
 
-Prefer them over raw file scraping for structured facts. Use file inspection for code-level detail and tracing.
+List them with `php artisan auditor:context --list`. Prefer `php artisan auditor:rules --applicable` before investigating ecosystem-specific issues.
+
+`dependencies.composer_audit` and `tests` case listing are **off by default**. Do not treat a missing advisory list or file-count test total as proof the check ran. Enable `laravel-auditor.context.composer_audit` / `test_listing`, or run `composer audit --format=json` / the test runner yourself.
+
+Prefer these tools over raw file scraping for structured facts. Use file inspection for code-level detail and tracing.
+
+Useful commands: `auditor:status`, `auditor:rules`, `auditor:context`, `auditor:report`, `auditor:ci`, `auditor:mcp`.
 
 ## When Boost is present
 

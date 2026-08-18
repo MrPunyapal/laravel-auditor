@@ -154,6 +154,19 @@ it('merges mcp config without clobbering an existing server', function () {
     expect($config['mcp'])->toHaveKeys(['laravel-boost', 'laravel-auditor']);
 });
 
+it('does not treat an .agents directory as OpenCode', function () {
+    auditorCleanupInstallArtifacts();
+
+    mkdir(base_path('.agents'), 0777, true);
+
+    $this->artisan('auditor:install', ['--no-interaction' => true])
+        ->expectsOutputToContain('No agents selected')
+        ->assertSuccessful();
+
+    expect(file_exists(base_path('opencode.json')))->toBeFalse();
+    expect(file_exists(base_path('.agents/skills/laravel-audit/SKILL.md')))->toBeFalse();
+});
+
 it('does not treat a GitHub or VS Code directory as Copilot', function () {
     auditorCleanupInstallArtifacts();
 

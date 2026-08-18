@@ -12,6 +12,12 @@ metadata:
 
 Audit the performance characteristics of the Laravel application. **Do not treat every loop or every query as a performance problem.** Require evidence of actual cost.
 
+List applicable rules first:
+
+```bash
+php artisan auditor:rules --domain=performance --applicable
+```
+
 ## What to look for
 
 - N+1 query risks: loops over collections that load relationships per iteration without eager loading.
@@ -23,6 +29,7 @@ Audit the performance characteristics of the Laravel application. **Do not treat
 - Cache opportunities when strongly justified: stable, repeatedly computed values.
 - Repeated expensive computation: same result computed many times within one request.
 - Inefficient collection/database usage: filtering large collections in PHP when a DB query is better, missing pagination on large datasets, `cursor`/`chunk` misuse.
+- Queue health that becomes a performance incident: jobs with no `$tries`/`$timeout` (`AUD-QUE-001`), and `QUEUE_CONNECTION=sync` outside local (`AUD-QUE-003`).
 
 ## Evidence requirements
 

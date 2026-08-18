@@ -70,6 +70,10 @@ it('collects project facts from the running application', function () {
     expect($facts['packages'])->toHaveKey('laravel/framework');
     expect($facts['packages']['laravel/framework']['dev'])->toBeBool();
     expect($facts['packages']['pestphp/pest']['dev'])->toBeTrue();
+    expect($facts['architecture_signals']['policies'])->toBeTrue();
+    expect($facts['architecture_signals']['console'])->toBeTrue();
+    expect($facts['source_layout']['app_files'])->toBeGreaterThan(0);
+    expect($facts['source_layout']['migrations'])->toBeGreaterThan(0);
 });
 
 it('aggregates project facts through ProjectContext', function () {
@@ -123,6 +127,8 @@ it('collects configuration keys safely', function () {
 
     expect($data['count'])->toBeGreaterThanOrEqual(1);
     expect($data['keys'])->toBeArray();
+    expect($data['keys'])->toContain('app', 'app.debug');
+    expect($data['keys'])->not->toContain('app.aliases.App');
     expect($data['files'])->toBeArray();
     expect($data['safe_values'])->toHaveKey('app.debug');
 });
@@ -150,6 +156,8 @@ it('collects migration files', function () {
 
     expect($data)->toHaveKeys(['count', 'migrations']);
     expect($data['migrations'])->toBeArray();
+    expect($data['count'])->toBeGreaterThanOrEqual(1);
+    expect(implode("\n", array_column($data['migrations'], 'file')))->toContain('create_posts_table');
 });
 
 it('collects the test suite layout', function () {
@@ -160,6 +168,8 @@ it('collects the test suite layout', function () {
     expect($data['count'])->toBeInt();
     expect($data['file_count'])->toBeInt();
     expect($data['count_source'])->toBe('file-count');
+    expect($data['files'])->each->not->toContain('CreatesApplication.php');
+    expect($data['files'])->each->not->toContain('Pest.php');
 });
 
 it('parses the test runner listing into feature/unit/total counts', function () {
@@ -202,6 +212,13 @@ it('inventories subsystems for a bounded audit', function () {
     expect($data['count'])->toBeGreaterThanOrEqual(3);
     expect($data['subsystems'][0])->toHaveKeys(['id', 'name', 'boundary', 'files', 'collectors', 'status']);
     expect(array_column($data['subsystems'], 'id'))->toContain('HTTP', 'MDL', 'TST');
+
+    $http = collect($data['subsystems'])->firstWhere('id', 'HTTP');
+    $files = $http['files'] ?? [];
+
+    expect($files)->not->toBeEmpty();
+    expect($files)->each->not->toBe('');
+    expect(implode("\n", $files))->toContain('PostController.php');
 });
 
 it('collects model metadata for the workbench app', function () {

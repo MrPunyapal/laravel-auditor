@@ -6,9 +6,9 @@ namespace LaravelAuditor\Context\Collectors;
 
 use Illuminate\Filesystem\Filesystem;
 use LaravelAuditor\Context\ContextCollector;
+use LaravelAuditor\Support\ApplicationPaths;
 use Pest\TestSuite;
 use Pest\Version;
-use SplFileInfo;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -23,6 +23,7 @@ final class TestsCollector implements ContextCollector
 {
     public function __construct(
         private readonly Filesystem $files,
+        private readonly ApplicationPaths $paths,
     ) {}
 
     public function name(): string
@@ -66,21 +67,52 @@ final class TestsCollector implements ContextCollector
      */
     private function testFiles(): array
     {
-        $directory = base_path('tests');
+        $files = [];
 
-        if (! $this->files->isDirectory($directory)) {
-            return [];
+        foreach ($this->paths->siblings('tests') as $directory) {
+            if (! $this->files->isDirectory($directory)) {
+                continue;
+            }
+
+            foreach ($this->files->allFiles($directory) as $file) {
+                $relative = str_replace('\\', '/', $file->getRelativePathname());
+
+                if ($this->looksLikeTestFile($relative)) {
+                    $files[] = $relative;
+                }
+            }
         }
 
-        return array_values(array_map(
-            static fn (SplFileInfo $file): string => $file->getRelativePathname(),
-            $this->files->allFiles($directory),
-        ));
+        return array_values(array_unique($files));
+    }
+
+    private function looksLikeTestFile(string $path): bool
+    {
+        $normalized = str_replace('\\', '/', $path);
+        $basename = basename($normalized);
+
+        if (! str_ends_with(strtolower($basename), '.php')) {
+            return false;
+        }
+
+        if (in_array($basename, ['Pest.php', 'TestCase.php', 'CreatesApplication.php'], true)) {
+            return false;
+        }
+
+        if (preg_match('/(^|\/)(Fixtures?|fixtures?|snapshots?)(\/|$)/', $normalized) === 1) {
+            return false;
+        }
+
+        if (str_ends_with($basename, 'Test.php') || str_ends_with($basename, 'Tests.php')) {
+            return true;
+        }
+
+        return preg_match('/(^|\/)(Feature|Unit|feature|unit)\//', $normalized) === 1;
     }
 
     private function framework(): string
     {
-        if ($this->files->exists(base_path('tests/Pest.php'))) {
+        if ($this->hasPestBootstrap()) {
             return 'pest';
         }
 
@@ -91,9 +123,20 @@ final class TestsCollector implements ContextCollector
         return 'phpunit';
     }
 
+    private function hasPestBootstrap(): bool
+    {
+        foreach ($this->paths->siblings('tests') as $directory) {
+            if ($this->files->exists($directory.DIRECTORY_SEPARATOR.'Pest.php')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function usesPest(): bool
     {
-        if ($this->files->exists(base_path('tests/Pest.php'))) {
+        if ($this->hasPestBootstrap()) {
             return true;
         }
 

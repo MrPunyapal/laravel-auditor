@@ -1,6 +1,32 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.1...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.2...HEAD)
+
+## [v0.1.2](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.2) - 2026-08-19
+
+Compatibility release. No public command, config key, MCP tool name, or rule ID was removed.
+
+### Fixed
+
+- Standalone and Boost security skills are now identical and cover CSRF, XSS, raw SQL, and dependency advisories
+- Guidelines list all 11 context tools, including `subsystems`
+- `laravel-audit` now writes findings JSON, ranks `metadata.priority`, and renders via `auditor:report` / `auditor:ci`
+- Docs no longer imply `composer audit` ran when the collector is disabled
+- Removed the `php artisan migrate` verification step from the audit skill
+- OpenCode is detected from `opencode.json` / `opencode.jsonc` only, not a `.agents` directory
+- `migrations` also reads workbench and migrator-registered paths
+- `configuration` reports file and top-level keys instead of every nested alias/provider index
+- `tests` lists test files only, not helpers, fixtures, or snapshots
+- MCP and SARIF versions come from the installed Composer package instead of a hardcoded string
+- `project_info` architecture signals and source layout follow application/workbench paths instead of only `app_path()`
+- `tests` and `subsystems` discover test/migration directories next to the application root
+
+### Added
+
+- Boost guidelines for findings and DSA (`findings.blade.php`, `dsa.blade.php`)
+- Standalone `laravel-auditor-development` skill
+- Domain skills now load `auditor:rules --applicable` and mention ecosystem packs (Livewire, Filament, Inertia, Sanctum, Pest, queues)
+- Compatibility policy: public commands, config keys, MCP tool names, finding fields, and rule IDs stay backward compatible; breaking changes are exceptional
 
 ## [v0.1.1](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.1) - 2026-08-18
 

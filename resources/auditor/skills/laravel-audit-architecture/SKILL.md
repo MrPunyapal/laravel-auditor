@@ -11,6 +11,12 @@ metadata:
 
 Audit the architecture of the Laravel application. **Avoid cargo-cult recommendations** such as "create a repository for every model" or "move everything into services."
 
+List applicable rules first:
+
+```bash
+php artisan auditor:rules --domain=architecture --applicable
+```
+
 ## What to look for
 
 - Clear violations of application boundaries: domain logic leaking into controllers, routes, or views; persistence concerns in presentation layers.

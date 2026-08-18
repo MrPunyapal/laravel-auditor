@@ -32,7 +32,7 @@ For a bounded data-structure / ownership / organizing-model pass (inventory ever
 
 ### Phase A: Discover
 
-Gather deterministic project facts first. When available, run the Laravel Auditor context tools (MCP) or inspect:
+Gather deterministic project facts first. When Artisan is available, start with `php artisan auditor:status`, `php artisan auditor:context --list`, and `php artisan auditor:rules --applicable`. Then run the Laravel Auditor context tools (MCP) or inspect:
 
 - `project_info`: Laravel version, PHP version, database engine, ecosystem packages, architecture signals.
 - `routes`: registered routes and their handlers.
@@ -68,7 +68,7 @@ For each selected domain:
 4. Cross-check evidence across multiple sources.
 5. Separate confirmed problems from hypotheses.
 
-The rule reference (list via `php artisan auditor:rules`) contains the rule IDs, severity, evidence requirements, and false-positive considerations. Use it to map observations to stable rule IDs.
+The rule reference (`php artisan auditor:rules`, or `--applicable` / `--domain=`) contains the rule IDs, severity, evidence requirements, and false-positive considerations. Use it to map observations to stable rule IDs. Ecosystem packs (Livewire, Filament, Inertia, Sanctum, Pest) only apply when those packages are installed. Queue and DSA rules always apply.
 
 ### Phase D: Verify
 
@@ -81,21 +81,21 @@ Before reporting a high-severity finding, attempt to verify it:
 - Inspect dependency versions and their docs.
 - Inspect the tests.
 - Review logs/errors when relevant.
-- Run a **safe, read-only** runtime check only when a tool exists (never run anything that mutates data).
-
-When migration reliability is in scope, verify the **fresh-start migration path**: on a disposable empty database, run `php artisan migrate` from zero (never against the real database). Confirm the schema matches the migration intent, then discard the disposable database.
+- Run a **safe, read-only** runtime check only when a tool exists (never migrate, seed, refresh, or otherwise mutate data).
 
 If you cannot verify, lower the confidence and say so explicitly.
 
 ### Phase E: Report
 
-Produce structured findings. Each finding must include:
+Write findings to `storage/auditor-findings.json` (an array, or `{ "findings": [ ... ] }`). Each finding must include:
 
+- `id`: unique instance id (e.g. `F-2026-0001`).
 - `rule_id`: a stable rule ID (e.g. `AUD-SEC-001`) when one matches.
 - `title`: short and specific.
 - `domain`: the audit domain.
 - `severity`: `critical`, `high`, `medium`, `low`, or `info`.
 - `confidence`: `confirmed`, `high`, `medium`, or `low`.
+- `status`: `open` for new findings.
 - `summary`: what is wrong.
 - `why_it_matters`: why it matters for this app.
 - `evidence`: concrete references (file paths, lines, routes, symbols).
@@ -103,8 +103,20 @@ Produce structured findings. Each finding must include:
 - `recommendation`: what to do about it.
 - `remediation`: optional step-by-step guidance.
 - `verification_notes`: how you verified (or why you could not).
+- `metadata.priority`: `p0`–`p3` when you rank the report. Keep P3 small.
+  - **P0** — reachable wrong-record, lost-update, authorization, or durable-state risk
+  - **P1** — concrete boundary failures with less immediate damage
+  - **P2** — useful invariant improvements with narrower impact
+  - **P3** — telemetry / diagnostics / maintainability
 
-Then produce a report summary with project facts, domains audited, counts by severity/domain, and the key risks.
+Then render:
+
+```bash
+php artisan auditor:report --findings=storage/auditor-findings.json
+php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
+```
+
+The report includes project facts, domains audited, counts by severity/domain, priority synthesis, and the key risks.
 
 ## Anti-patterns to avoid
 
@@ -116,3 +128,5 @@ Then produce a report summary with project facts, domains audited, counts by sev
 - Recommending upgrades solely because a package is old.
 - Presenting style preferences as high-severity findings.
 - Claiming the audit is complete when evidence was missing.
+- Running `migrate`, `db:wipe`, `db:seed`, or any other mutating Artisan command to "verify" schema.
+- Treating an empty `composer_audit` payload as “no vulnerabilities” when the check is disabled (the default).

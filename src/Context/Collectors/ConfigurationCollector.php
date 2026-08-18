@@ -7,6 +7,7 @@ namespace LaravelAuditor\Context\Collectors;
 use Illuminate\Filesystem\Filesystem;
 use LaravelAuditor\Context\ContextCollector;
 use SplFileInfo;
+use Throwable;
 
 /**
  * Collects the available configuration keys from the config directory.
@@ -44,7 +45,7 @@ final class ConfigurationCollector implements ContextCollector
             $root = pathinfo($file, PATHINFO_FILENAME);
             $keys[] = $root;
 
-            foreach ($this->keysInFile($file, $root) as $key) {
+            foreach ($this->topLevelKeysInFile($file, $root) as $key) {
                 $keys[] = $key;
             }
         }
@@ -79,7 +80,7 @@ final class ConfigurationCollector implements ContextCollector
     /**
      * @return list<string>
      */
-    private function keysInFile(string $file, string $root): array
+    private function topLevelKeysInFile(string $file, string $root): array
     {
         $path = config_path($file);
 
@@ -87,32 +88,20 @@ final class ConfigurationCollector implements ContextCollector
             return [];
         }
 
-        $data = require $path;
+        try {
+            $data = require $path;
+        } catch (Throwable) {
+            return [];
+        }
 
         if (! is_array($data)) {
             return [];
         }
 
-        return $this->flattenKeys($data, $root);
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     * @return list<string>
-     */
-    private function flattenKeys(array $data, string $prefix): array
-    {
         $keys = [];
 
-        foreach ($data as $key => $value) {
-            $full = "{$prefix}.{$key}";
-
-            if (is_array($value)) {
-                $keys[] = $full;
-                $keys = array_merge($keys, $this->flattenKeys($value, $full));
-            } else {
-                $keys[] = $full;
-            }
+        foreach (array_keys($data) as $key) {
+            $keys[] = $root.'.'.$key;
         }
 
         return $keys;

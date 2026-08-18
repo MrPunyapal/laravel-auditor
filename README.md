@@ -352,6 +352,10 @@ The agent is instructed to:
 
 A short, evidenced report is the intended product.
 
+## Compatibility
+
+Laravel Auditor is meant to sit in an application as a development tool for a long time. Releases stay backward compatible: command names, config keys, MCP tool names, finding fields, and rule IDs are not removed or renamed. Breaking changes are rare and would require a major version with an explicit changelog note.
+
 ## Not in V1
 
 Deferred work lives in the [future scope](https://mrpunyapal.github.io/laravel-auditor/future/) docs. That includes automatic fixes, historical baselines, a web dashboard, legacy/standalone runners, organization policy packs, and deeper ecosystem rule packs.

@@ -1,8 +1,6 @@
-# DSA / organizing-model audit
+## Laravel Auditor DSA
 
 When asked for a DSA, data-structure, ownership, or subsystem audit, use the `laravel-audit-dsa` skill.
-
-Rules:
 
 - Read-only. Do not implement fixes during the audit.
 - Inventory subsystems first (`php artisan auditor:context subsystems`).

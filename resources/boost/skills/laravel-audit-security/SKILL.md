@@ -13,6 +13,12 @@ metadata:
 
 Audit the security boundaries of the Laravel application. **Do not invent vulnerabilities merely because a pattern is uncommon.** Require context and evidence.
 
+List applicable rules first:
+
+```bash
+php artisan auditor:rules --domain=security --applicable
+```
+
 ## What to look for
 
 - Authorization gaps: routes/controllers that mutate or expose resources without a policy, gate, or middleware.
@@ -29,7 +35,10 @@ Audit the security boundaries of the Laravel application. **Do not invent vulner
 - Weak or missing CSRF protection: `VerifyCsrfToken::except` whitelists, removed/reordered CSRF middleware, forms or post endpoints missing the token.
 - Unescaped output / XSS risk: Blade `{!! !!}`, `->get()`, `->toHtml()` rendering user-controlled or stored data.
 - Raw SQL with user-controlled input: `DB::raw`, `whereRaw`, `selectRaw`, `orderByRaw`, or `statement` interpolating request input.
-- Known vulnerable, abandoned, or license-conflicting dependencies via `composer audit` (reported under `dependencies` context).
+- Known vulnerable dependencies. `dependencies.composer_audit` is **off by default** — enable `laravel-auditor.context.composer_audit` or run `composer audit --format=json` yourself before reporting `AUD-DEP-001`.
+- Queued jobs that serialize Eloquent models with hidden/sensitive attributes (`AUD-QUE-002`).
+
+When these packages are installed, also apply their packs (`auditor:rules --applicable`): Livewire (`AUD-LW-*`), Filament (`AUD-FIL-*`), Inertia (`AUD-IN-*`), Sanctum (`AUD-API-*`).
 
 ## Evidence requirements
 
@@ -44,6 +53,7 @@ Every security finding needs at least:
 - Do not claim exploitability without sufficient evidence.
 - A missing policy is only a finding when the resource is user-accessible or sensitive.
 - Uncommon patterns are not automatically vulnerabilities.
+- An empty `composer_audit` payload is not evidence that there are no advisories unless the check actually ran.
 
 ## Severity guidance
 

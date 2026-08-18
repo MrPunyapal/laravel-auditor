@@ -21,7 +21,7 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Reports | Markdown, JSON, CLI text, and SARIF renderers; `auditor:report` and `auditor:ci` commands |
 | Artisan commands | `auditor:install`, `auditor:status`, `auditor:rules`, `auditor:report`, `auditor:context`, `auditor:ci`, `auditor:mcp` |
 | Installer | Idempotent standalone installer with `--dry-run`, `--force`, `--agents` options; wires only selected, configured, or detected agents; writes adapters only when missing |
-| Agent resources | 8 skills, 3 guidelines, 2 schemas, 1 example file — published via `vendor:publish` or `auditor:install` |
+| Agent resources | 9 skills (8 audit + setup), 3 guidelines, 2 schemas, 1 example file — published via `vendor:publish` or `auditor:install` |
 | Facades | `LaravelAuditor` facade exposing `collect()`, `rules()`, `context()`, and `project()` |
 | Configuration | `config/laravel-auditor.php` with domains, extra rule directories, standalone resource target, agent list, context options |
 | Documentation site | Docsmith-based docs deployed to GitHub Pages with OG images, sitemap, and per-page metadata |
@@ -89,11 +89,15 @@ All development dependencies remain in `require-dev` and are not installed by en
 
 ## Stability guarantees
 
-- **Public API**: The `LaravelAuditor` facade, `auditor:context` command, config file, and MCP tools are the stable public interface. Changes will follow semver.
-- **Findings schema**: The `finding.schema.json` and `report.schema.json` define the output contract. Fields may be added but not removed or renamed within v0.x.
-- **Rule IDs**: Rule IDs (e.g., `AUD-SEC-001`) are stable within v0.1.0. Rules may be added; existing rules may have severity or confidence adjusted with a changelog entry.
-- **Agent resources**: Skills, guidelines, and adapters are published to the user's project. They may be regenerated with `--force` and are not part of the PHP API contract.
-- **Internal classes**: Classes not explicitly documented as public API (collectors, renderers, registries) may change between minor versions without notice.
+This package is installed into other people's apps. **Breaking changes are exceptional.** Prefer additive fixes and new optional config. A break requires a rare major version, a changelog callout, and a migration note.
+
+- **Public API**: The `LaravelAuditor` facade, every `auditor:*` command (names, arguments, options, exit codes), published config keys, and MCP tool names are stable. Do not remove or rename them.
+- **Collector / MCP payloads**: Top-level keys and documented fields stay. New keys may be added. Nested noise may be reduced only when the documented fields remain.
+- **Findings schema**: `finding.schema.json` and `report.schema.json` are the output contract. Fields may be added but not removed or renamed within v0.x.
+- **Rule IDs**: IDs such as `AUD-SEC-001` stay stable. Rules may be added. Severity or confidence of an existing rule may change only with a changelog entry.
+- **Config defaults**: Changing a default is a behavior change. Prefer a new opt-in key over flipping an existing default for installed users.
+- **Agent resources**: Skills, guidelines, and adapters are published copies. They may be regenerated with `--force` and are not a PHP API, but published command names and finding fields they teach must stay accurate.
+- **Internal classes**: Collectors, renderers, and registries may be refactored. Observable command, facade, config, and MCP behavior must not break.
 
 ## Release process
 

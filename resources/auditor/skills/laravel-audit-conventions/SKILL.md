@@ -12,6 +12,12 @@ metadata:
 
 Audit the application for Laravel framework conventions. **The rules must be version-aware whenever the installed version is known.**
 
+List applicable rules first:
+
+```bash
+php artisan auditor:rules --domain=conventions --applicable
+```
+
 ## What to look for
 
 - Framework anti-patterns: patterns that fight the framework's intended flow.
@@ -20,6 +26,7 @@ Audit the application for Laravel framework conventions. **The rules must be ver
 - Incorrect framework assumptions: `config()` keys that don't exist, middleware that isn't applied, routes that don't match registered patterns.
 - Misuse of framework lifecycle/features: service providers doing work in `register()`, observers/mutators causing side effects, cache keys without invalidation, queueable misuse, scheduling misconfig.
 - Configuration, validation, routing, jobs, events, policies, resources, commands, notifications, mail, queues, scheduling, and caching used in problematic ways.
+- Abandoned runtime dependencies (`AUD-DEP-002`) or license conflicts for a commercial product (`AUD-DEP-003`) — only with `composer show` / license evidence, not because a package is old.
 
 ## Evidence requirements
 
