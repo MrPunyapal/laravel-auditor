@@ -343,6 +343,42 @@ a {
     gap: 0.45rem;
 }
 
+.docsmith-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    margin-top: 1.25rem;
+    padding: 0.15rem 0;
+    color: var(--muted);
+    font-size: 0.74rem;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.docsmith-badge-icon {
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.docsmith-badge-text {
+    color: var(--muted);
+}
+
+.docsmith-badge-brand {
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    transition: color 0.2s ease;
+}
+
+.docsmith-badge:hover .docsmith-badge-brand,
+.docsmith-badge:hover .docsmith-badge-icon {
+    color: var(--accent);
+}
+
 .nav-group {
     border: 1px solid var(--border);
     border-radius: 0.85rem;
