@@ -98,7 +98,7 @@ With Laravel Boost installed, the same context tools are registered automaticall
 - Reports: `php artisan auditor:report` (`--findings=`, `--example`, `--format=markdown|json|text|sarif`, `--output=`)
 - CI: `php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high`
 - Facade: `LaravelAuditor::collect('routes')`, `LaravelAuditor::rules()`, `LaravelAuditor::context()`, `LaravelAuditor::project()`
-- Config: `resources_target`, `agents`, `context.composer_audit` (off), `context.test_listing` (off)
+- Config: `resources_target`, `agents`, `context.composer_audit` (on), `context.test_listing` (off)
 - Config publish tag: `laravel-auditor-config`
 - Resource publish tag: `laravel-auditor-resources`
 - Schema publish tag: `laravel-auditor-schema`

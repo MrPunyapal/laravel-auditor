@@ -103,14 +103,20 @@ it('collects composer dependencies', function () {
     expect($data['packages'])->toHaveKey('laravel/framework');
     expect($data['requires'])->toBeArray();
     expect($data['requires_dev'])->toBeArray();
-    expect($data['composer_audit'])->toHaveKeys(['available', 'reason']);
-    expect($data['composer_audit']['available'])->toBeFalse();
+    expect($data['composer_audit'])->toHaveKey('available');
+
+    if ($data['composer_audit']['available']) {
+        expect($data['composer_audit'])->toHaveKeys(['count', 'advisories']);
+    } else {
+        expect($data['composer_audit'])->toHaveKey('reason');
+        expect($data['composer_audit']['reason'])->not->toBe('composer audit is disabled by configuration');
+    }
 });
 
-it('keeps composer audit and test listing off in the packaged defaults', function () {
+it('keeps composer audit on and test listing off in the packaged defaults', function () {
     $defaults = require dirname(__DIR__, 2).'/config/laravel-auditor.php';
 
-    expect($defaults['context']['composer_audit'])->toBeFalse();
+    expect($defaults['context']['composer_audit'])->toBeTrue();
     expect($defaults['context']['test_listing'])->toBeFalse();
 });
 

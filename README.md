@@ -334,7 +334,7 @@ return [
     'resources_target' => '.ai',
     'agents' => [],
     'context' => [
-        'composer_audit' => false,
+        'composer_audit' => true,
         'test_listing' => false,
     ],
     'report' => [

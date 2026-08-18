@@ -49,7 +49,7 @@ The Laravel Auditor context tools provide deterministic Laravel context:
 
 List them with `php artisan auditor:context --list`. Prefer `php artisan auditor:rules --applicable` before investigating ecosystem-specific issues.
 
-`dependencies.composer_audit` and `tests` case listing are **off by default**. Do not treat a missing advisory list or file-count test total as proof the check ran. Enable `laravel-auditor.context.composer_audit` / `test_listing`, or run `composer audit --format=json` / the test runner yourself.
+`dependencies.composer_audit` is **on by default**. `tests` case listing is **off by default**. Do not treat `composer_audit.available: false` or a file-count test total as proof there are no advisories or that every test case was listed. If `available` is false, read `reason` (or run `composer audit --format=json` yourself). Enable `laravel-auditor.context.test_listing` or run the test runner yourself for accurate case counts.
 
 Prefer these tools over raw file scraping for structured facts. Use file inspection for code-level detail and tracing.
 

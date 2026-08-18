@@ -134,6 +134,6 @@ Key settings:
 - `rules` — additional directories containing rule definition files
 - `resources_target` — where the standalone installer publishes agent resources (default: `.ai`)
 - `agents` — default agents for non-interactive installation
-- `context.composer_audit` — enable the `composer audit` call from the dependencies collector (off by default)
+- `context.composer_audit` — enable the `composer audit` call from the dependencies collector (on by default; set `false` to skip the shell-out)
 - `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
 - `report.format` — default format for `auditor:report`

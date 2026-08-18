@@ -129,4 +129,4 @@ The report includes project facts, domains audited, counts by severity/domain, p
 - Presenting style preferences as high-severity findings.
 - Claiming the audit is complete when evidence was missing.
 - Running `migrate`, `db:wipe`, `db:seed`, or any other mutating Artisan command to "verify" schema.
-- Treating an empty `composer_audit` payload as “no vulnerabilities” when the check is disabled (the default).
+- Treating `composer_audit.available: false` (or an empty advisory list) as “no vulnerabilities” when the collector did not actually run `composer audit`.

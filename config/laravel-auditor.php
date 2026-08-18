@@ -79,10 +79,12 @@ return [
     'context' => [
         /*
         | Best-effort `composer audit` call from the dependencies collector.
-        | Off by default so MCP and context collection do not shell out or
-        | wait on the network. Enable when you want advisory data.
+        | On by default so AUD-DEP-001 can use advisory data instead of an
+        | empty payload that agents misread as "no vulnerabilities". The
+        | collector still fails soft (no throw) when Composer, the network,
+        | or a lock file is missing. Set this to false to skip the shell-out.
         */
-        'composer_audit' => false,
+        'composer_audit' => true,
 
         /*
         | Best-effort `pest --list-tests` / `phpunit --list-tests` call from

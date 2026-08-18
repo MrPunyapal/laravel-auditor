@@ -2,6 +2,10 @@
 
 ## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.2...HEAD)
 
+### Changed
+
+- `context.composer_audit` is now **on by default** so `AUD-DEP-001` can use advisory data. The collector still fails soft when Composer, the network, or `composer.lock` is missing. Set the flag to `false` to skip the shell-out. Test-case listing remains off.
+
 ## [v0.1.2](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.2) - 2026-08-19
 
 Compatibility release. No public command, config key, MCP tool name, or rule ID was removed.
