@@ -48,7 +48,7 @@
                     <p class="doc-description">Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.</p>
                 </header>
                 <div class="doc-body">
-                    <p>MCP (Model Context Protocol) is the bridge that lets an AI coding agent request structured Laravel application context from Auditor. Instead of reading raw files and guessing, the agent calls a tool and gets deterministic facts: routes, models, schema, dependencies, and more.</p>
+                    <p>MCP does not audit the app. It only answers the agent's questions with structured Laravel facts (routes, models, schema, and so on) so the agent does not have to guess from raw files.</p>
 <p>Laravel Auditor ships a local stdio MCP server that exposes 11 read-only context tools. When Laravel Boost is installed, the same tools are also registered inside Boost's MCP server automatically.</p>
 <h2 id="register-the-server">Register the server</h2>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:mcp</span><span class="token">

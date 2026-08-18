@@ -48,14 +48,14 @@
                     <p class="doc-description">Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.</p>
                 </header>
                 <div class="doc-body">
-                    <p>Laravel Auditor keeps its audit knowledge in one agent-neutral location under <code>resources/auditor</code>. Agent-specific files are thin adapters that point the agent at that shared knowledge.</p>
-<p>This means the same skills, guidelines, and rules work across every supported agent. The adapter files are just pointers — they do not copy the full audit knowledge into each vendor directory.</p>
+                    <p>Laravel Auditor does not run an audit for you. After install, you open your AI agent and ask it to use the <code>laravel-audit</code> skill.</p>
+<p>Audit knowledge lives once under <code>resources/auditor</code>. Agent-specific files are thin adapters that point the agent at that shared knowledge. The same skills, guidelines, and rules work across every supported agent.</p>
 <h2 id="integration-modes">Integration modes</h2>
 <h3 id="laravel-boost">Laravel Boost</h3>
 <p>When Boost is installed, Auditor extends it. Boost consumes Auditor's skills and guidelines directly from <code>resources/boost/</code>. The context tools are also registered inside Boost's MCP server automatically through <code>boost.mcp.tools.include</code>.</p>
 <p>If your project already uses Boost, this is the simplest path. Run <code>boost:install</code> or <code>boost:update</code> and everything is wired.</p>
 <h3 id="standalone">Standalone</h3>
-<p>When Boost is absent, <code>auditor:install</code> handles the wiring. It publishes skills, guidelines, and schemas to <code>.ai/</code>, writes agent adapter files, and registers the MCP server for agents that support it.</p>
+<p>When Boost is absent, <code>auditor:install --agents=claude_code</code> (or your agent) handles the wiring. It publishes skills, guidelines, and schemas to <code>.ai/</code>, writes agent adapter files, and registers the MCP server for agents that support it.</p>
 <p>Both paths produce the same audit knowledge — they just deliver it differently.</p>
 <h2 id="supported-agents">Supported agents</h2>
 <p>The standalone installer supports eight agents:</p>

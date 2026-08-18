@@ -10,7 +10,7 @@ metadata:
 
 # Laravel Auditor Development
 
-Use this skill when a Laravel application needs to install, configure, or apply the Laravel Auditor package.
+Use this skill when a Laravel application needs to install, configure, or apply the Laravel Auditor package. Auditor does not scan the app. After setup, the user asks their AI agent to use the `laravel-audit` skill.
 
 ## Primary goals
 
@@ -40,7 +40,7 @@ php artisan boost:install
 When Boost is not installed, use the standalone installer:
 
 ```bash
-php artisan auditor:install
+php artisan auditor:install --agents=claude_code
 php artisan auditor:install --agents=claude_code,opencode
 ```
 

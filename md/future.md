@@ -7,7 +7,7 @@ order: 9
 slug: future
 ---
 
-These features may influence the architecture. They are **not** required to ship V1 and are not promises.
+These features may influence later versions. They are **not** in 0.1.x and are not promises.
 
 ## Legacy and standalone support
 

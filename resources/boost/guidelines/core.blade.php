@@ -1,6 +1,6 @@
 ## Laravel Auditor
 
-Laravel Auditor equips an AI coding agent with a specialized, evidence-based methodology and toolset for auditing Laravel applications.
+Laravel Auditor equips an **existing** AI coding agent with an evidence-based Laravel audit methodology. It does not scan the app by itself. Use it when the user asks to audit, review, or assess a Laravel application.
 
 ### Relationship to Boost
 
@@ -24,7 +24,7 @@ php artisan boost:install
 When Boost is not installed, use the package's own installer instead:
 
 ```bash
-php artisan auditor:install
+php artisan auditor:install --agents=claude_code
 ```
 
 Useful commands: `auditor:status`, `auditor:rules` (`--applicable`), `auditor:context`, `auditor:report`, `auditor:ci`, and `auditor:mcp`.

@@ -7,7 +7,7 @@ order: 8
 slug: dsa
 ---
 
-A DSA (Data Structures, State, Algorithms) audit is a different kind of review from a standard vulnerability audit. Instead of looking for security bugs or performance issues, it examines the application's internal organization: how data is structured, how state is represented, where behavior is owned, and whether the code could be materially simplified.
+A DSA (Data Structures, State, Algorithms) audit is still run by your AI agent, using the `laravel-audit-dsa` skill. It is a different kind of review from a security pass: it examines how data is structured, how state is represented, where behavior is owned, and whether the code could be materially simplified. The package only inventories subsystems and renders the agent's findings.
 
 This is **audit only**. Do not edit files, implement fixes, commit, or push.
 

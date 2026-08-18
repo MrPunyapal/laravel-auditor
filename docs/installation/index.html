@@ -48,11 +48,11 @@
                     <p class="doc-description">Install Laravel Auditor in a Laravel application with or without Laravel Boost.</p>
                 </header>
                 <div class="doc-body">
-                    <p>Laravel Auditor is installed as a <strong>development</strong> dependency. It is an engineering tool used during auditing, not a runtime requirement for the production application.</p>
+                    <p>Laravel Auditor is an <strong>early 0.1.x</strong> development dependency. It is an engineering tool used during auditing, not a runtime requirement and not a scanner that runs on its own.</p>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">require</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dev</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">mrpunyapal/laravel-auditor</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p>Requirements: PHP 8.3+ and Laravel 12 or 13.</p>
+<p>Requirements: PHP 8.3+ and Laravel 12 or 13. After install, open your AI agent and ask it to use the <code>laravel-audit</code> skill. The agent does the reasoning; this package supplies the workflow and context.</p>
 <h2 id="decide-your-integration-path">Decide your integration path</h2>
 <p>The installation path depends on whether your project uses Laravel Boost.</p>
 <pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Install Laravel Auditor
@@ -61,7 +61,7 @@
 </span></span><span class="line"><span class="token">        │       └── Run boost:install / boost:update
 </span></span><span class="line"><span class="token">        │
 </span></span><span class="line"><span class="token">        └── Not using Boost?
-</span></span><span class="line"><span class="token">                └── Run auditor:install
+</span></span><span class="line"><span class="token">                └── Run auditor:install --agents=...
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
 <p><strong>If Laravel Boost is already installed</strong>, do not run <code>auditor:install</code>. Boost consumes Auditor's skills and guidelines directly from the package's <code>resources/boost/</code> directory. Running <code>auditor:install</code> would duplicate what Boost already provides.</p>
@@ -75,10 +75,10 @@
 </span></span></code></pre>
 <p>This exposes Auditor's audit-specific skills and guidelines through Boost. The context tools are also registered inside Boost's MCP server automatically. No additional setup is needed.</p>
 <h2 id="standalone-no-boost">Standalone (no Boost)</h2>
-<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token">
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-agents=claude_code</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p>The standalone installer handles everything needed to connect Laravel Auditor to your AI agent.</p>
+<p>The standalone installer publishes skills and wires the selected agent. Interactive runs ask which agents to configure. Non-interactive runs with no <code>--agents</code>, no config, and no project markers wire nothing.</p>
 <h3 id="what-it-does">What it does</h3>
 <p>The installer is idempotent and safe. It:</p>
 <ul>

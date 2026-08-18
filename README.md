@@ -14,7 +14,9 @@ Laravel Auditor equips an existing AI coding agent with a specialized, evidence-
 
 **Docs:** [mrpunyapal.github.io/laravel-auditor](https://mrpunyapal.github.io/laravel-auditor)
 
-It is **not** a generic code-review prompt, a replacement for Laravel Boost, or an autonomous AI product. The agent remains the reasoning engine. This package provides the audit workflow, domain knowledge, rules, finding schema, and structured Laravel context tools.
+This is **early 0.1.x**. Install it as a development dependency, wire it into Claude / Codex / Cursor / Boost (or another agent), and ask that agent to audit. It is **not** a one-click scanner or an autonomous product. Finding quality depends on the agent following the skill.
+
+Requirements: **PHP 8.3+**, **Laravel 12 or 13**. Command names, config keys, MCP tool names, finding fields, and rule IDs stay compatible across 0.1.x.
 
 ## Why it exists
 
@@ -25,7 +27,7 @@ AI agents can already read a Laravel codebase. They still tend to:
 - invent vulnerabilities from uncommon patterns
 - skip verification before reporting a serious finding
 
-Laravel Auditor gives the agent a repeatable audit workflow and deterministic project context so findings stay specific, evidenced, and trustworthy.
+Laravel Auditor gives the agent a repeatable workflow and deterministic project context so it is less likely to guess. Findings are only as good as the agent that follows the skill.
 
 ## Supported agent workflow
 
@@ -36,15 +38,15 @@ The package is agent-agnostic. Audit knowledge lives once and is adapted thinly 
 - Gemini CLI
 - other agents that consume project instructions, skills, guidelines, or MCP tools
 
-When Laravel Boost is installed, Auditor integrates through Boost's third-party guidelines and skills. When Boost is absent, `php artisan auditor:install` publishes standalone agent resources.
+When Laravel Boost is installed, Auditor integrates through Boost's third-party guidelines and skills. When Boost is absent, `php artisan auditor:install --agents=...` publishes standalone agent resources.
 
 The first five minutes should look like this:
 
 1. Install the package as a development dependency
-2. Run Boost setup or `auditor:install`
-3. Open your preferred AI agent
-4. Ask it to audit the project
-5. Receive structured findings with evidence
+2. Run `boost:install` or `auditor:install --agents=claude_code` (or your agent)
+3. Open that AI agent
+4. Ask it to use the `laravel-audit` skill
+5. The agent produces structured findings; you can render them with `auditor:report`
 
 ## Installation
 
@@ -73,8 +75,10 @@ Do not run `auditor:install` just to duplicate Boost setup. Boost consumes `reso
 ### Standalone (no Boost)
 
 ```bash
-php artisan auditor:install
+php artisan auditor:install --agents=claude_code
 ```
+
+Pass the agent you actually use (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`). Interactive runs ask. Non-interactive runs with no `--agents`, no config, and no project markers wire nothing.
 
 The installer is idempotent and safe. It:
 
@@ -109,9 +113,9 @@ php artisan vendor:publish --tag="laravel-auditor-config"
 php artisan vendor:publish --tag="laravel-auditor-resources"
 ```
 
-## What V1 audits
+## What it audits
 
-V1 focuses on six domains:
+The current 0.1.x catalog focuses on six domains. The package does **not** execute these checks itself — the agent does:
 
 | Domain | Looks for |
 | --- | --- |
@@ -122,7 +126,7 @@ V1 focuses on six domains:
 | Testing | Missing meaningful coverage, weak tests, missing authorization tests |
 | Laravel conventions | Version-inappropriate APIs, reinvented framework features, lifecycle misuse |
 
-The package also detects ecosystem signals (Livewire, Filament, Inertia, Pest, PHPUnit, Tailwind, queues) so later rule packs can attach cleanly. V1 only ships a rule when it can meet the evidence-first standard.
+The package also detects ecosystem signals (Livewire, Filament, Inertia, Pest, PHPUnit, Tailwind, queues) so later rule packs can attach cleanly. A rule ships only when it can meet the evidence-first standard.
 
 List the current rules:
 
@@ -132,7 +136,7 @@ php artisan auditor:rules --domain=security
 php artisan auditor:rules --json
 ```
 
-V1 ships **61** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, and Pest packs that only apply when those packages are installed. Queue and DSA rules always apply. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
+0.1.x ships **61** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, and Pest packs that only apply when those packages are installed. Queue and DSA rules always apply. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
 
 ```bash
 php artisan auditor:rules --applicable
@@ -292,7 +296,7 @@ Finding and report JSON schemas live in `resources/auditor/schema`. See the [fin
 
 `auditor:report` does not invent findings. The agent produces findings; the command renders them as Markdown, JSON, or CLI text with project facts, domain scope, counts, key risks, evidence, and recommendations.
 
-V1 does not include a web dashboard.
+There is no web dashboard. Reports are CLI, Markdown, JSON, or SARIF.
 
 ## Architecture
 
@@ -356,7 +360,7 @@ A short, evidenced report is the intended product.
 
 Laravel Auditor is meant to sit in an application as a development tool for a long time. Releases stay backward compatible: command names, config keys, MCP tool names, finding fields, and rule IDs are not removed or renamed. Breaking changes are rare and would require a major version with an explicit changelog note.
 
-## Not in V1
+## Not in 0.1.x
 
 Deferred work lives in the [future scope](https://mrpunyapal.github.io/laravel-auditor/future/) docs. That includes automatic fixes, historical baselines, a web dashboard, legacy/standalone runners, organization policy packs, and deeper ecosystem rule packs.
 

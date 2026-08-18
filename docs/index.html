@@ -48,8 +48,9 @@
                     <p class="doc-description">Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.</p>
                 </header>
                 <div class="doc-body">
-                    <p>Laravel Auditor gives an AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.</p>
-<p>It is <strong>not</strong> an autonomous AI service, a generic code-review prompt, or a replacement for Laravel Boost. The AI agent remains the reasoning engine. Laravel Auditor provides the audit workflow, domain knowledge, rules, finding schema, and structured Laravel context tools.</p>
+                    <p>Laravel Auditor gives an existing AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.</p>
+<p>It is an <strong>early 0.1.x</strong> development tool. It is <strong>not</strong> an autonomous scanner, a generic code-review prompt, or a replacement for Laravel Boost. You install it, open Claude / Codex / Cursor / Boost (or another agent), and ask it to audit. The agent remains the reasoning engine. Finding quality depends on that agent following the skill. Laravel Auditor provides the workflow, rules, finding schema, and read-only Laravel context tools.</p>
+<p>Requirements: <strong>PHP 8.3+</strong> and <strong>Laravel 12 or 13</strong>. Public command names, config keys, MCP tool names, finding fields, and rule IDs are kept compatible across 0.1.x.</p>
 <h2 id="why-it-exists">Why it exists</h2>
 <p>AI agents can already read a Laravel codebase. Ask one to "audit my app" without specialized methodology and you will likely get:</p>
 <ul>
@@ -58,7 +59,7 @@
 <li><strong>Invented vulnerabilities from uncommon patterns</strong>. The agent reports a theoretical attack vector that does not apply to this application's actual setup.</li>
 <li><strong>Serious findings reported without verification</strong>. The agent claims a missing authorization boundary without checking the routes, middleware, or policies.</li>
 </ul>
-<p>Laravel Auditor fixes this by giving the agent a repeatable audit workflow and deterministic project context. Findings stay specific, evidenced, and trustworthy.</p>
+<p>Laravel Auditor gives the agent a repeatable audit workflow and deterministic project context so it is less likely to guess. Findings are only as good as the agent that follows the skill.</p>
 <h2 id="how-it-works">How it works</h2>
 <p>The audit follows a structured flow. The agent drives each stage; Laravel Auditor provides the tools and knowledge at each step.</p>
 <pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Discover → Scope → Investigate → Verify → Report
@@ -120,7 +121,8 @@
 <li><strong>Not an automatic fixer.</strong> V1 is read-only. The agent recommends fixes; it does not apply them.</li>
 </ul>
 <h2 id="who-is-it-for">Who is it for</h2>
-<p>Laravel developers and teams who already use an AI coding agent and want a more systematic, evidence-driven way to audit an application. If you have ever asked an agent to "review my Laravel app" and received a noisy, unhelpful list of opinions, this package is for you.</p>
+<p>Laravel developers who already use an AI coding agent (Claude Code, Codex, Cursor, Gemini, Boost, and similar) and want a more systematic, evidence-driven audit. If you have ever asked an agent to "review my Laravel app" and received a noisy list of opinions, this is for you.</p>
+<p>It is not for teams that want a one-click scanner, a production monitor, or an automatic fixer.</p>
 <h2 id="quick-start">Quick start</h2>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">composer</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">require</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dev</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">mrpunyapal/laravel-auditor</span><span class="token">
 </span></span><span class="line"><span class="token">
@@ -130,7 +132,7 @@
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">boost:install</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Without Boost:
-</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-agents=claude_code</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
 <p>Open your AI agent and ask:</p>

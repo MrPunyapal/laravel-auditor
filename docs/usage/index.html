@@ -48,7 +48,7 @@
                     <p class="doc-description">Run status, context, rules, reports, and CI with Laravel Auditor.</p>
                 </header>
                 <div class="doc-body">
-                    <p>The CLI provides diagnostics, context gathering, rule listing, and report rendering. The AI agent does the reasoning and produces the findings.</p>
+                    <p>You do not run a scan. You ask your AI agent to use the <code>laravel-audit</code> skill. The agent reasons and writes findings. These commands only inspect the app, list rules, or render what the agent produced.</p>
 <h2 id="audit-workflow">Audit workflow</h2>
 <p>A complete audit follows these steps:</p>
 <h3 id="1-install">1. Install</h3>
@@ -56,7 +56,7 @@
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
 <h3 id="2-connect-the-agent">2. Connect the agent</h3>
-<p>With Boost: <code>php artisan boost:install</code> (re-run <code>php artisan boost:update</code> after package updates, or <code>boost:update --discover</code> to pick up newly installed packages). Without Boost: <code>php artisan auditor:install</code>. See <a href="/installation/">Installation</a>.</p>
+<p>With Boost: <code>php artisan boost:install</code> (re-run <code>php artisan boost:update</code> after package updates, or <code>boost:update --discover</code> to pick up newly installed packages). Without Boost: <code>php artisan auditor:install --agents=claude_code</code>. See <a href="/installation/">Installation</a>.</p>
 <h3 id="3-register-context-tools-optional">3. Register context tools (optional)</h3>
 <p>If your agent supports MCP, register the read-only context tools so the agent can call them directly:</p>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:mcp</span><span class="token">

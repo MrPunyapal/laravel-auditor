@@ -1,11 +1,18 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "mrpunyapal/laravel-auditor",
-    "description": "Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.",
+    "description": "Evidence-based audit methodology and read-only Laravel context tools for existing AI coding agents.",
     "keywords": [
         "laravel",
-        "mrpunyapal",
-        "laravel-auditor"
+        "laravel-auditor",
+        "audit",
+        "auditing",
+        "code-quality",
+        "ai-agents",
+        "mcp",
+        "context",
+        "dev",
+        "dev-tool"
     ],
     "homepage": "https://mrpunyapal.github.io/laravel-auditor",
     "license": "MIT",

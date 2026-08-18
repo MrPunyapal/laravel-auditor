@@ -7,13 +7,13 @@ order: 2
 slug: installation
 ---
 
-Laravel Auditor is installed as a **development** dependency. It is an engineering tool used during auditing, not a runtime requirement for the production application.
+Laravel Auditor is an **early 0.1.x** development dependency. It is an engineering tool used during auditing, not a runtime requirement and not a scanner that runs on its own.
 
 ```bash
 composer require --dev mrpunyapal/laravel-auditor
 ```
 
-Requirements: PHP 8.3+ and Laravel 12 or 13.
+Requirements: PHP 8.3+ and Laravel 12 or 13. After install, open your AI agent and ask it to use the `laravel-audit` skill. The agent does the reasoning; this package supplies the workflow and context.
 
 ## Decide your integration path
 
@@ -26,7 +26,7 @@ Install Laravel Auditor
         │       └── Run boost:install / boost:update
         │
         └── Not using Boost?
-                └── Run auditor:install
+                └── Run auditor:install --agents=...
 ```
 
 **If Laravel Boost is already installed**, do not run `auditor:install`. Boost consumes Auditor's skills and guidelines directly from the package's `resources/boost/` directory. Running `auditor:install` would duplicate what Boost already provides.
@@ -48,10 +48,10 @@ This exposes Auditor's audit-specific skills and guidelines through Boost. The c
 ## Standalone (no Boost)
 
 ```bash
-php artisan auditor:install
+php artisan auditor:install --agents=claude_code
 ```
 
-The standalone installer handles everything needed to connect Laravel Auditor to your AI agent.
+The standalone installer publishes skills and wires the selected agent. Interactive runs ask which agents to configure. Non-interactive runs with no `--agents`, no config, and no project markers wire nothing.
 
 ### What it does
 

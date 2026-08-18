@@ -8,9 +8,11 @@ slug: index
 sidebar_label: Overview
 ---
 
-Laravel Auditor gives an AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.
+Laravel Auditor gives an existing AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.
 
-It is **not** an autonomous AI service, a generic code-review prompt, or a replacement for Laravel Boost. The AI agent remains the reasoning engine. Laravel Auditor provides the audit workflow, domain knowledge, rules, finding schema, and structured Laravel context tools.
+It is an **early 0.1.x** development tool. It is **not** an autonomous scanner, a generic code-review prompt, or a replacement for Laravel Boost. You install it, open Claude / Codex / Cursor / Boost (or another agent), and ask it to audit. The agent remains the reasoning engine. Finding quality depends on that agent following the skill. Laravel Auditor provides the workflow, rules, finding schema, and read-only Laravel context tools.
+
+Requirements: **PHP 8.3+** and **Laravel 12 or 13**. Public command names, config keys, MCP tool names, finding fields, and rule IDs are kept compatible across 0.1.x.
 
 ## Why it exists
 
@@ -21,7 +23,7 @@ AI agents can already read a Laravel codebase. Ask one to "audit my app" without
 - **Invented vulnerabilities from uncommon patterns**. The agent reports a theoretical attack vector that does not apply to this application's actual setup.
 - **Serious findings reported without verification**. The agent claims a missing authorization boundary without checking the routes, middleware, or policies.
 
-Laravel Auditor fixes this by giving the agent a repeatable audit workflow and deterministic project context. Findings stay specific, evidenced, and trustworthy.
+Laravel Auditor gives the agent a repeatable audit workflow and deterministic project context so it is less likely to guess. Findings are only as good as the agent that follows the skill.
 
 ## How it works
 
@@ -69,7 +71,9 @@ The agent provides the reasoning. It reads source code, traces behavior, evaluat
 
 ## Who is it for
 
-Laravel developers and teams who already use an AI coding agent and want a more systematic, evidence-driven way to audit an application. If you have ever asked an agent to "review my Laravel app" and received a noisy, unhelpful list of opinions, this package is for you.
+Laravel developers who already use an AI coding agent (Claude Code, Codex, Cursor, Gemini, Boost, and similar) and want a more systematic, evidence-driven audit. If you have ever asked an agent to "review my Laravel app" and received a noisy list of opinions, this is for you.
+
+It is not for teams that want a one-click scanner, a production monitor, or an automatic fixer.
 
 ## Quick start
 
@@ -84,7 +88,7 @@ Then either:
 php artisan boost:install
 
 # Without Boost:
-php artisan auditor:install
+php artisan auditor:install --agents=claude_code
 ```
 
 Open your AI agent and ask:

@@ -2,9 +2,11 @@
 
 > Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.
 
-Laravel Auditor gives an AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.
+Laravel Auditor gives an existing AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.
 
-It is **not** an autonomous AI service, a generic code-review prompt, or a replacement for Laravel Boost. The AI agent remains the reasoning engine. Laravel Auditor provides the audit workflow, domain knowledge, rules, finding schema, and structured Laravel context tools.
+It is an **early 0.1.x** development tool. It is **not** an autonomous scanner, a generic code-review prompt, or a replacement for Laravel Boost. You install it, open Claude / Codex / Cursor / Boost (or another agent), and ask it to audit. The agent remains the reasoning engine. Finding quality depends on that agent following the skill. Laravel Auditor provides the workflow, rules, finding schema, and read-only Laravel context tools.
+
+Requirements: **PHP 8.3+** and **Laravel 12 or 13**. Public command names, config keys, MCP tool names, finding fields, and rule IDs are kept compatible across 0.1.x.
 
 ## Why it exists
 
@@ -15,7 +17,7 @@ AI agents can already read a Laravel codebase. Ask one to "audit my app" without
 - **Invented vulnerabilities from uncommon patterns**. The agent reports a theoretical attack vector that does not apply to this application's actual setup.
 - **Serious findings reported without verification**. The agent claims a missing authorization boundary without checking the routes, middleware, or policies.
 
-Laravel Auditor fixes this by giving the agent a repeatable audit workflow and deterministic project context. Findings stay specific, evidenced, and trustworthy.
+Laravel Auditor gives the agent a repeatable audit workflow and deterministic project context so it is less likely to guess. Findings are only as good as the agent that follows the skill.
 
 ## How it works
 
@@ -63,7 +65,9 @@ The agent provides the reasoning. It reads source code, traces behavior, evaluat
 
 ## Who is it for
 
-Laravel developers and teams who already use an AI coding agent and want a more systematic, evidence-driven way to audit an application. If you have ever asked an agent to "review my Laravel app" and received a noisy, unhelpful list of opinions, this package is for you.
+Laravel developers who already use an AI coding agent (Claude Code, Codex, Cursor, Gemini, Boost, and similar) and want a more systematic, evidence-driven audit. If you have ever asked an agent to "review my Laravel app" and received a noisy list of opinions, this is for you.
+
+It is not for teams that want a one-click scanner, a production monitor, or an automatic fixer.
 
 ## Quick start
 
@@ -78,7 +82,7 @@ Then either:
 php artisan boost:install
 
 # Without Boost:
-php artisan auditor:install
+php artisan auditor:install --agents=claude_code
 ```
 
 Open your AI agent and ask:
@@ -100,13 +104,13 @@ The agent follows the skill workflow, uses the context tools to gather facts, ap
 
 > Install Laravel Auditor in a Laravel application with or without Laravel Boost.
 
-Laravel Auditor is installed as a **development** dependency. It is an engineering tool used during auditing, not a runtime requirement for the production application.
+Laravel Auditor is an **early 0.1.x** development dependency. It is an engineering tool used during auditing, not a runtime requirement and not a scanner that runs on its own.
 
 ```bash
 composer require --dev mrpunyapal/laravel-auditor
 ```
 
-Requirements: PHP 8.3+ and Laravel 12 or 13.
+Requirements: PHP 8.3+ and Laravel 12 or 13. After install, open your AI agent and ask it to use the `laravel-audit` skill. The agent does the reasoning; this package supplies the workflow and context.
 
 ## Decide your integration path
 
@@ -119,7 +123,7 @@ Install Laravel Auditor
         │       └── Run boost:install / boost:update
         │
         └── Not using Boost?
-                └── Run auditor:install
+                └── Run auditor:install --agents=...
 ```
 
 **If Laravel Boost is already installed**, do not run `auditor:install`. Boost consumes Auditor's skills and guidelines directly from the package's `resources/boost/` directory. Running `auditor:install` would duplicate what Boost already provides.
@@ -141,10 +145,10 @@ This exposes Auditor's audit-specific skills and guidelines through Boost. The c
 ## Standalone (no Boost)
 
 ```bash
-php artisan auditor:install
+php artisan auditor:install --agents=claude_code
 ```
 
-The standalone installer handles everything needed to connect Laravel Auditor to your AI agent.
+The standalone installer publishes skills and wires the selected agent. Interactive runs ask which agents to configure. Non-interactive runs with no `--agents`, no config, and no project markers wire nothing.
 
 ### What it does
 
@@ -228,7 +232,7 @@ php artisan auditor:rules --applicable
 
 > Run status, context, rules, reports, and CI with Laravel Auditor.
 
-The CLI provides diagnostics, context gathering, rule listing, and report rendering. The AI agent does the reasoning and produces the findings.
+You do not run a scan. You ask your AI agent to use the `laravel-audit` skill. The agent reasons and writes findings. These commands only inspect the app, list rules, or render what the agent produced.
 
 ## Audit workflow
 
@@ -242,7 +246,7 @@ composer require --dev mrpunyapal/laravel-auditor
 
 ### 2. Connect the agent
 
-With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install`. See [Installation](/installation/).
+With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install --agents=claude_code`. See [Installation](/installation/).
 
 ### 3. Register context tools (optional)
 
@@ -366,9 +370,9 @@ Key settings:
 
 > Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.
 
-Laravel Auditor keeps its audit knowledge in one agent-neutral location under `resources/auditor`. Agent-specific files are thin adapters that point the agent at that shared knowledge.
+Laravel Auditor does not run an audit for you. After install, you open your AI agent and ask it to use the `laravel-audit` skill.
 
-This means the same skills, guidelines, and rules work across every supported agent. The adapter files are just pointers — they do not copy the full audit knowledge into each vendor directory.
+Audit knowledge lives once under `resources/auditor`. Agent-specific files are thin adapters that point the agent at that shared knowledge. The same skills, guidelines, and rules work across every supported agent.
 
 ## Integration modes
 
@@ -380,7 +384,7 @@ If your project already uses Boost, this is the simplest path. Run `boost:instal
 
 ### Standalone
 
-When Boost is absent, `auditor:install` handles the wiring. It publishes skills, guidelines, and schemas to `.ai/`, writes agent adapter files, and registers the MCP server for agents that support it.
+When Boost is absent, `auditor:install --agents=claude_code` (or your agent) handles the wiring. It publishes skills, guidelines, and schemas to `.ai/`, writes agent adapter files, and registers the MCP server for agents that support it.
 
 Both paths produce the same audit knowledge — they just deliver it differently.
 
@@ -470,7 +474,7 @@ Auditing must not modify application code. Installation may write Auditor-owned 
 
 > Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.
 
-MCP (Model Context Protocol) is the bridge that lets an AI coding agent request structured Laravel application context from Auditor. Instead of reading raw files and guessing, the agent calls a tool and gets deterministic facts: routes, models, schema, dependencies, and more.
+MCP does not audit the app. It only answers the agent's questions with structured Laravel facts (routes, models, schema, and so on) so the agent does not have to guess from raw files.
 
 Laravel Auditor ships a local stdio MCP server that exposes 11 read-only context tools. When Laravel Boost is installed, the same tools are also registered inside Boost's MCP server automatically.
 
@@ -578,7 +582,7 @@ The authoritative definitions live in `resources/auditor/rules/*.php`. The human
 
 ## Core domains
 
-V1 ships 61 rules across six core domains:
+0.1.x ships 61 rules across six core domains:
 
 | Domain | What it looks for |
 | --- | --- |
@@ -617,7 +621,7 @@ A rule with high severity and high confidence means confirmed instances are typi
 
 Every rule specifies what evidence is required to support a finding. The agent must produce that evidence. A finding without evidence does not enter the report.
 
-This is the core design constraint. Few high-quality rules beat a noisy catalog. Every rule in V1 was shipped only because it can meet the evidence-first standard.
+This is the core design constraint. Few high-quality rules beat a noisy catalog. Every shipped rule must meet the evidence-first standard. The package does not execute rules; the agent does.
 
 ## Writing custom rules
 
@@ -766,7 +770,7 @@ CI fails when an open finding meets or exceeds the `--fail-on` threshold.
 
 > Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.
 
-A DSA (Data Structures, State, Algorithms) audit is a different kind of review from a standard vulnerability audit. Instead of looking for security bugs or performance issues, it examines the application's internal organization: how data is structured, how state is represented, where behavior is owned, and whether the code could be materially simplified.
+A DSA (Data Structures, State, Algorithms) audit is still run by your AI agent, using the `laravel-audit-dsa` skill. It is a different kind of review from a security pass: it examines how data is structured, how state is represented, where behavior is owned, and whether the code could be materially simplified. The package only inventories subsystems and renders the agent's findings.
 
 This is **audit only**. Do not edit files, implement fixes, commit, or push.
 
@@ -842,7 +846,7 @@ The full workflow and worker brief are defined in the `laravel-audit-dsa` skill 
 
 > Features that may influence architecture but are not part of V1.
 
-These features may influence the architecture. They are **not** required to ship V1 and are not promises.
+These features may influence later versions. They are **not** in 0.1.x and are not promises.
 
 ## Legacy and standalone support
 

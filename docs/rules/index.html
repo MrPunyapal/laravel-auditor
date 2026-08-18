@@ -74,7 +74,7 @@
 <p><code>--applicable</code> hides ecosystem packs whose packages are not installed. For example, Livewire rules are hidden when Livewire is not a dependency.</p>
 <p>The authoritative definitions live in <code>resources/auditor/rules/*.php</code>. The human-readable catalog is <code>resources/auditor/rules/RULES.md</code>.</p>
 <h2 id="core-domains">Core domains</h2>
-<p>V1 ships 61 rules across six core domains:</p>
+<p>0.1.x ships 61 rules across six core domains:</p>
 <table>
 <thead>
 <tr>
@@ -162,7 +162,7 @@
 <p>A rule with high severity and high confidence means confirmed instances are typically serious. A rule with high severity and medium confidence means the pattern can be serious but evidence requirements are stricter.</p>
 <h2 id="evidence-first-principle">Evidence-first principle</h2>
 <p>Every rule specifies what evidence is required to support a finding. The agent must produce that evidence. A finding without evidence does not enter the report.</p>
-<p>This is the core design constraint. Few high-quality rules beat a noisy catalog. Every rule in V1 was shipped only because it can meet the evidence-first standard.</p>
+<p>This is the core design constraint. Few high-quality rules beat a noisy catalog. Every shipped rule must meet the evidence-first standard. The package does not execute rules; the agent does.</p>
 <h2 id="writing-custom-rules">Writing custom rules</h2>
 <p>Each rule needs a stable ID, domain, severity, confidence, description, why it matters, recommendation, evidence requirements, and false-positive considerations. Rules are PHP files in a directory — add your custom directory to the <code>rules</code> config key.</p>
 <p>Do not add a rule unless it can stay evidence-first.</p>

@@ -7,7 +7,7 @@ order: 3
 slug: usage
 ---
 
-The CLI provides diagnostics, context gathering, rule listing, and report rendering. The AI agent does the reasoning and produces the findings.
+You do not run a scan. You ask your AI agent to use the `laravel-audit` skill. The agent reasons and writes findings. These commands only inspect the app, list rules, or render what the agent produced.
 
 ## Audit workflow
 
@@ -21,7 +21,7 @@ composer require --dev mrpunyapal/laravel-auditor
 
 ### 2. Connect the agent
 
-With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install`. See [Installation](/installation/).
+With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install --agents=claude_code`. See [Installation](/installation/).
 
 ### 3. Register context tools (optional)
 

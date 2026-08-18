@@ -42,7 +42,7 @@ The authoritative definitions live in `resources/auditor/rules/*.php`. The human
 
 ## Core domains
 
-V1 ships 61 rules across six core domains:
+0.1.x ships 61 rules across six core domains:
 
 | Domain | What it looks for |
 | --- | --- |
@@ -81,7 +81,7 @@ A rule with high severity and high confidence means confirmed instances are typi
 
 Every rule specifies what evidence is required to support a finding. The agent must produce that evidence. A finding without evidence does not enter the report.
 
-This is the core design constraint. Few high-quality rules beat a noisy catalog. Every rule in V1 was shipped only because it can meet the evidence-first standard.
+This is the core design constraint. Few high-quality rules beat a noisy catalog. Every shipped rule must meet the evidence-first standard. The package does not execute rules; the agent does.
 
 ## Writing custom rules
 

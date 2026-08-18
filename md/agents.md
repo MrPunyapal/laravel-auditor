@@ -7,9 +7,9 @@ order: 4
 slug: agents
 ---
 
-Laravel Auditor keeps its audit knowledge in one agent-neutral location under `resources/auditor`. Agent-specific files are thin adapters that point the agent at that shared knowledge.
+Laravel Auditor does not run an audit for you. After install, you open your AI agent and ask it to use the `laravel-audit` skill.
 
-This means the same skills, guidelines, and rules work across every supported agent. The adapter files are just pointers — they do not copy the full audit knowledge into each vendor directory.
+Audit knowledge lives once under `resources/auditor`. Agent-specific files are thin adapters that point the agent at that shared knowledge. The same skills, guidelines, and rules work across every supported agent.
 
 ## Integration modes
 
@@ -21,7 +21,7 @@ If your project already uses Boost, this is the simplest path. Run `boost:instal
 
 ### Standalone
 
-When Boost is absent, `auditor:install` handles the wiring. It publishes skills, guidelines, and schemas to `.ai/`, writes agent adapter files, and registers the MCP server for agents that support it.
+When Boost is absent, `auditor:install --agents=claude_code` (or your agent) handles the wiring. It publishes skills, guidelines, and schemas to `.ai/`, writes agent adapter files, and registers the MCP server for agents that support it.
 
 Both paths produce the same audit knowledge — they just deliver it differently.
 
