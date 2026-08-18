@@ -84,7 +84,7 @@ class AuditorInstallCommand extends Command
                 [$created, $updated] = $this->copySkills($agent, $dryRun, $force, $created, $updated);
             }
 
-            [$created, $updated, $skipped] = $this->prepareMcp($agents, $dryRun, $created, $updated, $skipped);
+            [$created, $updated, $skipped] = $this->prepareMcp($agents, $dryRun, $force, $created, $updated, $skipped);
 
             $this->renderAgents($agents);
         }
@@ -131,8 +131,8 @@ class AuditorInstallCommand extends Command
      * Resolve which agents to wire in the standalone path.
      *
      * Priority: explicit `--agents` option, interactive selection (defaulting
-     * to detected agents), the `laravel-auditor.agents` config, project
-     * detection, and finally all supported agents.
+     * to detected agents), the `laravel-auditor.agents` config, then project
+     * detection. No agents are selected when none of those resolve.
      *
      * @return Collection<int, Agent>
      */
@@ -182,8 +182,7 @@ class AuditorInstallCommand extends Command
             ->mapWithKeys(fn (Agent $agent): array => [$agent->name => $agent->displayName])
             ->all();
 
-        $detected = (new AgentDetector($this->files))->detect(base_path());
-        $defaults = $detected !== [] ? $detected : array_keys($options);
+        $defaults = (new AgentDetector($this->files))->detect(base_path());
 
         $selected = $this->choice(
             question: 'Which AI agents would you like to configure?',
@@ -211,9 +210,7 @@ class AuditorInstallCommand extends Command
             return $configured;
         }
 
-        $detected = (new AgentDetector($this->files))->detect(base_path());
-
-        return $detected !== [] ? $detected : array_keys(AgentRegistry::all());
+        return (new AgentDetector($this->files))->detect(base_path());
     }
 
     /**
@@ -359,7 +356,7 @@ class AuditorInstallCommand extends Command
      * @param  list<string>  $skipped
      * @return array{list<string>, list<string>, list<string>}
      */
-    private function prepareMcp(Collection $agents, bool $dryRun, array $created, array $updated, array $skipped): array
+    private function prepareMcp(Collection $agents, bool $dryRun, bool $force, array $created, array $updated, array $skipped): array
     {
         if ($agents->isEmpty()) {
             return [$created, $updated, $skipped];
@@ -374,7 +371,7 @@ class AuditorInstallCommand extends Command
 
             $this->components->twoColumnDetail('MCP server', 'Registering laravel-auditor for '.$agent->displayName);
 
-            [$created, $updated, $skipped] = $writer->write($agent, $dryRun, $created, $updated, $skipped);
+            [$created, $updated, $skipped] = $writer->write($agent, $dryRun, $force, $created, $updated, $skipped);
         }
 
         return [$created, $updated, $skipped];
@@ -441,7 +438,7 @@ class AuditorInstallCommand extends Command
 
     private function adapterContents(): string
     {
-        $target = trim((string) config('laravel-auditor.resources_target', '.ai'), '/\\');
+        $target = $this->resourcesTarget();
 
         return <<<MARKDOWN
 <!-- laravel-auditor -->
@@ -459,9 +456,7 @@ MARKDOWN;
 
     private function standaloneTarget(): string
     {
-        $target = trim((string) config('laravel-auditor.resources_target', '.ai'), '/\\');
-
-        return base_path($target);
+        return base_path($this->resourcesTarget());
     }
 
     private function shouldPublishConfig(bool $dryRun): bool
@@ -529,6 +524,13 @@ MARKDOWN;
         if ($created === [] && $updated === [] && $skipped === []) {
             $this->line('  Nothing to do.');
         }
+    }
+
+    private function resourcesTarget(): string
+    {
+        $target = trim((string) config('laravel-auditor.resources_target', '.ai'), '/\\');
+
+        return $target !== '' ? $target : '.ai';
     }
 
     private function relative(string $path): string

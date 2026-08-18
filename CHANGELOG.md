@@ -1,6 +1,20 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.0...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.1...HEAD)
+
+## [v0.1.1](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.1) - 2026-08-18
+
+### Fixed
+
+- `auditor:install` no longer wires every supported agent when none are configured or detected
+- Copilot detection no longer treats a `.github` or `.vscode` directory as proof the agent is in use
+- MCP config writes honor `--force` and no longer overwrite an existing `laravel-auditor` entry by default
+- Codex TOML MCP registration no longer appends a duplicate block on every install
+- `composer audit` and `pest --list-tests` are off by default so MCP and context collection stay local
+- `project_info` now reports whether a package is a Composer dev dependency correctly
+- `vendor:publish` and `auditor:status` honor `resources_target` instead of assuming `.ai`
+- MCP server registrations pass `-q` so Artisan boot output cannot break stdio framing
+- Docs "Edit this page" links now point at `md/` sources instead of missing repo-root files
 
 ## [v0.1.0](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.0) - 2026-08-17
 

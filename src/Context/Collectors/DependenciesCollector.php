@@ -76,7 +76,7 @@ final class DependenciesCollector implements ContextCollector
      */
     private function composerAudit(): array
     {
-        if (! config('laravel-auditor.context.composer_audit', true)) {
+        if (! config('laravel-auditor.context.composer_audit', false)) {
             return ['available' => false, 'reason' => 'composer audit is disabled by configuration'];
         }
 

@@ -58,9 +58,9 @@ return [
     |--------------------------------------------------------------------------
     |
     | Agents configured when `auditor:install` runs non-interactively. When
-    | empty, the installer detects agents from project markers and falls back
-    | to all supported agents. Accepted values: opencode, claude_code, cursor,
-    | copilot, gemini, codex, junie, zed.
+    | empty, the installer detects agents from project markers. When nothing
+    | is configured or detected, no agents are wired. Accepted values:
+    | opencode, claude_code, cursor, copilot, gemini, codex, junie, zed.
     |
     */
 
@@ -79,17 +79,18 @@ return [
     'context' => [
         /*
         | Best-effort `composer audit` call from the dependencies collector.
-        | Disable to avoid shelling out to composer during context gathering.
+        | Off by default so MCP and context collection do not shell out or
+        | wait on the network. Enable when you want advisory data.
         */
-        'composer_audit' => true,
+        'composer_audit' => false,
 
         /*
         | Best-effort `pest --list-tests` / `phpunit --list-tests` call from
-        | the tests collector to report accurate test case counts. Disable to
-        | avoid shelling out to the test runner; the collector then falls back
-        | to counting test files.
+        | the tests collector to report accurate test case counts. Off by
+        | default so context collection does not launch the test runner; the
+        | collector then falls back to counting test files.
         */
-        'test_listing' => true,
+        'test_listing' => false,
     ],
 
     /*

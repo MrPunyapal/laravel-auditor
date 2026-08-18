@@ -202,7 +202,7 @@ final class ProjectInfoCollector implements ContextCollector
         foreach (InstalledVersions::getInstalledPackages() as $package) {
             $packages[$package] = [
                 'version' => InstalledVersions::getPrettyVersion($package),
-                'dev' => (bool) InstalledVersions::isInstalled($package, includeDevRequirements: true),
+                'dev' => ! InstalledVersions::isInstalled($package, includeDevRequirements: false),
             ];
         }
 

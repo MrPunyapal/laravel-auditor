@@ -169,12 +169,13 @@ The installer respects your project. It will not:
 
 ### Agent selection
 
-When run interactively, the installer asks which AI agents to configure. In non-interactive environments (CI, scripts), agents are resolved in this order:
+When run interactively, the installer asks which AI agents to configure (pre-selecting any that were detected). In non-interactive environments (CI, scripts), agents are resolved in this order:
 
 1. The `--agents` option (if provided)
-2. Project detection (looks for agent config files like `CLAUDE.md`, `opencode.json`)
-3. The `laravel-auditor.agents` config value
-4. All supported agents as a fallback
+2. The `laravel-auditor.agents` config value
+3. Project detection (looks for agent-specific files like `CLAUDE.md`, `opencode.json`, or `.github/copilot-instructions.md`)
+
+When none of those resolve, no agents are wired. Re-run with `--agents` to attach skills and MCP for a specific tool. A `.github` or `.vscode` directory alone is not treated as Copilot.
 
 ### Options
 
@@ -212,7 +213,7 @@ php artisan auditor:status
 php artisan auditor:rules --applicable
 ```
 
-`auditor:status` shows the installed version, integration mode (Boost or standalone), audit domains, rule counts, and available context tools. `auditor:rules --applicable` lists only the rules that match your project's installed packages.
+`auditor:status` shows the package version, integration mode (Boost or standalone), audit domains, rule counts, and available context tools. `auditor:rules --applicable` lists only the rules that match your project's installed packages.
 
 ## Next
 
@@ -254,7 +255,7 @@ php artisan auditor:mcp
 For example, with Claude Code:
 
 ```bash
-claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
+claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp -q
 ```
 
 The agent can also gather the same facts without MCP via `auditor:context`. See [MCP tools](/mcp/).
@@ -289,7 +290,7 @@ These commands help you understand what Auditor sees in your application.
 
 ```bash
 php artisan auditor:status
-php auditor:context --list
+php artisan auditor:context --list
 php artisan auditor:context project_info
 php artisan auditor:context subsystems
 php artisan auditor:context routes --output=storage/auditor-routes.json
@@ -354,8 +355,8 @@ Key settings:
 - `rules` — additional directories containing rule definition files
 - `resources_target` — where the standalone installer publishes agent resources (default: `.ai`)
 - `agents` — default agents for non-interactive installation
-- `context.composer_audit` — toggle the `composer audit` call from the dependencies collector
-- `context.test_listing` — toggle accurate test case counting via `--list-tests`
+- `context.composer_audit` — enable the `composer audit` call from the dependencies collector (off by default)
+- `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
 - `report.format` — default format for `auditor:report`
 
 
@@ -460,7 +461,7 @@ See [DSA audit](/dsa/).
 
 ## Read-only boundary
 
-Auditing must not modify application code. Installation may write Auditor-owned resources (skills, guidelines, adapters, MCP config); it will not overwrite user-owned files without `--force`.
+Auditing must not modify application code. Installation may write Auditor-owned resources (skills, guidelines, adapters, MCP config). It will not overwrite user-owned adapter files or an existing `laravel-auditor` MCP entry without `--force`.
 
 
 ---
@@ -482,7 +483,7 @@ php artisan auditor:mcp
 For example, with Claude Code:
 
 ```bash
-claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
+claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp -q
 ```
 
 A client configuration example lives in `resources/auditor/mcp/mcp.json.example`.
@@ -590,7 +591,7 @@ V1 ships 61 rules across six core domains:
 
 ## Ecosystem packs
 
-Additional rules apply only when specific packages are installed. These are included in `--applicable` only when the required package is detected:
+Most ecosystem packs apply only when the matching package is installed. Those packs are included in `--applicable` only when the required package is detected. Queue rules have no package constraint and always apply:
 
 | Pack | Package required | Rule prefix |
 | --- | --- | --- |

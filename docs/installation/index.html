@@ -99,13 +99,13 @@
 <li>modify application code</li>
 </ul>
 <h3 id="agent-selection">Agent selection</h3>
-<p>When run interactively, the installer asks which AI agents to configure. In non-interactive environments (CI, scripts), agents are resolved in this order:</p>
+<p>When run interactively, the installer asks which AI agents to configure (pre-selecting any that were detected). In non-interactive environments (CI, scripts), agents are resolved in this order:</p>
 <ol>
 <li>The <code>--agents</code> option (if provided)</li>
-<li>Project detection (looks for agent config files like <code>CLAUDE.md</code>, <code>opencode.json</code>)</li>
 <li>The <code>laravel-auditor.agents</code> config value</li>
-<li>All supported agents as a fallback</li>
+<li>Project detection (looks for agent-specific files like <code>CLAUDE.md</code>, <code>opencode.json</code>, or <code>.github/copilot-instructions.md</code>)</li>
 </ol>
+<p>When none of those resolve, no agents are wired. Re-run with <code>--agents</code> to attach skills and MCP for a specific tool. A <code>.github</code> or <code>.vscode</code> directory alone is not treated as Copilot.</p>
 <h3 id="options">Options</h3>
 <pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Preview what would be created without writing anything:
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:install</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-dry-run</span><span class="token">
@@ -133,7 +133,7 @@
 </span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:rules</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-applicable</span><span class="token">
 </span></span><span class="line"><span class="token">
 </span></span></code></pre>
-<p><code>auditor:status</code> shows the installed version, integration mode (Boost or standalone), audit domains, rule counts, and available context tools. <code>auditor:rules --applicable</code> lists only the rules that match your project's installed packages.</p>
+<p><code>auditor:status</code> shows the package version, integration mode (Boost or standalone), audit domains, rule counts, and available context tools. <code>auditor:rules --applicable</code> lists only the rules that match your project's installed packages.</p>
 <h2 id="next">Next</h2>
 <ul>
 <li><a href="/agents/">Agent setup</a> — connect to your specific AI agent</li>
@@ -143,7 +143,7 @@
 
                 </div>
                 <footer class="doc-meta">
-                    <a class="edit-link" href="https://github.com/mrpunyapal/laravel-auditor/edit/main/installation.md">Edit this page</a>
+                    <a class="edit-link" href="https://github.com/mrpunyapal/laravel-auditor/edit/main/md/installation.md">Edit this page</a>
                 </footer>
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../"><span>Previous</span><strong>Laravel Auditor</strong></a><a class="pager-link pager-link-next" href="../usage/"><span>Next</span><strong>Usage</strong></a></nav>

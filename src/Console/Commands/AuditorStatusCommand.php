@@ -46,6 +46,7 @@ class AuditorStatusCommand extends Command
         $this->components->info('Laravel Auditor status');
 
         $this->components->twoColumnDetail('Installed', 'yes');
+        $this->components->twoColumnDetail('Version', $this->auditorVersion() ?? 'unknown');
         $this->components->twoColumnDetail('Laravel', $this->laravelVersion() ?? 'unknown');
         $this->components->twoColumnDetail('PHP', PHP_VERSION);
 
@@ -62,7 +63,7 @@ class AuditorStatusCommand extends Command
 
         $this->components->twoColumnDetail(
             'Standalone resources',
-            $this->files->isDirectory(base_path('.ai')) ? 'present' : 'not prepared (run `auditor:install`)',
+            $this->files->isDirectory(base_path($this->resourcesTarget())) ? 'present' : 'not prepared (run `auditor:install`)',
         );
 
         $this->components->twoColumnDetail('Configuration', $this->files->exists(config_path('laravel-auditor.php')) ? 'published' : 'using package defaults');
@@ -99,5 +100,21 @@ class AuditorStatusCommand extends Command
         } catch (Throwable) {
             return null;
         }
+    }
+
+    private function auditorVersion(): ?string
+    {
+        try {
+            return InstalledVersions::getPrettyVersion('mrpunyapal/laravel-auditor');
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    private function resourcesTarget(): string
+    {
+        $target = trim((string) config('laravel-auditor.resources_target', '.ai'), '/\\');
+
+        return $target !== '' ? $target : '.ai';
     }
 }

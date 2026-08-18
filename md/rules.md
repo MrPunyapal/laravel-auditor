@@ -55,7 +55,7 @@ V1 ships 61 rules across six core domains:
 
 ## Ecosystem packs
 
-Additional rules apply only when specific packages are installed. These are included in `--applicable` only when the required package is detected:
+Most ecosystem packs apply only when the matching package is installed. Those packs are included in `--applicable` only when the required package is detected. Queue rules have no package constraint and always apply:
 
 | Pack | Package required | Rule prefix |
 | --- | --- | --- |

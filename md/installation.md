@@ -76,12 +76,13 @@ The installer respects your project. It will not:
 
 ### Agent selection
 
-When run interactively, the installer asks which AI agents to configure. In non-interactive environments (CI, scripts), agents are resolved in this order:
+When run interactively, the installer asks which AI agents to configure (pre-selecting any that were detected). In non-interactive environments (CI, scripts), agents are resolved in this order:
 
 1. The `--agents` option (if provided)
-2. Project detection (looks for agent config files like `CLAUDE.md`, `opencode.json`)
-3. The `laravel-auditor.agents` config value
-4. All supported agents as a fallback
+2. The `laravel-auditor.agents` config value
+3. Project detection (looks for agent-specific files like `CLAUDE.md`, `opencode.json`, or `.github/copilot-instructions.md`)
+
+When none of those resolve, no agents are wired. Re-run with `--agents` to attach skills and MCP for a specific tool. A `.github` or `.vscode` directory alone is not treated as Copilot.
 
 ### Options
 
@@ -119,7 +120,7 @@ php artisan auditor:status
 php artisan auditor:rules --applicable
 ```
 
-`auditor:status` shows the installed version, integration mode (Boost or standalone), audit domains, rule counts, and available context tools. `auditor:rules --applicable` lists only the rules that match your project's installed packages.
+`auditor:status` shows the package version, integration mode (Boost or standalone), audit domains, rule counts, and available context tools. `auditor:rules --applicable` lists only the rules that match your project's installed packages.
 
 ## Next
 

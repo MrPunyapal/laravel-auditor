@@ -21,12 +21,15 @@ final class McpConfigWriter
     /**
      * Register the MCP server for the given agent.
      *
+     * Existing `laravel-auditor` entries are left untouched unless `$force`
+     * is true. Other servers in the same file are always preserved.
+     *
      * @param  list<string>  $created
      * @param  list<string>  $updated
      * @param  list<string>  $skipped
      * @return array{list<string>, list<string>, list<string>}
      */
-    public function write(Agent $agent, bool $dryRun, array $created, array $updated, array $skipped): array
+    public function write(Agent $agent, bool $dryRun, bool $force, array $created, array $updated, array $skipped): array
     {
         if (! $agent->supportsMcp()) {
             return [$created, $updated, $skipped];
@@ -35,10 +38,10 @@ final class McpConfigWriter
         $path = $this->mcpConfigPath($agent);
 
         if (str_ends_with(strtolower($path), '.toml')) {
-            return $this->writeToml($agent, $path, $dryRun, $created, $updated, $skipped);
+            return $this->writeToml($agent, $path, $dryRun, $force, $created, $updated, $skipped);
         }
 
-        return $this->writeJson($agent, $path, $dryRun, $created, $updated, $skipped);
+        return $this->writeJson($agent, $path, $dryRun, $force, $created, $updated, $skipped);
     }
 
     private function mcpConfigPath(Agent $agent): string
@@ -52,7 +55,7 @@ final class McpConfigWriter
      * @param  list<string>  $skipped
      * @return array{list<string>, list<string>, list<string>}
      */
-    private function writeJson(Agent $agent, string $path, bool $dryRun, array $created, array $updated, array $skipped): array
+    private function writeJson(Agent $agent, string $path, bool $dryRun, bool $force, array $created, array $updated, array $skipped): array
     {
         $existed = $this->files->exists($path);
         $config = [];
@@ -69,7 +72,19 @@ final class McpConfigWriter
             $config = $decoded;
         }
 
-        $config[$agent->mcpConfigKey] = $config[$agent->mcpConfigKey] ?? [];
+        $servers = $config[$agent->mcpConfigKey] ?? [];
+
+        if (! is_array($servers)) {
+            $servers = [];
+        }
+
+        if ($existed && array_key_exists('laravel-auditor', $servers) && ! $force) {
+            $updated[] = $this->relative($path);
+
+            return [$created, $updated, $skipped];
+        }
+
+        $config[$agent->mcpConfigKey] = $servers;
         $config[$agent->mcpConfigKey]['laravel-auditor'] = $this->serverConfig($agent);
 
         $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL;
@@ -90,25 +105,35 @@ final class McpConfigWriter
      * @param  list<string>  $skipped
      * @return array{list<string>, list<string>, list<string>}
      */
-    private function writeToml(Agent $agent, string $path, bool $dryRun, array $created, array $updated, array $skipped): array
+    private function writeToml(Agent $agent, string $path, bool $dryRun, bool $force, array $created, array $updated, array $skipped): array
     {
-        $key = $agent->mcpConfigKey.'laravel-auditor';
-        $block = "[{$agent->mcpConfigKey}.laravel-auditor]".PHP_EOL;
+        $header = "[{$agent->mcpConfigKey}.laravel-auditor]";
+        $block = $header.PHP_EOL;
         $block .= 'command = "php"'.PHP_EOL;
-        $block .= 'args = ["artisan", "auditor:mcp"]'.PHP_EOL;
+        $block .= 'args = ["artisan", "auditor:mcp", "-q"]'.PHP_EOL;
 
         $existed = $this->files->exists($path);
 
         if ($existed) {
             $contents = (string) $this->files->get($path);
 
-            if (str_contains($contents, $key)) {
-                $updated[] = $this->relative($path);
+            if (str_contains($contents, $header)) {
+                if (! $force) {
+                    $updated[] = $this->relative($path);
 
-                return [$created, $updated, $skipped];
+                    return [$created, $updated, $skipped];
+                }
+
+                $replaced = preg_replace(
+                    '/\['.preg_quote($agent->mcpConfigKey.'.laravel-auditor', '/').'\][^\[]*/s',
+                    rtrim($block).PHP_EOL,
+                    $contents,
+                );
+
+                $block = is_string($replaced) ? rtrim($replaced).PHP_EOL : $block;
+            } else {
+                $block = rtrim($contents, PHP_EOL).PHP_EOL.PHP_EOL.$block;
             }
-
-            $block = rtrim($contents, PHP_EOL).PHP_EOL.PHP_EOL.$block;
         }
 
         if (! $dryRun) {
@@ -130,13 +155,13 @@ final class McpConfigWriter
             return [
                 'type' => 'local',
                 'enabled' => true,
-                'command' => ['php', 'artisan', 'auditor:mcp'],
+                'command' => ['php', 'artisan', 'auditor:mcp', '-q'],
             ];
         }
 
         return [
             'command' => 'php',
-            'args' => ['artisan', 'auditor:mcp'],
+            'args' => ['artisan', 'auditor:mcp', '-q'],
         ];
     }
 

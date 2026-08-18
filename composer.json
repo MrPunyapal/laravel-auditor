@@ -35,6 +35,10 @@
         "pestphp/pest-plugin-type-coverage": "^4.0||^5.0",
         "phpstan/extension-installer": "^1.4"
     },
+    "suggest": {
+        "laravel/boost": "Expose Auditor guidelines, skills, and context tools through Laravel Boost.",
+        "laravel/mcp": "Required by Laravel Boost to load Auditor's Boost MCP tool adapters."
+    },
     "autoload": {
         "psr-4": {
             "LaravelAuditor\\": "src/"
@@ -77,7 +81,7 @@
             "vendor/bin/pest --type-coverage --min=100"
         ],
         "test:unit": [
-            "vendor/bin/pest --parallel"
+            "vendor/bin/pest"
         ],
         "test": [
             "@analyse",

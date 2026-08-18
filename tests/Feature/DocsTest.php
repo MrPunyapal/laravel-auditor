@@ -30,7 +30,8 @@ it('configures per-page Open Graph image generation', function () {
         ->toContain('ogTemplate')
         ->toContain('favicon(')
         ->toContain('accentColor(')
-        ->toContain('captureOg(');
+        ->toContain('captureOg(')
+        ->toContain("editPrefix('md')");
 });
 
 it('keeps an Open Graph card template with docsmith tokens', function () {

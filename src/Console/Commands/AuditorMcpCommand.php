@@ -12,7 +12,7 @@ use LaravelAuditor\MCP\McpToolRegistry;
  * Runs the Laravel Auditor MCP server over stdio.
  *
  * Register this server with an agent instead of the default one. For Claude
- * Code: claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
+ * Code: claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp -q
  */
 class AuditorMcpCommand extends Command
 {

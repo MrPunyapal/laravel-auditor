@@ -55,7 +55,6 @@ final class AgentRegistry
                 mcpConfigPath: '.vscode/mcp.json',
                 mcpConfigKey: 'servers',
                 detectFiles: ['.github/copilot-instructions.md'],
-                detectPaths: ['.vscode', '.github'],
             ),
             'gemini' => new Agent(
                 name: 'gemini',

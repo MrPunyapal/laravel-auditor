@@ -41,9 +41,12 @@ When Boost is not installed, use the standalone installer:
 
 ```bash
 php artisan auditor:install
+php artisan auditor:install --agents=claude_code,opencode
 ```
 
 The installer is idempotent and safe. It detects the Laravel application context, detects whether Boost is installed, prepares Auditor's agent-facing resources, and reports what it created or updated.
+
+Non-interactive runs resolve agents from `--agents`, then `laravel-auditor.agents`, then project markers. When none of those resolve, no agents are wired. A `.github` directory alone is not treated as Copilot. Pass `--force` to refresh Auditor-owned resources, including an existing `laravel-auditor` MCP entry.
 
 ### 3. Verify setup
 
@@ -77,10 +80,10 @@ Supported formats: `markdown`, `json`, `text`. Finding schema: publish tag `lara
 ### 7. Optional MCP
 
 ```bash
-php artisan auditor:mcp
+php artisan auditor:mcp -q
 ```
 
-Register that stdio command with the agent so it can call `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, and `tests`.
+Register that stdio command with the agent so it can call `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, and `subsystems`. Use `-q` so Artisan boot output cannot break MCP stdio framing.
 
 With Laravel Boost installed, the same context tools are registered automatically inside Boost's MCP server (via `boost.mcp.tools.include`); no extra setup is needed.
 
@@ -88,14 +91,14 @@ With Laravel Boost installed, the same context tools are registered automaticall
 
 - Install: `composer require --dev mrpunyapal/laravel-auditor`
 - Boost path: `php artisan boost:install` / `php artisan boost:update`
-- Standalone path: `php artisan auditor:install` (`--dry-run`, `--force`)
+- Standalone path: `php artisan auditor:install` (`--dry-run`, `--force`, `--agents=`)
 - Diagnostics: `php artisan auditor:status`
-- Rules: `php artisan auditor:rules` (`--domain=`, `--json`)
+- Rules: `php artisan auditor:rules` (`--domain=`, `--json`, `--applicable`)
 - Context: `php artisan auditor:context` (`--list`, `{collector}`, `--output=`)
 - Reports: `php artisan auditor:report` (`--findings=`, `--example`, `--format=markdown|json|text|sarif`, `--output=`)
 - CI: `php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high`
-- Applicable rules: `php artisan auditor:rules --applicable`
-- Facade: `LaravelAuditor::collect('routes')`, `LaravelAuditor::rules()`
+- Facade: `LaravelAuditor::collect('routes')`, `LaravelAuditor::rules()`, `LaravelAuditor::context()`, `LaravelAuditor::project()`
+- Config: `resources_target`, `agents`, `context.composer_audit` (off), `context.test_listing` (off)
 - Config publish tag: `laravel-auditor-config`
 - Resource publish tag: `laravel-auditor-resources`
 - Schema publish tag: `laravel-auditor-schema`
@@ -115,7 +118,7 @@ Full audit prompt:
 > You are auditing the Laravel application in this project using the Laravel Auditor methodology.
 >
 > 1. Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.
-> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code: `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`.
+> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code: `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`.
 > 3. Scope the relevant domains (security, database, architecture, testing, ...). Pick the domains with the most risk signal and go deep.
 > 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 > 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.

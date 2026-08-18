@@ -102,4 +102,4 @@ See [DSA audit](/dsa/).
 
 ## Read-only boundary
 
-Auditing must not modify application code. Installation may write Auditor-owned resources (skills, guidelines, adapters, MCP config); it will not overwrite user-owned files without `--force`.
+Auditing must not modify application code. Installation may write Auditor-owned resources (skills, guidelines, adapters, MCP config). It will not overwrite user-owned adapter files or an existing `laravel-auditor` MCP entry without `--force`.

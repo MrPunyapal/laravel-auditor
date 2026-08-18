@@ -81,7 +81,7 @@ The installer is idempotent and safe. It:
 - detects the Laravel application context
 - detects whether Laravel Boost is installed
 - publishes agent skills and guidelines to `.ai/`
-- asks which AI agent(s) the project uses (non-interactive runs resolve from `--agents`, project detection, or the `laravel-auditor.agents` config)
+- asks which AI agent(s) the project uses (non-interactive runs resolve from `--agents`, then `laravel-auditor.agents` config, then project detection)
 - writes thin `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, Cursor, Copilot, Codex, Junie, and Zed adapters only when those files are missing
 - copies the `laravel-audit` skill into the selected agent's native skills directory
 - registers the `laravel-auditor` MCP server in the selected agent's config (except Gemini)
@@ -97,7 +97,7 @@ php artisan auditor:install --force
 php artisan auditor:install --agents=opencode,claude_code
 ```
 
-`--agents` restricts wiring to the listed agent keys (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`). Non-interactive runs resolve agents from `--agents`, then project detection, then `laravel-auditor.agents` config, then all supported agents.
+`--agents` restricts wiring to the listed agent keys (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`). Non-interactive runs resolve agents from `--agents`, then `laravel-auditor.agents` config, then project detection. When none of those resolve, no agents are wired.
 
 `--force` refreshes Auditor-owned resources. It does not overwrite unrelated user-owned files unless you explicitly ask it to refresh an existing adapter.
 
@@ -132,7 +132,7 @@ php artisan auditor:rules --domain=security
 php artisan auditor:rules --json
 ```
 
-V1 ships **61** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, Pest, and queue packs that only apply when those packages are installed. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
+V1 ships **61** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, and Pest packs that only apply when those packages are installed. Queue and DSA rules always apply. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
 
 ```bash
 php artisan auditor:rules --applicable
@@ -252,7 +252,7 @@ php artisan auditor:mcp
 Example Claude Code registration:
 
 ```bash
-claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
+claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp -q
 ```
 
 When Laravel Boost is installed, the same context collectors are also registered automatically as read-only tools inside Boost's `laravel-boost` MCP server (via `boost.mcp.tools.include`), so no extra setup is needed there.
@@ -328,6 +328,14 @@ return [
         // base_path('auditor/rules'),
     ],
     'resources_target' => '.ai',
+    'agents' => [],
+    'context' => [
+        'composer_audit' => false,
+        'test_listing' => false,
+    ],
+    'report' => [
+        'format' => 'markdown',
+    ],
 ];
 ```
 

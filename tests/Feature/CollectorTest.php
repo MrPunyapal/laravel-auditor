@@ -68,6 +68,8 @@ it('collects project facts from the running application', function () {
     expect($facts['paths'])->toHaveKeys(['app', 'config', 'database', 'routes', 'resources', 'tests']);
     expect($facts['ecosystem'])->toHaveKeys(['livewire', 'filament', 'inertia', 'pest', 'phpunit', 'tailwind', 'queues', 'boost']);
     expect($facts['packages'])->toHaveKey('laravel/framework');
+    expect($facts['packages']['laravel/framework']['dev'])->toBeBool();
+    expect($facts['packages']['pestphp/pest']['dev'])->toBeTrue();
 });
 
 it('aggregates project facts through ProjectContext', function () {
@@ -91,8 +93,6 @@ it('collects the registered routes', function () {
 });
 
 it('collects composer dependencies', function () {
-    config(['laravel-auditor.context.composer_audit' => false]);
-
     $data = app(DependenciesCollector::class)->collect();
 
     expect($data['count'])->toBeGreaterThan(0);
@@ -101,6 +101,13 @@ it('collects composer dependencies', function () {
     expect($data['requires_dev'])->toBeArray();
     expect($data['composer_audit'])->toHaveKeys(['available', 'reason']);
     expect($data['composer_audit']['available'])->toBeFalse();
+});
+
+it('keeps composer audit and test listing off in the packaged defaults', function () {
+    $defaults = require dirname(__DIR__, 2).'/config/laravel-auditor.php';
+
+    expect($defaults['context']['composer_audit'])->toBeFalse();
+    expect($defaults['context']['test_listing'])->toBeFalse();
 });
 
 it('reports the composer audit disabled by configuration', function () {
@@ -152,7 +159,7 @@ it('collects the test suite layout', function () {
     expect($data['framework'])->toBeString();
     expect($data['count'])->toBeInt();
     expect($data['file_count'])->toBeInt();
-    expect($data['count_source'])->toBeIn(['list-tests', 'file-count']);
+    expect($data['count_source'])->toBe('file-count');
 });
 
 it('parses the test runner listing into feature/unit/total counts', function () {

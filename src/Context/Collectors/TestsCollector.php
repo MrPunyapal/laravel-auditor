@@ -114,7 +114,7 @@ final class TestsCollector implements ContextCollector
      */
     private function listTests(): ?array
     {
-        if (! config('laravel-auditor.context.test_listing', true)) {
+        if (! config('laravel-auditor.context.test_listing', false)) {
             return null;
         }
 

@@ -69,11 +69,11 @@ class LaravelAuditorServiceProvider extends ServiceProvider
         );
 
         $this->publishes([
-            __DIR__.'/../resources/auditor/schema' => base_path('.ai/schema'),
+            __DIR__.'/../resources/auditor/schema' => base_path($this->resourcesTarget().'/schema'),
         ], ['laravel-auditor', 'laravel-auditor-schema']);
 
         $this->publishes([
-            __DIR__.'/../resources/auditor/examples' => base_path('.ai/examples'),
+            __DIR__.'/../resources/auditor/examples' => base_path($this->resourcesTarget().'/examples'),
         ], ['laravel-auditor', 'laravel-auditor-examples']);
 
         if ($this->app->runningInConsole()) {
@@ -162,14 +162,20 @@ class LaravelAuditorServiceProvider extends ServiceProvider
     private function agentResourcePublishMap(): array
     {
         $base = __DIR__.'/../resources/auditor';
+        $target = $this->resourcesTarget();
 
-        $map = [
-            $base.'/skills' => base_path('.ai/skills'),
-            $base.'/guidelines' => base_path('.ai/guidelines'),
-            $base.'/schema' => base_path('.ai/schema'),
-            $base.'/examples' => base_path('.ai/examples'),
+        return [
+            $base.'/skills' => base_path($target.'/skills'),
+            $base.'/guidelines' => base_path($target.'/guidelines'),
+            $base.'/schema' => base_path($target.'/schema'),
+            $base.'/examples' => base_path($target.'/examples'),
         ];
+    }
 
-        return $map;
+    private function resourcesTarget(): string
+    {
+        $target = trim((string) config('laravel-auditor.resources_target', '.ai'), '/\\');
+
+        return $target !== '' ? $target : '.ai';
     }
 }

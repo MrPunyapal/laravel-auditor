@@ -20,7 +20,7 @@ php artisan auditor:mcp
 For example, with Claude Code:
 
 ```bash
-claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
+claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp -q
 ```
 
 A client configuration example lives in `resources/auditor/mcp/mcp.json.example`.

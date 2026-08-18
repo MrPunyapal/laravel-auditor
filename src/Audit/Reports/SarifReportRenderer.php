@@ -36,7 +36,7 @@ final class SarifReportRenderer
                     'driver' => [
                         'name' => 'laravel-auditor',
                         'informationUri' => 'https://github.com/mrpunyapal/laravel-auditor',
-                        'version' => '0.1.0',
+                        'version' => '0.1.1',
                     ],
                 ],
                 'results' => $results,

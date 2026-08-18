@@ -113,7 +113,7 @@ final class McpServer
             ],
             'serverInfo' => [
                 'name' => 'laravel-auditor',
-                'version' => '0.1.0',
+                'version' => '0.1.1',
             ],
         ];
     }

@@ -200,5 +200,23 @@ it('reports the status with domains and rule counts', function () {
         ->expectsOutputToContain('Audit domains')
         ->expectsOutputToContain(AuditDomain::Security->value)
         ->expectsOutputToContain('Total rules')
+        ->expectsOutputToContain('Version')
         ->assertSuccessful();
+});
+
+it('reports standalone resources using the configured target', function () {
+    $target = base_path('custom-ai');
+
+    mkdir($target, 0777, true);
+    config(['laravel-auditor.resources_target' => 'custom-ai']);
+
+    try {
+        $this->artisan('auditor:status')
+            ->expectsOutputToContain('present')
+            ->assertSuccessful();
+    } finally {
+        if (is_dir($target)) {
+            rmdir($target);
+        }
+    }
 });

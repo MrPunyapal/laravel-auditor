@@ -34,7 +34,7 @@ php artisan auditor:mcp
 For example, with Claude Code:
 
 ```bash
-claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp
+claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp -q
 ```
 
 The agent can also gather the same facts without MCP via `auditor:context`. See [MCP tools](/mcp/).
@@ -69,7 +69,7 @@ These commands help you understand what Auditor sees in your application.
 
 ```bash
 php artisan auditor:status
-php auditor:context --list
+php artisan auditor:context --list
 php artisan auditor:context project_info
 php artisan auditor:context subsystems
 php artisan auditor:context routes --output=storage/auditor-routes.json
@@ -134,6 +134,6 @@ Key settings:
 - `rules` — additional directories containing rule definition files
 - `resources_target` — where the standalone installer publishes agent resources (default: `.ai`)
 - `agents` — default agents for non-interactive installation
-- `context.composer_audit` — toggle the `composer audit` call from the dependencies collector
-- `context.test_listing` — toggle accurate test case counting via `--list-tests`
+- `context.composer_audit` — enable the `composer audit` call from the dependencies collector (off by default)
+- `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
 - `report.format` — default format for `auditor:report`
