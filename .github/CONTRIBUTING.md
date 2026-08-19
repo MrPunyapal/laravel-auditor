@@ -50,7 +50,7 @@ Markdown source lives in `md/`. Generate the static site with Docsmith:
 composer docs:build
 ```
 
-The docs build also generates Open Graph images per page. These need Node.js,
+The docs build also generates a single Open Graph cover image. These need Node.js,
 Playwright, and capturist installed once:
 
 ```bash

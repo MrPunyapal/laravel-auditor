@@ -1,10 +1,9 @@
 <div class="og-card">
     <div class="og-card-accent" aria-hidden="true"></div>
     <header class="og-card-header">
-        <span class="og-card-brand">Laravel Auditor</span>
+        <span class="og-card-brand">{title}</span>
     </header>
     <main class="og-card-body">
-        <h1 class="og-card-title">{title}</h1>
         <p class="og-card-description">{description}</p>
     </main>
     <footer class="og-card-footer">
@@ -47,19 +46,17 @@
         color: #a6b8cc;
     }
 
-    .og-card-title {
-        max-width: 940px;
-        font-size: 64px;
-        line-height: 1.08;
-        letter-spacing: -0.025em;
-        margin-bottom: 26px;
-    }
-
     .og-card-description {
-        max-width: 900px;
-        font-size: 28px;
-        line-height: 1.4;
-        color: #a6b8cc;
+        max-width: 940px;
+        font-size: 48px;
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        font-weight: 600;
+        color: #e9f1fb;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
     }
 
     .og-card-footer {

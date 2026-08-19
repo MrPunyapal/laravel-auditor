@@ -38,7 +38,7 @@ $builder = Docsmith::make()
     ->accentColor('#ff2d20')
     ->accentColorDark('#ff746c')
     ->favicon(__DIR__.'/resources/docs/favicon.svg')
-    ->ogTemplate(__DIR__.'/resources/docs/og-card.html', scope: 'per-page')
+    ->ogTemplate(__DIR__.'/resources/docs/og-card.html', scope: 'all')
     ->rightSidebar()
     ->captureOg($captureOg);
 

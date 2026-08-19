@@ -955,7 +955,7 @@ composer docs:build
 
 ### Open Graph images
 
-OG images are generated per page. They need Node.js, Playwright, and capturist installed once:
+OG images are generated as a single site cover. They need Node.js, Playwright, and capturist installed once:
 
 ```bash
 npm install

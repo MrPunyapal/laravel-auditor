@@ -23,7 +23,7 @@ it('has a Docsmith build entry point', function () {
     expect((string) file_get_contents(dirname(__DIR__, 2).'/build-docs.php'))->toContain('Docsmith::make()');
 });
 
-it('configures per-page Open Graph image generation', function () {
+it('configures a single Open Graph cover image', function () {
     $build = (string) file_get_contents(dirname(__DIR__, 2).'/build-docs.php');
 
     expect($build)
@@ -31,7 +31,9 @@ it('configures per-page Open Graph image generation', function () {
         ->toContain('favicon(')
         ->toContain('accentColor(')
         ->toContain('captureOg(')
-        ->toContain("editPrefix('md')");
+        ->toContain("editPrefix('md')")
+        ->toContain("scope: 'all'")
+        ->not->toContain("scope: 'per-page'");
 });
 
 it('keeps an Open Graph card template with docsmith tokens', function () {
