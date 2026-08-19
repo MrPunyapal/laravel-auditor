@@ -76,7 +76,7 @@ final class DependenciesCollector implements ContextCollector
      */
     private function composerAudit(): array
     {
-        if (! config('laravel-auditor.context.composer_audit', false)) {
+        if (! config('laravel-auditor.context.composer_audit', true)) {
             return ['available' => false, 'reason' => 'composer audit is disabled by configuration'];
         }
 
@@ -90,7 +90,7 @@ final class DependenciesCollector implements ContextCollector
             return ['available' => false, 'reason' => 'composer.lock is missing'];
         }
 
-        $process = new Process(['composer', 'audit', '--format=json', '--no-interaction'], base_path());
+        $process = new Process(['composer', 'audit', '--format=json', '--no-interaction', '--no-plugins'], base_path());
 
         try {
             $process->setTimeout(60);

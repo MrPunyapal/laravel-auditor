@@ -35,7 +35,7 @@ php artisan auditor:rules --domain=security --applicable
 - Weak or missing CSRF protection: `VerifyCsrfToken::except` whitelists, removed/reordered CSRF middleware, forms or post endpoints missing the token.
 - Unescaped output / XSS risk: Blade `{!! !!}`, `->get()`, `->toHtml()` rendering user-controlled or stored data.
 - Raw SQL with user-controlled input: `DB::raw`, `whereRaw`, `selectRaw`, `orderByRaw`, or `statement` interpolating request input.
-- Known vulnerable dependencies. `dependencies.composer_audit` is **off by default** — enable `laravel-auditor.context.composer_audit` or run `composer audit --format=json` yourself before reporting `AUD-DEP-001`.
+- Known vulnerable dependencies. `dependencies.composer_audit` is **on by default**. Use it for `AUD-DEP-001` when `available` is true. If `available` is false, read `reason` or run `composer audit --format=json` yourself — do not treat an empty payload as “no advisories”. Set `laravel-auditor.context.composer_audit` to `false` only when you need to skip the shell-out.
 - Queued jobs that serialize Eloquent models with hidden/sensitive attributes (`AUD-QUE-002`).
 
 When these packages are installed, also apply their packs (`auditor:rules --applicable`): Livewire (`AUD-LW-*`), Filament (`AUD-FIL-*`), Inertia (`AUD-IN-*`), Sanctum (`AUD-API-*`).

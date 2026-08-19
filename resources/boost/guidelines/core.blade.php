@@ -29,7 +29,7 @@ php artisan auditor:install --agents=claude_code
 
 Useful commands: `auditor:status`, `auditor:rules` (`--applicable`), `auditor:context`, `auditor:report`, `auditor:ci`, and `auditor:mcp`.
 
-`composer audit` and test-case listing are **off by default**. Do not treat an empty advisory list as “no vulnerabilities” unless the check actually ran.
+`composer audit` is **on by default**. Test-case listing is **off by default**. Do not treat `composer_audit.available: false` or an empty advisory list as “no vulnerabilities” unless the check actually ran.
 
 ### Audit skill
 
