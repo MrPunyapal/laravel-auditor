@@ -90,7 +90,7 @@ final class DependenciesCollector implements ContextCollector
             return ['available' => false, 'reason' => 'composer.lock is missing'];
         }
 
-        $process = new Process(['composer', 'audit', '--format=json', '--no-interaction'], base_path());
+        $process = new Process(['composer', 'audit', '--format=json', '--no-interaction', '--no-plugins'], base_path());
 
         try {
             $process->setTimeout(60);
