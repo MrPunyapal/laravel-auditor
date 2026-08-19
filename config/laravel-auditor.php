@@ -82,7 +82,9 @@ return [
         | On by default so AUD-DEP-001 can use advisory data instead of an
         | empty payload that agents misread as "no vulnerabilities". The
         | collector still fails soft (no throw) when Composer, the network,
-        | or a lock file is missing. Set this to false to skip the shell-out.
+        | or a lock file is missing. The call hits the network and waits up
+        | to 60 seconds per collection; set this to false to skip the
+        | shell-out when context collection must stay fully offline or fast.
         */
         'composer_audit' => true,
 

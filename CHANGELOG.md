@@ -1,10 +1,13 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.2...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.3...HEAD)
+
+## [v0.1.3](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.3) - 2026-08-19
 
 ### Changed
 
-- `context.composer_audit` is now **on by default** so `AUD-DEP-001` can use advisory data. The collector still fails soft when Composer, the network, or `composer.lock` is missing. Set the flag to `false` to skip the shell-out. Test-case listing remains off.
+- `context.composer_audit` is now **on by default** so `AUD-DEP-001` can use advisory data. The collector still fails soft when Composer, the network, or `composer.lock` is missing. `composer audit` now runs with `--no-plugins`. Test-case listing remains off.
+- Configuration and usage docs now note that the enabled `composer audit` call hits the network and waits up to 60 seconds per collection; set the flag to `false` to keep context collection fully offline or fast.
 
 ## [v0.1.2](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.2) - 2026-08-19
 
