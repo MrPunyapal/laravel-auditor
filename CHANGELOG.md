@@ -1,6 +1,6 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.3...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.4...HEAD)
 
 ### Added
 
@@ -13,6 +13,30 @@
 ### Changed
 
 - MCP tool output is now compact JSON instead of pretty-printed JSON. No field was added, removed, or renamed — only indentation whitespace is gone.
+
+## [v0.1.4](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.3...v0.1.4) - 2026-08-21
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Dependencies
+
+* Bump actions/configure-pages from 5 to 6 by @dependabot[bot] in https://github.com/MrPunyapal/laravel-auditor/pull/2
+* Bump actions/upload-pages-artifact from 3 to 5 by @dependabot[bot] in https://github.com/MrPunyapal/laravel-auditor/pull/3
+* Bump actions/setup-node from 4 to 7 by @dependabot[bot] in https://github.com/MrPunyapal/laravel-auditor/pull/4
+* Bump actions/checkout from 4 to 7 by @dependabot[bot] in https://github.com/MrPunyapal/laravel-auditor/pull/5
+* Bump actions/deploy-pages from 4 to 5 by @dependabot[bot] in https://github.com/MrPunyapal/laravel-auditor/pull/6
+
+#### Other Changes
+
+* MCP context: up to 93% smaller payloads, focused filters, honest findings by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/7
+
+### New Contributors
+
+* @MrPunyapal made their first contribution in https://github.com/MrPunyapal/laravel-auditor/pull/7
+* @dependabot[bot] made their first contribution in https://github.com/MrPunyapal/laravel-auditor/pull/2
+
+**Full Changelog**: https://github.com/MrPunyapal/laravel-auditor/compare/v0.1.3...v0.1.4
 
 ## [v0.1.3](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.3) - 2026-08-19
 
