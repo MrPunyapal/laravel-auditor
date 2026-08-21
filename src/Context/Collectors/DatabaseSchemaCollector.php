@@ -7,6 +7,7 @@ namespace LaravelAuditor\Context\Collectors;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 use LaravelAuditor\Context\ContextCollector;
+use LaravelAuditor\Context\FilterableCollector;
 use stdClass;
 use Throwable;
 
@@ -17,7 +18,7 @@ use Throwable;
  * is unavailable the collector returns a safe diagnostic result instead
  * of failing the audit.
  */
-final class DatabaseSchemaCollector implements ContextCollector
+final class DatabaseSchemaCollector implements ContextCollector, FilterableCollector
 {
     public function __construct() {}
 
@@ -28,7 +29,14 @@ final class DatabaseSchemaCollector implements ContextCollector
 
     public function description(): string
     {
-        return 'Read the database schema: tables, columns, types, and indexes (read-only).';
+        return 'Read the database schema: tables, columns, types, and indexes (read-only). Optional filter: table (substring).';
+    }
+
+    public function filters(): array
+    {
+        return [
+            'table' => 'Case-insensitive substring match on the table name, e.g. "user" matches users and user_profiles.',
+        ];
     }
 
     /**
@@ -62,6 +70,26 @@ final class DatabaseSchemaCollector implements ContextCollector
             'connection' => $connection->getName(),
             'tables' => $tables,
         ];
+    }
+
+    public function collectFiltered(array $arguments): array
+    {
+        $payload = $this->collect();
+
+        if (($payload['available'] ?? false) !== true || ! isset($arguments['table'])) {
+            return $payload;
+        }
+
+        $tables = array_values(array_filter(
+            (array) $payload['tables'],
+            fn (array $table): bool => str_contains(mb_strtolower((string) $table['name']), mb_strtolower($arguments['table'])),
+        ));
+
+        $payload['filtered'] = true;
+        $payload['total_count'] = count($payload['tables']);
+        $payload['tables'] = $tables;
+
+        return $payload;
     }
 
     private function connection(): ?Connection

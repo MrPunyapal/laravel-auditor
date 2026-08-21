@@ -69,7 +69,7 @@ final class SarifReportRenderer
         }
 
         return array_filter([
-            'ruleId' => $finding->ruleId,
+            'ruleId' => $finding->ruleId === '' ? null : $finding->ruleId,
             'level' => $this->level($finding->severity),
             'message' => ['text' => $finding->summary],
             'locations' => $locations === [] ? null : $locations,

@@ -2,6 +2,18 @@
 
 ## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.3...HEAD)
 
+### Added
+
+- Optional read-only filter arguments on the four highest-volume context tools: `routes` (`uri`, `name`, `action`, `method`), `models` (`class`, `table`), `database_schema` (`table`), and `dependencies` (`package`). Calling a tool without arguments returns the same payload as before; filtered responses keep every documented field and add `filtered` and `total_count`. Unknown filters are rejected instead of silently ignored, and the `dependencies` filter never narrows `composer audit` advisory data.
+
+### Fixed
+
+- Findings may now omit `rule_id` when no catalog rule matches, as the audit skill already teaches. `Finding::fromArray()` no longer fails on a missing key, `finding.schema.json` no longer lists `rule_id` as required, and the Markdown/Text/SARIF renderers handle unmapped findings (`unmapped` label or omitted SARIF `ruleId`).
+
+### Changed
+
+- MCP tool output is now compact JSON instead of pretty-printed JSON. No field was added, removed, or renamed — only indentation whitespace is gone.
+
 ## [v0.1.3](https://github.com/mrpunyapal/laravel-auditor/releases/tag/v0.1.3) - 2026-08-19
 
 ### Changed

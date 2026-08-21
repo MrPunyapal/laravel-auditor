@@ -85,3 +85,67 @@ it('returns a structured error when a tool throws', function () {
     expect($result['isError'])->toBeTrue();
     expect($result['content'][0]['text'])->toContain('boom');
 });
+
+it('encodes tool output as compact JSON without dropping fields', function () {
+    $tool = collect(app(McpToolRegistry::class)->all())->first(fn (McpTool $tool): bool => $tool->name === 'routes');
+
+    $text = $tool->call()['content'][0]['text'];
+
+    expect($text)->not->toContain("\n");
+    expect(json_decode($text, true))->toBeArray();
+});
+
+it('advertises filter properties for filterable collectors in tools/list', function () {
+    $tools = app(McpToolRegistry::class)->all();
+    $byName = collect($tools)->keyBy(fn (McpTool $tool): string => $tool->name);
+
+    expect($byName['routes']->toJson()['inputSchema']['properties'])->toHaveKeys(['uri', 'name', 'action', 'method']);
+    expect($byName['database_schema']->toJson()['inputSchema']['properties'])->toHaveKeys(['table']);
+    expect($byName['project_info']->toJson()['inputSchema']['properties'])->toBe([]);
+});
+
+it('applies filter arguments passed through tools/call', function () {
+    $input = fopen('php://temp', 'r+');
+    $output = fopen('php://temp', 'r+');
+
+    fwrite($input, json_encode([
+        'jsonrpc' => '2.0',
+        'id' => 1,
+        'method' => 'tools/call',
+        'params' => ['name' => 'routes', 'arguments' => ['uri' => 'no-such-route-prefix-xyz']],
+    ], JSON_THROW_ON_ERROR)."\n");
+    rewind($input);
+
+    (new McpServer(app(McpToolRegistry::class), $input, $output))->run();
+
+    rewind($output);
+
+    $response = json_decode((string) stream_get_contents($output), true);
+    $payload = json_decode($response['result']['content'][0]['text'], true);
+
+    expect($response['error'] ?? null)->toBeNull();
+    expect($payload['count'])->toBe(0);
+    expect($payload['filtered'])->toBeTrue();
+    expect($payload['total_count'])->toBeGreaterThanOrEqual(1);
+});
+
+it('rejects unknown filters instead of silently returning the full payload', function () {
+    $tool = collect(app(McpToolRegistry::class)->all())->first(fn (McpTool $tool): bool => $tool->name === 'routes');
+
+    $result = $tool->call(['uriy' => 'posts']);
+
+    expect($result['isError'])->toBeTrue();
+    expect($result['content'][0]['text'])->toContain('Unknown filter [uriy]');
+});
+
+it('treats null-valued arguments as absent and returns the full payload', function () {
+    $tool = collect(app(McpToolRegistry::class)->all())->first(fn (McpTool $tool): bool => $tool->name === 'routes');
+
+    $result = $tool->call(['uri' => null]);
+
+    expect($result['isError'] ?? false)->toBeFalse();
+
+    $payload = json_decode($result['content'][0]['text'], true);
+
+    expect($payload)->not->toHaveKey('filtered');
+});

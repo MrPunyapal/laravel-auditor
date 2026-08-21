@@ -41,6 +41,33 @@ A client configuration example lives in `resources/auditor/mcp/mcp.json.example`
 | `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 
+## Optional filters
+
+Four tools accept optional read-only filter arguments so an agent can verify a focused slice instead of pulling the whole inventory. Calling a tool without arguments returns the complete payload exactly as before.
+
+| Tool | Filter | Matches |
+| --- | --- | --- |
+| `routes` | `uri`, `name`, `action` | Case-insensitive substring |
+| `routes` | `method` | Exact HTTP verb (`GET`, `POST`, ...) |
+| `models` | `class`, `table` | Case-insensitive substring |
+| `database_schema` | `table` | Case-insensitive substring |
+| `dependencies` | `package` | Case-insensitive substring on installed package names |
+
+Example: list only routes under `/api`:
+
+```json
+{ "name": "routes", "arguments": { "uri": "api/" } }
+```
+
+When a filter is applied, the response keeps every documented field and adds two keys:
+
+- `filtered` — always `true`, so the agent knows the payload is a subset
+- `total_count` — the size of the unfiltered inventory, so nothing is silently hidden
+
+Combining filters narrows with AND semantics. Unknown filters are rejected with an error instead of being ignored, so a typo can never masquerade as an unfiltered result. The `dependencies` filter only narrows the `packages` map; `requires`, `requires_dev`, and `composer audit` advisories always stay complete so security data is never filtered away.
+
+Tool output is encoded as compact JSON (no indentation) to keep responses token-lean without dropping any fields.
+
 ## Why structured data instead of source dumps
 
 An agent can read files directly, but that gives it raw text without context. Laravel Auditor's tools return structured, filtered, deterministic data. The agent gets the route table as a list of methods, URIs, and middleware — not a PHP file it has to parse. This makes the agent's reasoning faster and more reliable.

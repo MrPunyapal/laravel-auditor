@@ -56,7 +56,7 @@ final class TextReportRenderer
             $finding->domain->label(),
             $finding->confidence->label(),
         );
-        $lines[] = '  Rule: '.$finding->ruleId;
+        $lines[] = '  Rule: '.($finding->ruleId === '' ? 'unmapped' : $finding->ruleId);
 
         if ($finding->symbol !== null) {
             $lines[] = '  Symbol: '.$finding->symbol;

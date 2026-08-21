@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use LaravelAuditor\Context\ContextCollector;
+use LaravelAuditor\Context\FilterableCollector;
 use LaravelAuditor\Support\ApplicationPaths;
 use ReflectionClass;
 use ReflectionMethod;
@@ -22,7 +23,7 @@ use Throwable;
  * public API rather than guessed. Relationship methods are detected via
  * reflection and reported without invoking queries.
  */
-final class ModelsCollector implements ContextCollector
+final class ModelsCollector implements ContextCollector, FilterableCollector
 {
     public function __construct(
         private readonly Application $app,
@@ -37,13 +38,66 @@ final class ModelsCollector implements ContextCollector
 
     public function description(): string
     {
-        return 'Inspect Eloquent models: table names, fillable/guarded, casts, and declared relationships.';
+        return 'Inspect Eloquent models: table names, fillable/guarded, casts, and declared relationships. Optional filters: class, table (substring).';
+    }
+
+    public function filters(): array
+    {
+        return [
+            'class' => 'Case-insensitive substring match on the model class name, e.g. "User" or "App\\\\Models\\\\Us".',
+            'table' => 'Case-insensitive substring match on the model table name.',
+        ];
     }
 
     /**
      * @return array<string, mixed>
      */
     public function collect(): array
+    {
+        return $this->buildModelPayload($this->inspectModels());
+    }
+
+    public function collectFiltered(array $arguments): array
+    {
+        $models = $this->inspectModels();
+
+        $filtered = array_values(array_filter(
+            $models,
+            fn (array $model): bool => $this->matches($model, $arguments),
+        ));
+
+        return $this->buildModelPayload($filtered, count($models));
+    }
+
+    /**
+     * @param  array<string, mixed>  $model
+     * @param  array<string, string>  $filters
+     */
+    private function matches(array $model, array $filters): bool
+    {
+        foreach ($filters as $key => $needle) {
+            $haystack = match ($key) {
+                'class' => (string) $model['class'],
+                'table' => (string) $model['table'],
+                default => null,
+            };
+
+            if ($haystack === null) {
+                continue;
+            }
+
+            if (! str_contains(mb_strtolower($haystack), mb_strtolower($needle))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function inspectModels(): array
     {
         $models = [];
 
@@ -59,10 +113,26 @@ final class ModelsCollector implements ContextCollector
 
         usort($models, static fn (array $a, array $b): int => strcmp((string) $a['class'], (string) $b['class']));
 
-        return [
+        return $models;
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $models
+     * @return array<string, mixed>
+     */
+    private function buildModelPayload(array $models, ?int $totalCount = null): array
+    {
+        $payload = [
             'count' => count($models),
             'models' => $models,
         ];
+
+        if ($totalCount !== null) {
+            $payload['filtered'] = true;
+            $payload['total_count'] = $totalCount;
+        }
+
+        return $payload;
     }
 
     /**
