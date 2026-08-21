@@ -78,10 +78,6 @@
 <td>Unique finding instance ID (e.g. <code>F-2026-0001</code>)</td>
 </tr>
 <tr>
-<td><code>rule_id</code></td>
-<td>Stable rule ID when one matches (e.g. <code>AUD-SEC-001</code>)</td>
-</tr>
-<tr>
 <td><code>title</code></td>
 <td>Short, specific description</td>
 </tr>
@@ -104,6 +100,21 @@
 <tr>
 <td><code>why_it_matters</code></td>
 <td>Why it matters for this application</td>
+</tr>
+</tbody>
+</table></div>
+<p>Optional fields:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rule_id</code></td>
+<td>Stable rule ID when one matches (e.g. <code>AUD-SEC-001</code>). Omit it when no catalog rule applies; unmapped findings render with an <code>unmapped</code> rule label</td>
 </tr>
 </tbody>
 </table></div>

@@ -34,13 +34,18 @@ Required fields:
 | Field | Purpose |
 | --- | --- |
 | `id` | Unique finding instance ID (e.g. `F-2026-0001`) |
-| `rule_id` | Stable rule ID when one matches (e.g. `AUD-SEC-001`) |
 | `title` | Short, specific description |
 | `domain` | Audit domain (`security`, `performance`, `architecture`, `database`, `testing`, `conventions`) |
 | `severity` | Impact level |
 | `confidence` | How certain the finding is given available evidence |
 | `summary` | What is wrong |
 | `why_it_matters` | Why it matters for this application |
+
+Optional fields:
+
+| Field | Purpose |
+| --- | --- |
+| `rule_id` | Stable rule ID when one matches (e.g. `AUD-SEC-001`). Omit it when no catalog rule applies; unmapped findings render with an `unmapped` rule label |
 
 Include whenever possible:
 

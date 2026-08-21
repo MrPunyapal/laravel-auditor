@@ -46,6 +46,8 @@ Gather deterministic project facts first. When Artisan is available, start with 
 - `migrations`: migration files.
 - `subsystems`: ownership-bounded inventory for a DSA-style coordinator audit.
 
+Four tools accept optional read-only filters for focused verification: `routes` (`uri`, `name`, `action`, `method`), `models` (`class`, `table`), `database_schema` (`table`), and `dependencies` (`package`). Filtered responses report `total_count` so you always know how much of the full inventory was returned; call without arguments for the complete payload.
+
 Fall back to `composer.json`, `bootstrap/app.php`, `config/app.php`, and the file tree when tools are unavailable.
 
 Record the application type (web, API, admin panel, package) and any ecosystem packages (Livewire, Filament, Inertia, Pest, Sanctum, Horizon, etc.) — these determine which rules apply.
