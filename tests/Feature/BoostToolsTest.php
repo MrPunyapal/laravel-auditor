@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
@@ -9,6 +10,7 @@ use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\MCP\Boost\BoostMcpRegistrar;
 use LaravelAuditor\MCP\Boost\Tools\AuditTool;
 use LaravelAuditor\MCP\Boost\Tools\ProjectInfoTool;
+use LaravelAuditor\MCP\Boost\Tools\RoutesTool;
 use LaravelAuditor\Support\BoostDetector;
 
 it('exposes one Boost tool adapter for every context collector', function () {
@@ -110,4 +112,41 @@ it('does not touch boost configuration when Boost is absent', function () {
     (new BoostMcpRegistrar($detector))->register();
 
     expect(config('boost.mcp.tools.include'))->toBe(['Some\\ExistingTool']);
+});
+
+it('declares filter properties in the boost tool schema for filterable collectors', function () {
+    $routes = app(RoutesTool::class);
+    $projectInfo = app(ProjectInfoTool::class);
+
+    $routeSchema = JsonSchema::object($routes->schema(...))->toArray();
+    $projectSchema = JsonSchema::object($projectInfo->schema(...))->toArray();
+
+    expect(array_keys($routeSchema['properties']))->toBe(['uri', 'name', 'action', 'method']);
+    expect($projectSchema['properties'] ?? [])->toBe([]);
+});
+
+it('applies filter arguments through the boost tool handle method', function () {
+    /** @var AuditTool $tool */
+    $tool = app(RoutesTool::class);
+
+    $response = $tool->handle(new Request(['uri' => 'no-such-route-prefix-xyz']));
+
+    expect($response)->toBeInstanceOf(Response::class);
+    expect($response->isError())->toBeFalse();
+
+    $payload = json_decode((string) $response->content(), true);
+
+    expect($payload['count'])->toBe(0);
+    expect($payload['filtered'])->toBeTrue();
+    expect($payload['total_count'])->toBeGreaterThanOrEqual(1);
+});
+
+it('returns an error response for unknown filters through boost tools', function () {
+    /** @var AuditTool $tool */
+    $tool = app(RoutesTool::class);
+
+    $response = $tool->handle(new Request(['uriy' => 'posts']));
+
+    expect($response->isError())->toBeTrue();
+    expect((string) $response->content())->toContain('Unknown filter [uriy]');
 });

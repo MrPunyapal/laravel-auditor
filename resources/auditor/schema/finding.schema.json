@@ -3,7 +3,7 @@
     "$id": "https://github.com/mrpunyapal/laravel-auditor/schema/finding.schema.json",
     "title": "Laravel Auditor Finding",
     "type": "object",
-    "required": ["id", "rule_id", "title", "domain", "severity", "confidence", "summary", "why_it_matters"],
+    "required": ["id", "title", "domain", "severity", "confidence", "summary", "why_it_matters"],
     "properties": {
         "id": { "type": "string" },
         "rule_id": { "type": "string" },

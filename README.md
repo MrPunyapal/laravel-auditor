@@ -237,6 +237,8 @@ php artisan auditor:context project_info
 php artisan auditor:context routes --output=storage/auditor-routes.json
 ```
 
+Over MCP, the `routes`, `models`, `database_schema`, and `dependencies` tools also accept optional read-only filters (for example `routes {uri: "api"}`) so an agent can verify a focused slice instead of pulling the whole inventory. See [MCP tools](https://laravel-auditor.com/mcp/).
+
 Or from PHP:
 
 ```php

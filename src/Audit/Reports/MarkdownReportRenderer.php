@@ -157,7 +157,7 @@ final class MarkdownReportRenderer
         );
         $lines[] = '';
 
-        $lines[] = sprintf('**Rule:** `%s` — %s', $finding->ruleId, $finding->domain->label());
+        $lines[] = sprintf('**Rule:** %s — %s', $finding->ruleId === '' ? '`unmapped`' : '`'.$finding->ruleId.'`', $finding->domain->label());
         $lines[] = sprintf('**Severity:** %s', $finding->severity->label());
         $lines[] = sprintf('**Confidence:** %s', $finding->confidence->label());
         $lines[] = sprintf('**Status:** %s', $finding->status->label());

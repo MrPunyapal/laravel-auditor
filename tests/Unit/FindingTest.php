@@ -36,6 +36,21 @@ it('creates a finding with the full schema', function () {
     expect($finding->status)->toBe(FindingStatus::Open);
 });
 
+it('hydrates a finding without a rule_id when no rule matches', function () {
+    $finding = Finding::fromArray([
+        'id' => 'F-2026-0002',
+        'title' => 'Unmapped observation',
+        'domain' => 'architecture',
+        'severity' => 'low',
+        'confidence' => 'confirmed',
+        'summary' => 'No rule matches this observation.',
+        'why_it_matters' => 'The skill allows findings without a matching rule.',
+    ]);
+
+    expect($finding->ruleId)->toBe('');
+    expect($finding->toArray())->toHaveKey('rule_id', '');
+});
+
 it('applies sensible defaults', function () {
     $finding = new Finding(
         id: 'F-1',

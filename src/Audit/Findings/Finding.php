@@ -90,7 +90,7 @@ final class Finding implements JsonSerializable
     {
         return new self(
             id: (string) $data['id'],
-            ruleId: (string) $data['rule_id'],
+            ruleId: (string) ($data['rule_id'] ?? ''),
             title: (string) $data['title'],
             domain: AuditDomain::from((string) $data['domain']),
             severity: Severity::from((string) $data['severity']),

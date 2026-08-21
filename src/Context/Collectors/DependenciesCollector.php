@@ -7,13 +7,14 @@ namespace LaravelAuditor\Context\Collectors;
 use Composer\InstalledVersions;
 use Illuminate\Filesystem\Filesystem;
 use LaravelAuditor\Context\ContextCollector;
+use LaravelAuditor\Context\FilterableCollector;
 use Symfony\Component\Process\Process;
 use Throwable;
 
 /**
  * Collects the application's composer dependencies and versions.
  */
-final class DependenciesCollector implements ContextCollector
+final class DependenciesCollector implements ContextCollector, FilterableCollector
 {
     public function __construct(
         private readonly Filesystem $files,
@@ -26,7 +27,14 @@ final class DependenciesCollector implements ContextCollector
 
     public function description(): string
     {
-        return 'List installed composer packages with versions and dev status. Optional composer audit results when enabled.';
+        return 'List installed composer packages with versions and dev status. Optional composer audit results when enabled. Optional filter: package (substring).';
+    }
+
+    public function filters(): array
+    {
+        return [
+            'package' => 'Case-insensitive substring match on the installed package name, e.g. "livewire". Only narrows the packages list; requires, requires_dev, and composer_audit stay complete.',
+        ];
     }
 
     /**
@@ -65,6 +73,30 @@ final class DependenciesCollector implements ContextCollector
             'installed_count' => count(InstalledVersions::getInstalledPackages()),
             'composer_audit' => $this->composerAudit(),
         ];
+    }
+
+    public function collectFiltered(array $arguments): array
+    {
+        $payload = $this->collect();
+
+        if (! isset($arguments['package'])) {
+            return $payload;
+        }
+
+        $needle = mb_strtolower($arguments['package']);
+
+        $packages = array_filter(
+            (array) $payload['packages'],
+            fn (array $meta, string $name): bool => str_contains(mb_strtolower($name), $needle),
+            ARRAY_FILTER_USE_BOTH,
+        );
+
+        $payload['filtered'] = true;
+        $payload['total_count'] = count($payload['packages']);
+        $payload['count'] = count($packages);
+        $payload['packages'] = $packages;
+
+        return $payload;
     }
 
     /**
