@@ -185,6 +185,8 @@ For a data-structure / ownership pass:
 
 > Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
 
+More ready-to-use prompts — domain-focused audits, filtered verification of a single suspicion, and re-audits after fixes — live in the [prompt examples](https://laravel-auditor.com/prompts/) page.
+
 ## Example finding
 
 ```json

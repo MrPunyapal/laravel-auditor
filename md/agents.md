@@ -64,41 +64,9 @@ Once the agent is wired, give it a clear instruction:
 
 > Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.
 
-### Full example prompt
+That is enough to start a full audit. Ready-to-use prompts for common scenarios — full audit, quick discover pass, domain-focused audits, filtered verification of a single suspicion, re-audits after fixes, and DSA reviews — live in one place:
 
-> You are auditing the Laravel application in this project using the Laravel Auditor methodology.
->
-> 1. Use the laravel-audit skill. Follow its Discover -> Scope -> Verify -> Report workflow.
-> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code:
->    - `project_info` — PHP/Laravel versions, database, ecosystem signals
->    - `routes` — the full route surface
->    - `models` — all models with fillable/guarded, casts, relationships
->    - `migrations` — schema changes over time
->    - `database_schema` — actual tables/columns/indexes
->    - `dependencies` — installed packages and versions
->    - `configuration` — config keys in use
->    - `policies_authorization` — gates, policies, auth middleware
->    - `jobs_events_schedules` — queues, events, cron
->    - `tests` — test suite: framework, case counts (feature/unit)
->    - `subsystems` — ownership-bounded inventory for a DSA-style coordinator audit
-> 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
-> 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
-> 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
-> 6. Be read-only. Do not modify any application code.
-
-### Quick discover pass
-
-For a faster, non-exhaustive first pass:
-
-> Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
-
-### DSA / subsystem audit
-
-For a bounded data-structure and ownership review:
-
-> Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
-
-See [DSA audit](/dsa/).
+See [Prompt examples](/prompts/).
 
 ## Read-only boundary
 

@@ -3,7 +3,7 @@ title: MCP tools
 description: Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.
 og_title: Laravel Auditor MCP tools
 og_description: Structured, read-only context tools your agent can call before auditing a Laravel application.
-order: 5
+order: 6
 slug: mcp
 ---
 
