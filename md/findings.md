@@ -3,7 +3,7 @@ title: Findings and reports
 description: Finding schema, example payloads, and how reports are rendered.
 og_title: Findings and reports
 og_description: The finding schema, severity and confidence model, P0–P3 ranking, and how reports are rendered.
-order: 7
+order: 8
 slug: findings
 ---
 

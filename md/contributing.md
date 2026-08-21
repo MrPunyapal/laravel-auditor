@@ -3,7 +3,7 @@ title: Contributing
 description: How to work on Laravel Auditor locally, including documentation.
 og_title: Contribute to Laravel Auditor
 og_description: How to work on Laravel Auditor locally — tests, lint, static analysis, and docs.
-order: 10
+order: 11
 slug: contributing
 ---
 

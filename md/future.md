@@ -3,7 +3,7 @@ title: Future scope
 description: Features that may influence architecture but are not part of V1.
 og_title: Laravel Auditor future scope
 og_description: Planned capabilities that may shape the architecture but are not part of V1.
-order: 9
+order: 10
 slug: future
 ---
 
