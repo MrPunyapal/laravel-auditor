@@ -517,10 +517,11 @@ When findings were addressed and you want a delta check:
 ```text
 Re-audit this application against storage/auditor-findings.json from the previous run.
 
-1. Load the previous findings and re-verify each open one against the current code.
-2. Mark each as fixed, still-open, or changed (same area, different problem).
-3. Run a fresh Discover pass to catch anything the previous audit missed.
-4. Update the findings file statuses and regenerate the report. Read-only.
+1. Load the previous findings and re-verify each one against the current code.
+2. Update each finding's status to a schema-valid value: fixed, open (still present), accepted (known and tolerated), or dismissed (not applicable).
+3. If an area changed into a different problem, close the old finding (fixed or dismissed) and add a new finding with a new id instead of inventing a status.
+4. Run a fresh Discover pass to catch anything the previous audit missed.
+5. Regenerate the report. Read-only.
 ```
 
 ## DSA / subsystem audit

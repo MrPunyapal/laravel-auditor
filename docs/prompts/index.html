@@ -102,10 +102,11 @@
 <p>When findings were addressed and you want a delta check:</p>
 <pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Re-audit this application against storage/auditor-findings.json from the previous run.
 </span></span><span class="line"><span class="token">
-</span></span><span class="line"><span class="token">1. Load the previous findings and re-verify each open one against the current code.
-</span></span><span class="line"><span class="token">2. Mark each as fixed, still-open, or changed (same area, different problem).
-</span></span><span class="line"><span class="token">3. Run a fresh Discover pass to catch anything the previous audit missed.
-</span></span><span class="line"><span class="token">4. Update the findings file statuses and regenerate the report. Read-only.
+</span></span><span class="line"><span class="token">1. Load the previous findings and re-verify each one against the current code.
+</span></span><span class="line"><span class="token">2. Update each finding's status to a schema-valid value: fixed, open (still present), accepted (known and tolerated), or dismissed (not applicable).
+</span></span><span class="line"><span class="token">3. If an area changed into a different problem, close the old finding (fixed or dismissed) and add a new finding with a new id instead of inventing a status.
+</span></span><span class="line"><span class="token">4. Run a fresh Discover pass to catch anything the previous audit missed.
+</span></span><span class="line"><span class="token">5. Regenerate the report. Read-only.
 </span></span></code></pre>
 <h2 id="dsa-subsystem-audit">DSA / subsystem audit</h2>
 <p>For a bounded data-structure and ownership review:</p>
