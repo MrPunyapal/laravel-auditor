@@ -8,6 +8,9 @@
     <a href="https://badge.laravel.cloud/badge/mrpunyapal/laravel-auditor?style=flat"><img src="https://badge.laravel.cloud/badge/mrpunyapal/laravel-auditor?style=flat" alt="Laravel versions"></a>
     <a href="https://github.com/mrpunyapal/laravel-auditor/actions"><img alt="GitHub Workflow Status (main)" src="https://img.shields.io/github/actions/workflow/status/mrpunyapal/laravel-auditor/tests.yml?branch=main&label=Tests&style=flat-square"></a>
     <a href="https://packagist.org/packages/mrpunyapal/laravel-auditor"><img src="https://img.shields.io/packagist/dt/mrpunyapal/laravel-auditor.svg?style=flat-square" alt="Total Downloads"></a>
+    <a href="https://packagist.org/packages/mrpunyapal/laravel-auditor"><img src="https://badge.laravel.cloud/badge/mrpunyapal/laravel-auditor?style=flat-square" alt="Laravel Version Compatibility"></a>
+    <a href="https://packagist.org/packages/mrpunyapal/laravel-auditor"><img src="https://badge.laravel.cloud/php-badge/mrpunyapal/laravel-auditor?style=flat-square" alt="PHP Version Compatibility"></a>
+    <a href="https://laravel.com/docs/boost#third-party-package-skills"><img src="https://badge.laravel.cloud/boost-badge.svg?style=flat-square" alt="Laravel Boost Skill"></a>
 </p>
 
 Laravel Auditor equips an existing AI coding agent with a specialized, evidence-based methodology and toolset for auditing Laravel applications.
