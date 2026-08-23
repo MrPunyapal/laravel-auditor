@@ -4,6 +4,12 @@
 
 ### Added
 
+- Deep performance audit expansion: 14 new performance rules — `AUD-PER-008` through `AUD-PER-018` (materialized aggregates, PHP-vs-database filtering/sorting, relationship count/existence loading, queries inside loops, unbounded retrieval, over-selection of columns, repeated external HTTP calls, repeated/unbuffered filesystem work, unbounded job data and oversized payloads, rendering-path queries, avoidable intermediate collections) plus ecosystem-gated `AUD-LW-003` (Livewire render/update cost), `AUD-FIL-003` (Filament table/form database work), and `AUD-IN-003` (Inertia shared props). Every rule carries evidence requirements, false-positive considerations, and semantic-equivalence verification guidance.
+- Rewritten `laravel-audit-performance` skill teaching the full investigation pipeline (signal → context → behavior → verification → impact → finding) with a worked example *and* its counter-example (`get()->count()` flagged only when the collection has no other consumer), severity-by-impact guidance, mechanism-based impact statements, and a 20-point performance checklist.
+- New `guidelines/performance.md` (+ Boost mirror) defining the performance finding contract: mandatory semantic-equivalence verification, structured `metadata.impact` (`resource`/`mechanism`/`amplification`), no invented benchmarks, and a noise floor.
+- Performance example finding (`F-2026-0002`) in the packaged examples demonstrating rule mapping, verification notes, and impact metadata; rendered by `auditor:report --example`.
+- Dedicated performance audit prompt in the prompt examples docs.
+- Tests covering the new catalog: schema completeness, evidence-first/noise guards, package gating for the ecosystem rules, command-level domain scoping, and example report rendering.
 - Optional read-only filter arguments on the four highest-volume context tools: `routes` (`uri`, `name`, `action`, `method`), `models` (`class`, `table`), `database_schema` (`table`), and `dependencies` (`package`). Calling a tool without arguments returns the same payload as before; filtered responses keep every documented field and add `filtered` and `total_count`. Unknown filters are rejected instead of silently ignored, and the `dependencies` filter never narrows `composer audit` advisory data.
 
 ### Fixed
@@ -13,6 +19,8 @@
 ### Changed
 
 - MCP tool output is now compact JSON instead of pretty-printed JSON. No field was added, removed, or renamed — only indentation whitespace is gone.
+- `AUD-PER-006` description now defers to the specific rules (`AUD-PER-008`, `AUD-PER-009`, `AUD-PER-012`) when they match. Severity and confidence are unchanged.
+- Documentation rule counts updated from 61 to 75.
 
 ## [v0.1.4](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.3...v0.1.4) - 2026-08-21
 

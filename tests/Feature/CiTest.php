@@ -82,8 +82,10 @@ it('lists only applicable rules when asked', function () {
 it('loads findings through FindingLoader', function () {
     $collection = app(FindingLoader::class)->load(__DIR__.'/../../resources/auditor/examples/findings.json');
 
-    expect($collection)->toHaveCount(1);
+    expect($collection)->toHaveCount(2);
     expect($collection[0]->ruleId)->toBe('AUD-SEC-001');
+    expect($collection[1]->ruleId)->toBe('AUD-PER-008');
+    expect($collection[1]->domain->value)->toBe('performance');
 });
 
 it('renders SARIF from a report model', function () {

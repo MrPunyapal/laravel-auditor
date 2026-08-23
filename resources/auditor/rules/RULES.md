@@ -34,6 +34,19 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-PER-005 | Synchronous work that belongs on a queue | medium | medium |
 | AUD-PER-006 | Inefficient collection or database usage | low | medium |
 | AUD-PER-007 | Repeated expensive computation without cache | low | low |
+| AUD-PER-008 | Aggregate or existence answer computed after materializing rows | medium | medium |
+| AUD-PER-009 | Filtering, sorting, or slicing in PHP that the query can do | medium | medium |
+| AUD-PER-010 | Relationship loaded only to answer count or existence | medium | medium |
+| AUD-PER-011 | Query executed inside a loop | high | medium |
+| AUD-PER-012 | Unbounded retrieval on a path that can grow | medium | medium |
+| AUD-PER-013 | More columns retrieved than the code consumes | low | low |
+| AUD-PER-014 | Repeated external HTTP requests without batching or reuse | medium | medium |
+| AUD-PER-015 | Filesystem or storage work repeated or unbuffered | low | medium |
+| AUD-PER-016 | Queue job processes unbounded data or carries oversized payloads | medium | medium |
+| AUD-PER-017 | Rendering path performs queries or repeated expensive work | medium | medium |
+| AUD-PER-018 | Chained collection transformations creating avoidable intermediates | low | low |
+
+Performance rules are context-gated by design: `AUD-PER-008` and `AUD-PER-010` explicitly do not fire when the loaded data is reused elsewhere, and every rule requires semantic-equivalence verification before an optimization is recommended. The `laravel-audit-performance` skill carries the full methodology and checklist.
 
 ## Architecture
 
@@ -89,6 +102,7 @@ These rules only apply when the package is installed (`applicability.packages`).
 | --- | --- | --- | --- |
 | AUD-LW-001 | Livewire action missing authorization | high | high |
 | AUD-LW-002 | Unvalidated Livewire public property | high | medium |
+| AUD-LW-003 | Livewire render/update path re-queries or carries oversized state | medium | medium |
 
 ### Filament (`filament/filament`)
 
@@ -96,6 +110,7 @@ These rules only apply when the package is installed (`applicability.packages`).
 | --- | --- | --- | --- |
 | AUD-FIL-001 | Filament resource missing policy | high | medium |
 | AUD-FIL-002 | Unrestricted Filament bulk action | high | medium |
+| AUD-FIL-003 | Filament table or form performs unbounded or repeated database work | medium | medium |
 
 ### Inertia (`inertiajs/inertia-laravel`)
 
@@ -103,6 +118,7 @@ These rules only apply when the package is installed (`applicability.packages`).
 | --- | --- | --- | --- |
 | AUD-IN-001 | Inertia shared data leaks sensitive attributes | high | medium |
 | AUD-IN-002 | Inertia endpoint missing authorization | high | high |
+| AUD-IN-003 | Inertia shared props recomputed or oversized on every response | medium | medium |
 
 ### Queues
 

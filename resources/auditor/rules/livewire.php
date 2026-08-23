@@ -48,4 +48,31 @@ return [
             'packages' => ['livewire/livewire'],
         ],
     ],
+    [
+        'id' => 'AUD-LW-003',
+        'name' => 'Livewire render/update path re-queries or carries oversized state',
+        'domain' => 'performance',
+        'severity' => 'medium',
+        'confidence' => 'medium',
+        'description' => 'A Livewire component re-runs queries on every render/update cycle (expensive render() methods, computed properties that query per access without memoization), or holds large public properties (full collections/model graphs) that serialize into every request snapshot and response.',
+        'why_it_matters' => 'Livewire re-renders components on nearly every interaction, so per-render queries multiply with user activity, and large public properties inflate both network payloads and server-side hydration cost on every update.',
+        'recommendation' => 'Eager load what render() iterates; memoize computed properties that repeat within a lifecycle; keep public properties minimal (identifiers plus paginated slices) instead of whole datasets; move heavy derived state to computed properties so it is not serialized. Verify the property is not intentionally shared before shrinking it.',
+        'evidence' => [
+            'The component render()/computed method and the queries executed there.',
+            'The update frequency driver (wire:model inputs, polling, events).',
+            'For oversized state: the public property and what the client actually consumes from it.',
+        ],
+        'false_positive_considerations' => [
+            'Components rendering small fixed datasets may not justify restructuring.',
+            'Computed properties already memoized (cached in the framework) are fine.',
+            'A public property used as the actual editing surface must stay writable; suggest narrowing only what the UI does not need.',
+        ],
+        'references' => [
+            'https://livewire.laravel.com/docs/computed-properties',
+            'https://livewire.laravel.com/docs/properties',
+        ],
+        'applicability' => [
+            'packages' => ['livewire/livewire'],
+        ],
+    ],
 ];

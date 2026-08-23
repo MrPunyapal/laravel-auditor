@@ -59,6 +59,21 @@ Audit this application for security issues only, using the laravel-audit skill a
 
 Swap the domain and tool list for `database`, `architecture`, or `testing` as needed.
 
+## Performance audit
+
+A deep performance pass that verifies before it reports:
+
+```text
+Audit this application's performance using the laravel-audit-performance skill.
+
+1. Pull project_info, routes, models, database_schema, and jobs_events_schedules first. Identify the hot paths: high-traffic routes, scheduled commands, queue jobs.
+2. Walk each hot path through the skill's pipeline: signal → context → behavior → verification → impact. Investigate N+1 relationship access, materialized aggregates (get()->count()), PHP doing SQL work, queries inside loops, unbounded retrieval, repeated HTTP/storage calls, oversized job payloads, and rendering-path queries — plus Livewire/Filament/Inertia rules where installed.
+3. For every candidate optimization, verify semantic equivalence in this exact usage: check whether the collection is reused elsewhere, whether accessors/casts/custom collection classes change semantics, and whether comparison strictness differs between PHP and SQL. If a pattern has another consumer (e.g. a collection counted AND rendered), it is NOT a finding.
+4. Describe impact by mechanism ("avoids transferring every matching row into PHP") — never invent multipliers or benchmark numbers.
+5. Report findings ranked P0–P3 with severity justified by reach × frequency × amplification. Skip micro-optimizations on bounded data.
+6. Write findings to storage/auditor-findings.json with metadata.impact where evidence allows, then render with auditor:report. Read-only.
+```
+
 ## Focused verification with tool filters
 
 The `routes`, `models`, `database_schema`, and `dependencies` tools accept optional read-only filters. Use them when you are verifying one specific slice instead of exploring:

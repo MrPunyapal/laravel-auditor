@@ -51,7 +51,7 @@ Laravel Auditor contributes seven things to the audit:
 | --- | --- |
 | **Skills** | Step-by-step audit workflows the agent follows |
 | **Guidelines** | Principles that govern every finding (evidence-first, read-only, no severity inflation) |
-| **Rules** | 61 audit criteria across 6 core domains, describing what to look for and what evidence is required |
+| **Rules** | 75 audit criteria across 6 core domains, describing what to look for and what evidence is required |
 | **Context collectors** | 11 read-only tools that provide deterministic Laravel facts (routes, models, schema, etc.) |
 | **MCP server** | A bridge that lets a supported AI agent call the context tools directly |
 | **Finding schema** | A structured format for findings with severity, confidence, evidence, and recommendations |
