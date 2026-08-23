@@ -32,6 +32,46 @@
             "recommendation": "Authorize the deletion with a PostPolicy or can:delete,post middleware.",
             "remediation": "Add $this->authorize('delete', $post); before deleting, and cover it with a 403 feature test.",
             "verification_notes": "Route middleware does not include can:delete,post. PostPolicy::delete exists but is unused."
+        },
+        {
+            "id": "F-2026-0002",
+            "rule_id": "AUD-PER-008",
+            "title": "Dashboard counts materialize full result sets",
+            "domain": "performance",
+            "severity": "medium",
+            "confidence": "high",
+            "status": "open",
+            "summary": "DashboardController@index runs Order::where('status', 'paid')->get()->count() and never uses the resulting collection.",
+            "why_it_matters": "Every dashboard view transfers all paid orders into PHP and hydrates them into models just to produce one number, so latency and memory grow with order volume on the app's most frequently opened page.",
+            "evidence": [
+                {
+                    "type": "file",
+                    "reference": "app/Http/Controllers/DashboardController.php",
+                    "line": 18,
+                    "end_line": 18,
+                    "detail": "$paidOrders = Order::where('status', 'paid')->get(); $paidCount = $paidOrders->count(); — $paidOrders has no other reference in the method or the view."
+                },
+                {
+                    "type": "route",
+                    "reference": "GET /dashboard",
+                    "detail": "Rendered after every admin login; orders table grows with daily sales imports."
+                }
+            ],
+            "affected_resources": [
+                "app/Http/Controllers/DashboardController.php"
+            ],
+            "symbol": "App\\Http\\Controllers\\DashboardController@index",
+            "recommendation": "Replace the materialize-then-count sequence with Order::where('status', 'paid')->count().",
+            "remediation": "Swap both lines for $paidCount = Order::where('status', 'paid')->count();. Verified the collection is unused elsewhere, so no second query is introduced.",
+            "verification_notes": "Checked the controller method, the dashboard view, and the route middleware: $paidOrders is referenced only by the count() call, no accessors/casts affect counting, and the replacement returns an identical integer.",
+            "metadata": {
+                "priority": "p1",
+                "impact": {
+                    "resource": "database + memory",
+                    "mechanism": "Retrieves every matching order row into PHP memory to compute one scalar; the query-level aggregate returns a single value instead of every row.",
+                    "amplification": "Scales with paid-order count and dashboard render frequency."
+                }
+            }
         }
     ]
 }

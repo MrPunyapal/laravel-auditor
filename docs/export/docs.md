@@ -45,7 +45,7 @@ Laravel Auditor contributes seven things to the audit:
 | --- | --- |
 | **Skills** | Step-by-step audit workflows the agent follows |
 | **Guidelines** | Principles that govern every finding (evidence-first, read-only, no severity inflation) |
-| **Rules** | 61 audit criteria across 6 core domains, describing what to look for and what evidence is required |
+| **Rules** | 75 audit criteria across 6 core domains, describing what to look for and what evidence is required |
 | **Context collectors** | 11 read-only tools that provide deterministic Laravel facts (routes, models, schema, etc.) |
 | **MCP server** | A bridge that lets a supported AI agent call the context tools directly |
 | **Finding schema** | A structured format for findings with severity, confidence, evidence, and recommendations |
@@ -494,6 +494,21 @@ Audit this application for security issues only, using the laravel-audit skill a
 
 Swap the domain and tool list for `database`, `architecture`, or `testing` as needed.
 
+## Performance audit
+
+A deep performance pass that verifies before it reports:
+
+```text
+Audit this application's performance using the laravel-audit-performance skill.
+
+1. Pull project_info, routes, models, database_schema, and jobs_events_schedules first. Identify the hot paths: high-traffic routes, scheduled commands, queue jobs.
+2. Walk each hot path through the skill's pipeline: signal → context → behavior → verification → impact. Investigate N+1 relationship access, materialized aggregates (get()->count()), PHP doing SQL work, queries inside loops, unbounded retrieval, repeated HTTP/storage calls, oversized job payloads, and rendering-path queries — plus Livewire/Filament/Inertia rules where installed.
+3. For every candidate optimization, verify semantic equivalence in this exact usage: check whether the collection is reused elsewhere, whether accessors/casts/custom collection classes change semantics, and whether comparison strictness differs between PHP and SQL. If a pattern has another consumer (e.g. a collection counted AND rendered), it is NOT a finding.
+4. Describe impact by mechanism ("avoids transferring every matching row into PHP") — never invent multipliers or benchmark numbers.
+5. Report findings ranked P0–P3 with severity justified by reach × frequency × amplification. Skip micro-optimizations on bounded data.
+6. Write findings to storage/auditor-findings.json with metadata.impact where evidence allows, then render with auditor:report. Read-only.
+```
+
 ## Focused verification with tool filters
 
 The `routes`, `models`, `database_schema`, and `dependencies` tools accept optional read-only filters. Use them when you are verifying one specific slice instead of exploring:
@@ -676,12 +691,12 @@ The authoritative definitions live in `resources/auditor/rules/*.php`. The human
 
 ## Core domains
 
-0.1.x ships 61 rules across six core domains:
+0.1.x ships 75 rules across six core domains:
 
 | Domain | What it looks for |
 | --- | --- |
 | Security | Authorization, mass assignment, secrets, redirects, file handling, CSRF, XSS, SQL injection, debug exposure |
-| Performance | N+1, request-lifecycle work, indexes, queues, cache only when justified |
+| Performance | N+1, materialized aggregates, PHP-vs-database work, queries in loops, unbounded retrieval, repeated I/O, job payloads, rendering-path queries — always verified for semantic equivalence |
 | Architecture | Boundaries, duplication, unnecessary abstraction — no cargo-cult repositories |
 | Database | Relationship/schema mismatch, destructive migrations, missing FKs |
 | Testing | Missing meaningful coverage, weak tests, missing authorization tests |
@@ -716,6 +731,30 @@ A rule with high severity and high confidence means confirmed instances are typi
 Every rule specifies what evidence is required to support a finding. The agent must produce that evidence. A finding without evidence does not enter the report.
 
 This is the core design constraint. Few high-quality rules beat a noisy catalog. Every shipped rule must meet the evidence-first standard. The package does not execute rules; the agent does.
+
+## Performance auditing
+
+Performance rules are **context-gated**: a suspicious shape alone is not a finding. The agent must walk the pipeline
+
+```text
+Signal → Context → Behavior → Verification → Impact → Finding
+```
+
+before reporting. For example, `User::get()->count()` is flagged (`AUD-PER-008`) only when the collection has no other consumer:
+
+```php
+// Finding: the collection exists only to be counted.
+$total = User::where('active', true)->get()->count();
+
+// NOT a finding: the collection is rendered by the view,
+// so deriving the count from loaded data is the cheapest correct option.
+$users = User::where('active', true)->get();
+$count = $users->count();
+```
+
+Every optimization recommendation must be verified as semantically equivalent for this exact usage — collection reuse, accessors and casts, comparison strictness, custom collection classes, and model requirements all gate the rewrite. Findings describe impact by mechanism ("avoids transferring every matching row into PHP"), never with invented multipliers.
+
+The `laravel-audit-performance` skill carries the full methodology, severity guidance, and checklist; `guidelines/performance.md` defines the finding contract.
 
 ## Writing custom rules
 

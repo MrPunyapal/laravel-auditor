@@ -1,12 +1,12 @@
 # Scope
 
-This document defines what Laravel Auditor v0.1.0 includes, what it intentionally defers, and the boundaries it respects.
+This document defines what Laravel Auditor's current 0.1.x release includes, what it intentionally defers, and the boundaries it respects.
 
 ## What Laravel Auditor is
 
 Laravel Auditor provides an AI coding agent with a repeatable, evidence-based audit methodology for Laravel applications. It supplies deterministic project context, structured findings, a rule catalog, and an orchestration skill. The agent remains the reasoning engine; the package supplies the workflow.
 
-## v0.1.0 scope
+## Current 0.1.x scope
 
 ### Source
 
@@ -15,13 +15,13 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Service provider | Singleton bindings, config merge, publish tags, command registration, Boost MCP registration |
 | Context collectors | 11 read-only collectors: project info, routes, models, migrations, database schema, dependencies, configuration, authorization, jobs/events/schedules, tests, subsystems |
 | MCP server | stdio MCP server exposing the 11 collectors as read-only tools; automatic Boost integration via `boost.mcp.tools.include` |
-| Audit rules | 61 evidence-first rules across 6 core domains (security, performance, architecture, database, testing, conventions) |
+| Audit rules | 75 evidence-first rules across 6 core domains (security, performance, architecture, database, testing, conventions), including a deep performance catalog (AUD-PER-008–018) with context-gated, semantic-equivalence-verified optimization rules |
 | Ecosystem rule packs | Livewire, Filament, Inertia, Sanctum, Pest — applied only when the target package is installed. Queue and DSA rules always apply. |
 | Findings | `Finding`, `FindingCollection`, `FindingLoader`, JSON schemas (`finding.schema.json`, `report.schema.json`), example findings file |
 | Reports | Markdown, JSON, CLI text, and SARIF renderers; `auditor:report` and `auditor:ci` commands |
 | Artisan commands | `auditor:install`, `auditor:status`, `auditor:rules`, `auditor:report`, `auditor:context`, `auditor:ci`, `auditor:mcp` |
 | Installer | Idempotent standalone installer with `--dry-run`, `--force`, `--agents` options; wires only selected, configured, or detected agents; writes adapters only when missing |
-| Agent resources | 9 skills (8 audit + setup), 3 guidelines, 2 schemas, 1 example file — published via `vendor:publish` or `auditor:install` |
+| Agent resources | 9 skills (8 audit + setup), 4 guidelines, 2 schemas, 1 example file — published via `vendor:publish` or `auditor:install` |
 | Facades | `LaravelAuditor` facade exposing `collect()`, `rules()`, `context()`, and `project()` |
 | Configuration | `config/laravel-auditor.php` with domains, extra rule directories, standalone resource target, agent list, context options |
 | Documentation site | Docsmith-based docs deployed to GitHub Pages with OG images, sitemap, and per-page metadata |
@@ -36,7 +36,7 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Static analysis | PHPStan level 7 via Larastan, 100% type coverage, Pint clean |
 | CI matrix | 24 combinations across OS, PHP, Laravel, stability |
 
-## What is NOT in scope for v0.1.0
+## What is NOT in scope for 0.1.x
 
 These items are intentionally deferred. They may appear in future releases.
 
