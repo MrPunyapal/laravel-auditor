@@ -68,7 +68,7 @@ Work through the areas relevant to this application. Use context tools (`routes`
 
 ### Database and Eloquent
 
-- Materialized aggregates: `get()->count()/sum()/avg()/min()/max()`, `get()->exists()`, `get()->first()` where the collection has no other consumer (`AUD-PER-008`).
+- Materialized aggregates: `get()->count()/sum()/avg()/min()/max()`, `get()->isEmpty()/isNotEmpty()`, `get()->first()` where the collection has no other consumer (`AUD-PER-008`).
 - PHP doing database work: filtering, sorting, slicing, or deduplication of freshly queried rows that SQL could do (`AUD-PER-009`).
 - Relationship counts/existence answered by loading rows: `$post->comments->count()`, `->isNotEmpty()` vs `withCount()`/`withExists()`/`->relation()->count()` (`AUD-PER-010`).
 - Queries inside loops: per-item lookups, counts, writes without bulk forms (`AUD-PER-011`).
@@ -102,7 +102,7 @@ Work through the areas relevant to this application. Use context tools (`routes`
 ### Rendering
 
 - Queries inside Blade loops/components, expensive helpers recomputed per iteration, stable values recomputed per render without caching (`AUD-PER-017`).
-- Livewire: per-render/update queries, unmemoized computed properties, oversized public properties serialized every cycle (`AUD-LW-003`).
+- Livewire: per-render/update queries, computed properties that re-query on each subsequent update (they are memoized within a single request), oversized public properties serialized every cycle (`AUD-LW-003`).
 - Filament: select options loading whole tables, per-row closures querying, counts without `withCount` (`AUD-FIL-003`).
 - Inertia: shared props computed eagerly on every response including pages that never use them (`AUD-IN-003`).
 

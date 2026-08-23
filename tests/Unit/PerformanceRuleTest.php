@@ -7,6 +7,9 @@ use LaravelAuditor\Audit\Enums\AuditDomain;
 use LaravelAuditor\Audit\Rules\RuleDefinition;
 use LaravelAuditor\Audit\Rules\RuleRegistry;
 
+/**
+ * Builds the rule registry over the package's built-in catalog.
+ */
 function performanceRuleRegistry(): RuleRegistry
 {
     return new RuleRegistry(

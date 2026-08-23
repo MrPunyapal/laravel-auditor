@@ -1,12 +1,12 @@
 # Scope
 
-This document defines what Laravel Auditor v0.1.0 includes, what it intentionally defers, and the boundaries it respects.
+This document defines what Laravel Auditor's current 0.1.x release includes, what it intentionally defers, and the boundaries it respects.
 
 ## What Laravel Auditor is
 
 Laravel Auditor provides an AI coding agent with a repeatable, evidence-based audit methodology for Laravel applications. It supplies deterministic project context, structured findings, a rule catalog, and an orchestration skill. The agent remains the reasoning engine; the package supplies the workflow.
 
-## v0.1.0 scope
+## Current 0.1.x scope
 
 ### Source
 
@@ -36,7 +36,7 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Static analysis | PHPStan level 7 via Larastan, 100% type coverage, Pint clean |
 | CI matrix | 24 combinations across OS, PHP, Laravel, stability |
 
-## What is NOT in scope for v0.1.0
+## What is NOT in scope for 0.1.x
 
 These items are intentionally deferred. They may appear in future releases.
 

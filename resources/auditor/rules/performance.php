@@ -162,7 +162,7 @@ return [
         'domain' => 'performance',
         'severity' => 'medium',
         'confidence' => 'medium',
-        'description' => 'A query materializes its results (`get()`, `all()`, full-model `pluck()`) and immediately reduces them to a scalar (`count()`, `exists()`/`isNotEmpty()`, `first()`, `sum()`, `avg()`, `min()`, `max()`) even though the collection has no other consumer in the scope.',
+        'description' => 'A query materializes its results (`get()`, `all()`, full-model `pluck()`) and immediately reduces them to a scalar (`count()`, `isEmpty()`/`isNotEmpty()`, `first()`, `sum()`, `avg()`, `min()`, `max()`) even though the collection has no other consumer in the scope.',
         'why_it_matters' => 'Every matching row is transferred from the database and hydrated into models only to be collapsed into one value. Query-level equivalents (`->count()`, `->exists()`, `->first()`, `->sum()`, aggregate expressions) let the database return a single result instead of every row.',
         'recommendation' => 'Replace the materialize-then-reduce sequence with the query-level equivalent when — and only when — the collection is not used elsewhere. If the collection is also rendered, returned, or transformed, keep it and derive the aggregate from the already-loaded data rather than issuing a second query.',
         'evidence' => [

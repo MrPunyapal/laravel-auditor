@@ -55,7 +55,7 @@ return [
         'confidence' => 'medium',
         'description' => 'HandleInertiaRequests::share() computes expensive values (counts, menus, permission maps, dashboards) eagerly on every Inertia response — including responses whose pages never use them — or shares payloads large enough to dominate response size.',
         'why_it_matters' => 'Shared props are evaluated for every Inertia render of every page. Expensive eager shares turn into a fixed tax on all traffic; oversized shares inflate every payload.',
-        'recommendation' => 'Mark props the current page may not need as lazy (`Inertia::lazy()`), compose heavy data per page instead of globally, and keep shared data to a small explicit subset. Verify pages actually use each eagerly-shared value before recommending changes.',
+        'recommendation' => 'Mark props the current page may not need as partial-reload-only (`Inertia::optional()`; `Inertia::lazy()` on Inertia v1/v2), compose heavy data per page instead of globally, and keep shared data to a small explicit subset. Verify pages actually use each eagerly-shared value before recommending changes.',
         'evidence' => [
             'The share() callback and the work it performs per response.',
             'Which pages consume each shared prop (or proof they do not).',
@@ -63,7 +63,7 @@ return [
         ],
         'false_positive_considerations' => [
             'Small stable values (auth user subset, flash messages) are the intended use.',
-            'Lazy props only resolve when requested; an expensive lazy prop is not automatically a problem.',
+            'Partial-reload props (`Inertia::optional()`) only resolve when requested; an expensive optional prop is not automatically a problem.',
             'Partial reloads may legitimately rely on shared props being present.',
         ],
         'references' => [
