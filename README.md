@@ -80,7 +80,7 @@ Do not run `auditor:install` just to duplicate Boost setup. Boost consumes `reso
 php artisan auditor:install --agents=claude_code
 ```
 
-Pass the agent you actually use (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`). Interactive runs ask. Non-interactive runs with no `--agents`, no config, and no project markers wire nothing.
+Pass the agent you actually use (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `dsh`, `codex`, `junie`, `zed`). Interactive runs ask. Non-interactive runs with no `--agents`, no config, and no project markers wire nothing.
 
 The installer is idempotent and safe. It:
 
@@ -103,7 +103,7 @@ php artisan auditor:install --force
 php artisan auditor:install --agents=opencode,claude_code
 ```
 
-`--agents` restricts wiring to the listed agent keys (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`). Non-interactive runs resolve agents from `--agents`, then `laravel-auditor.agents` config, then project detection. When none of those resolve, no agents are wired.
+`--agents` restricts wiring to the listed agent keys (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `dsh`, `codex`, `junie`, `zed`). Non-interactive runs resolve agents from `--agents`, then `laravel-auditor.agents` config, then project detection. When none of those resolve, no agents are wired.
 
 `--force` refreshes Auditor-owned resources. It does not overwrite unrelated user-owned files unless you explicitly ask it to refresh an existing adapter.
 

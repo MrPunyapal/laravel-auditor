@@ -35,6 +35,7 @@ function auditorCleanupInstallArtifacts(): void
         '.cursor',
         '.github',
         '.gemini',
+        '.dsh',
         '.codex',
         '.junie',
         '.zed',
@@ -194,6 +195,53 @@ it('detects Copilot from copilot-instructions.md', function () {
     expect(file_exists(base_path('.github/skills/laravel-audit/SKILL.md')))->toBeTrue();
     expect(file_exists(base_path('.vscode/mcp.json')))->toBeTrue();
     expect((string) file_get_contents(base_path('.github/copilot-instructions.md')))->toBe("# Existing Copilot instructions\n");
+});
+
+it('wires skills, adapter, and the cordis overlay for DSH', function () {
+    auditorCleanupInstallArtifacts();
+
+    $this->artisan('auditor:install', ['--agents' => ['dsh'], '--no-interaction' => true])
+        ->expectsOutputToContain('dsh --patch .dsh/laravel-auditor.cordis.yml')
+        ->assertSuccessful();
+
+    expect(file_exists(base_path('.dsh/skills/laravel-audit/SKILL.md')))->toBeTrue();
+    expect((string) file_get_contents(base_path('AGENTS.md')))->toContain('<!-- laravel-auditor -->');
+
+    $overlay = (string) file_get_contents(base_path('.dsh/laravel-auditor.cordis.yml'));
+    expect($overlay)->toContain('serverName: laravel_auditor');
+    expect($overlay)->toContain("args: ['artisan', 'auditor:mcp', '-q']");
+
+    expect(file_exists(base_path('CLAUDE.md')))->toBeFalse();
+    expect(file_exists(base_path('.mcp.json')))->toBeFalse();
+});
+
+it('detects DSH from a .dsh directory', function () {
+    auditorCleanupInstallArtifacts();
+
+    mkdir(base_path('.dsh'), 0777, true);
+
+    $this->artisan('auditor:install', ['--no-interaction' => true])
+        ->assertSuccessful();
+
+    expect(file_exists(base_path('.dsh/skills/laravel-audit/SKILL.md')))->toBeTrue();
+    expect(file_exists(base_path('.dsh/laravel-auditor.cordis.yml')))->toBeTrue();
+});
+
+it('does not overwrite an existing DSH overlay without force', function () {
+    auditorCleanupInstallArtifacts();
+
+    mkdir(base_path('.dsh'), 0777, true);
+    file_put_contents(base_path('.dsh/laravel-auditor.cordis.yml'), "user-edited\n");
+
+    $this->artisan('auditor:install', ['--agents' => ['dsh'], '--no-interaction' => true])
+        ->assertSuccessful();
+
+    expect((string) file_get_contents(base_path('.dsh/laravel-auditor.cordis.yml')))->toBe("user-edited\n");
+
+    $this->artisan('auditor:install', ['--agents' => ['dsh'], '--force' => true, '--no-interaction' => true])
+        ->assertSuccessful();
+
+    expect((string) file_get_contents(base_path('.dsh/laravel-auditor.cordis.yml')))->toContain('serverName: laravel_auditor');
 });
 
 it('does not overwrite an existing laravel-auditor mcp entry without force', function () {

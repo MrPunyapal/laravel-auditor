@@ -60,7 +60,7 @@ return [
     | Agents configured when `auditor:install` runs non-interactively. When
     | empty, the installer detects agents from project markers. When nothing
     | is configured or detected, no agents are wired. Accepted values:
-    | opencode, claude_code, cursor, copilot, gemini, codex, junie, zed.
+    | opencode, claude_code, cursor, copilot, gemini, dsh, codex, junie, zed.
     |
     */
 

@@ -59,7 +59,7 @@
 <p>When Boost is absent, <code>auditor:install --agents=claude_code</code> (or your agent) handles the wiring. It publishes skills, guidelines, and schemas to <code>.ai/</code>, writes agent adapter files, and registers the MCP server for agents that support it.</p>
 <p>Both paths produce the same audit knowledge — they just deliver it differently.</p>
 <h2 id="supported-agents">Supported agents</h2>
-<p>The standalone installer supports eight agents:</p>
+<p>The standalone installer supports nine agents:</p>
 <div class="table-scroll"><table>
 <thead>
 <tr>
@@ -101,6 +101,12 @@
 <td>—</td>
 </tr>
 <tr>
+<td>DeepSeek Harness</td>
+<td><code>AGENTS.md</code></td>
+<td><code>.dsh/skills</code></td>
+<td><code>.dsh/laravel-auditor.cordis.yml</code> (patch overlay)</td>
+</tr>
+<tr>
 <td>Codex</td>
 <td><code>AGENTS.md</code></td>
 <td><code>.agents/skills</code></td>
@@ -120,7 +126,7 @@
 </tr>
 </tbody>
 </table></div>
-<p>Gemini does not support MCP. All other agents receive MCP registration when the installer runs.</p>
+<p>Gemini does not support MCP. DeepSeek Harness has no project-local MCP config file: the installer publishes a cordis patch overlay instead — start DSH with <code>dsh --patch .dsh/laravel-auditor.cordis.yml</code>. DSH also discovers <code>.dsh/skills</code> and <code>AGENTS.md</code> from the project root without any configuration. All other agents receive MCP registration when the installer runs.</p>
 <h2 id="what-an-adapter-file-contains">What an adapter file contains</h2>
 <p>An adapter is a short file that tells the agent where to find the audit skill and guidelines. For example, the <code>CLAUDE.md</code> adapter contains:</p>
 <pre class="phiki language-markdown github-light phiki-themes github-dark" data-language="markdown" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #005cc5;font-weight: bold;--phiki-dark-color: #79b8ff;--phiki-dark-font-weight: bold;">#</span><span class="token" style="color: #005cc5;font-weight: bold;--phiki-dark-color: #79b8ff;--phiki-dark-font-weight: bold;"> </span><span class="token" style="color: #6f42c1;font-weight: bold;--phiki-dark-color: #b392f0;--phiki-dark-font-weight: bold;">Laravel Auditor</span><span class="token" style="color: #005cc5;font-weight: bold;--phiki-dark-color: #79b8ff;--phiki-dark-font-weight: bold;">

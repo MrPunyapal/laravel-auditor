@@ -390,7 +390,7 @@ Both paths produce the same audit knowledge — they just deliver it differently
 
 ## Supported agents
 
-The standalone installer supports eight agents:
+The standalone installer supports nine agents:
 
 | Agent | Guidelines | Skills | MCP |
 | --- | --- | --- | --- |
@@ -399,11 +399,12 @@ The standalone installer supports eight agents:
 | Cursor | `.cursor/rules/laravel-auditor.mdc` | `.cursor/skills` | `.cursor/mcp.json` |
 | GitHub Copilot | `.github/copilot-instructions.md` | `.github/skills` | `.vscode/mcp.json` |
 | Gemini CLI | `GEMINI.md` | `.gemini/skills` | — |
+| DeepSeek Harness | `AGENTS.md` | `.dsh/skills` | `.dsh/laravel-auditor.cordis.yml` (patch overlay) |
 | Codex | `AGENTS.md` | `.agents/skills` | `.codex/config.toml` |
 | Junie | `AGENTS.md` | `.junie/skills` | `.junie/mcp/mcp.json` |
 | Zed | `AGENTS.md` | `.agents/skills` | `.zed/settings.json` |
 
-Gemini does not support MCP. All other agents receive MCP registration when the installer runs.
+Gemini does not support MCP. DeepSeek Harness has no project-local MCP config file: the installer publishes a cordis patch overlay instead — start DSH with `dsh --patch .dsh/laravel-auditor.cordis.yml`. DSH also discovers `.dsh/skills` and `AGENTS.md` from the project root without any configuration. All other agents receive MCP registration when the installer runs.
 
 ## What an adapter file contains
 

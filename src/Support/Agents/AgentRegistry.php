@@ -73,6 +73,16 @@ final class AgentRegistry
                 mcpConfigKey: 'mcp_servers',
                 detectPaths: ['.codex'],
             ),
+            'dsh' => new Agent(
+                name: 'dsh',
+                displayName: 'DeepSeek Harness',
+                guidelinesPath: 'AGENTS.md',
+                skillsPath: '.dsh/skills',
+                // DSH has no project-local MCP config file; the installer
+                // publishes a cordis patch overlay instead (see installer).
+                mcpConfigPath: null,
+                detectPaths: ['.dsh'],
+            ),
             'junie' => new Agent(
                 name: 'junie',
                 displayName: 'Junie',

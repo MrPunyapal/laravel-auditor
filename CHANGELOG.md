@@ -2,6 +2,10 @@
 
 ## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.5...HEAD)
 
+### Added
+
+- DeepSeek Harness (`dsh`) agent support in the standalone installer. DSH discovers `.dsh/skills` and `AGENTS.md` from the project root without configuration; since it has no project-local MCP config file, the installer publishes a cordis patch overlay (`.dsh/laravel-auditor.cordis.yml`) that mounts the MCP server via `dsh --patch .dsh/laravel-auditor.cordis.yml`. Detection via an existing `.dsh` directory.
+
 ## [v0.1.5](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.4...v0.1.5) - 2026-08-23
 
 ### Added

@@ -32,7 +32,7 @@ class AuditorInstallCommand extends Command
     protected $signature = 'auditor:install
         {--force : Overwrite existing Auditor-owned resources}
         {--dry-run : Show what would be created without writing anything}
-        {--agents=* : Agents to configure (opencode, claude_code, cursor, copilot, gemini, codex, junie, zed)}';
+        {--agents=* : Agents to configure (opencode, claude_code, cursor, copilot, gemini, dsh, codex, junie, zed)}';
 
     /**
      * The command description.
@@ -82,6 +82,7 @@ class AuditorInstallCommand extends Command
             foreach ($agents as $agent) {
                 [$created, $updated] = $this->writeAdapter($this->guidelinesPath($agent), $dryRun, $force, $created, $updated);
                 [$created, $updated] = $this->copySkills($agent, $dryRun, $force, $created, $updated);
+                [$created, $updated] = $this->publishDshOverlay($agent, $dryRun, $force, $created, $updated);
             }
 
             [$created, $updated, $skipped] = $this->prepareMcp($agents, $dryRun, $force, $created, $updated, $skipped);
@@ -345,6 +346,41 @@ class AuditorInstallCommand extends Command
 
             $created[] = $this->relative($to.DIRECTORY_SEPARATOR.'SKILL.md');
         }
+
+        return [$created, $updated];
+    }
+
+    /**
+     * DSH mounts MCP servers through a cordis patch overlay instead of a
+     * JSON/TOML config file; publish the static overlay next to the skills.
+     *
+     * @param  list<string>  $created
+     * @param  list<string>  $updated
+     * @return array{list<string>, list<string>}
+     */
+    private function publishDshOverlay(Agent $agent, bool $dryRun, bool $force, array $created, array $updated): array
+    {
+        if ($agent->name !== 'dsh') {
+            return [$created, $updated];
+        }
+
+        $source = __DIR__.'/../../../resources/auditor/mcp/dsh.cordis.yml';
+        $to = base_path('.dsh/laravel-auditor.cordis.yml');
+
+        $this->components->twoColumnDetail('MCP server', 'DSH overlay — start with `dsh --patch .dsh/laravel-auditor.cordis.yml`');
+
+        if ($this->files->exists($to) && ! $force) {
+            $updated[] = $this->relative($to);
+
+            return [$created, $updated];
+        }
+
+        if (! $dryRun) {
+            $this->files->ensureDirectoryExists(dirname($to));
+            $this->files->copy($source, $to);
+        }
+
+        $created[] = $this->relative($to);
 
         return [$created, $updated];
     }

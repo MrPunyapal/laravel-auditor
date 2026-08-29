@@ -1,0 +1,19 @@
+# Laravel Auditor MCP server as a DeepSeek Harness (DSH) cordis patch overlay.
+#
+# DSH has no project-local MCP config file; MCP servers mount through a patch
+# layer instead. Start DSH from the application root with:
+#
+#   dsh --patch .dsh/laravel-auditor.cordis.yml [...]
+#
+# The tools then appear as mcp__laravel_auditor__<tool> (project_info, routes,
+# models, database_schema, ...). Without this overlay the audit skills still
+# work through the artisan commands (auditor:status, auditor:context, ...).
+- insert:
+    - id: laravel-auditor-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: laravel_auditor
+        transport: stdio
+        command: php
+        args: ['artisan', 'auditor:mcp', '-q']
+        cwd: !!js process.cwd()
