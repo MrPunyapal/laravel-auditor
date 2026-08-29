@@ -156,7 +156,57 @@ a {
     color: var(--accent);
 }
 
-.version-switcher {
+.hub-switcher {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.hub-select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0.52rem 2.1rem 0.52rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 0.65rem;
+    background: var(--panel);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hub-select:hover {
+    border-color: var(--accent);
+}
+
+.hub-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.hub-switcher::after {
+    content: '';
+    position: absolute;
+    right: 0.7rem;
+    width: 0.65rem;
+    height: 0.65rem;
+    pointer-events: none;
+    background-color: var(--muted);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.version-pills {
     display: flex;
     align-items: center;
     gap: 0.3rem;
@@ -722,6 +772,17 @@ li + li {
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;
+}
+
+.doc-body img,
+.doc-body video {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+}
+
+.doc-body audio {
+    width: 100%;
 }
 
 pre {

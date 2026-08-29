@@ -17,6 +17,16 @@ document.addEventListener('DOMContentLoaded', function () {
         document.documentElement.setAttribute('data-docsmith-theme', theme);
     };
 
+    var hubSelect = document.querySelector('[data-docsmith-hub-select]');
+
+    if (hubSelect) {
+        hubSelect.addEventListener('change', function () {
+            if (this.value !== '') {
+                window.location.href = this.value;
+            }
+        });
+    }
+
     var savedTheme = null;
 
     try {
