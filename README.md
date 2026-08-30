@@ -90,7 +90,7 @@ The installer is idempotent and safe. It:
 - asks which AI agent(s) the project uses (non-interactive runs resolve from `--agents`, then `laravel-auditor.agents` config, then project detection)
 - writes thin `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, Cursor, Copilot, Codex, Junie, and Zed adapters only when those files are missing
 - copies the `laravel-audit` skill into the selected agent's native skills directory
-- registers the `laravel-auditor` MCP server in the selected agent's config (except Gemini)
+- registers the `laravel-auditor` MCP server in the selected agent's config (except Gemini; DeepSeek Harness gets a `.dsh/laravel-auditor.cordis.yml` patch overlay instead — start with `dsh --patch .dsh/laravel-auditor.cordis.yml`)
 - publishes finding/report schemas and an example findings file
 - publishes `config/laravel-auditor.php` when it is missing
 - reports what it created or left unchanged

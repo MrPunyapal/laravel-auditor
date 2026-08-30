@@ -369,7 +369,9 @@ class AuditorInstallCommand extends Command
 
         $this->components->twoColumnDetail('MCP server', 'DSH overlay — start with `dsh --patch .dsh/laravel-auditor.cordis.yml`');
 
-        if ($this->files->exists($to) && ! $force) {
+        $exists = $this->files->exists($to);
+
+        if ($exists && ! $force) {
             $updated[] = $this->relative($to);
 
             return [$created, $updated];
@@ -380,7 +382,11 @@ class AuditorInstallCommand extends Command
             $this->files->copy($source, $to);
         }
 
-        $created[] = $this->relative($to);
+        if ($exists) {
+            $updated[] = $this->relative($to);
+        } else {
+            $created[] = $this->relative($to);
+        }
 
         return [$created, $updated];
     }
