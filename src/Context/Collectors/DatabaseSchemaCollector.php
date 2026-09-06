@@ -232,19 +232,33 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
      */
     private function foreignKeys(Connection $connection, string $table): array
     {
-        $rows = $connection->getSchemaBuilder()->getForeignKeys($table);
+        $keys = [];
 
-        return array_map(static function (array $row): array {
-            return [
+        foreach ($connection->getSchemaBuilder()->getForeignKeys($table) as $row) {
+            $columns = [];
+
+            foreach ($row['columns'] as $column) {
+                $columns[] = (string) $column;
+            }
+
+            $foreignColumns = [];
+
+            foreach ($row['foreign_columns'] as $column) {
+                $foreignColumns[] = (string) $column;
+            }
+
+            $keys[] = [
                 'name' => is_string($row['name'] ?? null) ? $row['name'] : null,
-                'columns' => array_map('strval', $row['columns']),
+                'columns' => $columns,
                 'foreign_schema' => is_string($row['foreign_schema'] ?? null) ? $row['foreign_schema'] : null,
                 'foreign_table' => (string) $row['foreign_table'],
-                'foreign_columns' => array_map('strval', $row['foreign_columns']),
+                'foreign_columns' => $foreignColumns,
                 'on_update' => is_string($row['on_update'] ?? null) ? $row['on_update'] : null,
                 'on_delete' => is_string($row['on_delete'] ?? null) ? $row['on_delete'] : null,
             ];
-        }, $rows);
+        }
+
+        return $keys;
     }
 
     private function quoteIdentifier(string $value): string
