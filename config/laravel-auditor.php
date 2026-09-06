@@ -59,12 +59,41 @@ return [
     |
     | Agents configured when `auditor:install` runs non-interactively. When
     | empty, the installer detects agents from project markers. When nothing
-    | is configured or detected, no agents are wired. Accepted values:
-    | opencode, claude_code, cursor, copilot, gemini, codex, junie, zed.
+    | is configured or detected, no agents are wired. Accepted values are
+    | built-in keys (opencode, claude_code, cursor, copilot, gemini, codex,
+    | junie, zed) or any key from custom_agents.
     |
     */
 
     'agents' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Agents
+    |--------------------------------------------------------------------------
+    |
+    | Additional standalone installer targets beyond the built-in Boost-aligned
+    | agents. Each entry uses the same shape the installer already understands:
+    | a guidelines file, a native skills directory, optional JSON or TOML MCP
+    | config, and project markers used for detection. Use this for any agent
+    | that is not in the built-in list.
+    |
+    | MCP auto-registration only writes JSON or TOML files. Leave
+    | mcp_config_path empty when the agent has no project-local MCP config.
+    |
+    */
+
+    'custom_agents' => [
+        // 'my_agent' => [
+        //     'display_name' => 'My Agent',
+        //     'guidelines_path' => 'AGENTS.md',
+        //     'skills_path' => '.my-agent/skills',
+        //     'mcp_config_path' => '.my-agent/mcp.json',
+        //     'mcp_config_key' => 'mcpServers',
+        //     'detect_files' => [],
+        //     'detect_paths' => ['.my-agent'],
+        // ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

@@ -22,7 +22,7 @@ You are auditing the Laravel application in this project using the Laravel Audit
    - routes — the full route surface
    - models — all models with fillable/guarded, casts, relationships
    - migrations — schema changes over time
-   - database_schema — actual tables/columns/indexes
+   - database_schema — actual tables/columns/indexes/foreign keys
    - dependencies — installed packages and versions
    - configuration — config keys in use
    - policies_authorization — gates, policies, auth middleware

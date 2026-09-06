@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use LaravelAuditor\Audit\Rules\RuleRegistry;
 use LaravelAuditor\Context\Collectors\AuthorizationCollector;
 use LaravelAuditor\Context\Collectors\ConfigurationCollector;
@@ -118,6 +120,7 @@ it('keeps composer audit on and test listing off in the packaged defaults', func
 
     expect($defaults['context']['composer_audit'])->toBeTrue();
     expect($defaults['context']['test_listing'])->toBeFalse();
+    expect($defaults['custom_agents'])->toBe([]);
 });
 
 it('reports the composer audit disabled by configuration', function () {
@@ -199,14 +202,115 @@ it('parses the test runner listing into feature/unit/total counts', function () 
     ]);
 });
 
+it('includes foreign keys in the database schema payload', function () {
+    $data = app(DatabaseSchemaCollector::class)->collect();
+
+    if (($data['available'] ?? false) !== true) {
+        $this->markTestSkipped('No database is available in this environment.');
+    }
+
+    Schema::dropIfExists('auditor_fk_child');
+    Schema::dropIfExists('auditor_fk_parent');
+
+    Schema::create('auditor_fk_parent', function (Blueprint $table): void {
+        $table->id();
+    });
+
+    Schema::create('auditor_fk_child', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('auditor_fk_parent_id')->constrained('auditor_fk_parent')->cascadeOnDelete();
+    });
+
+    try {
+        $data = app(DatabaseSchemaCollector::class)->collect();
+        $child = collect($data['tables'])->firstWhere('name', 'auditor_fk_child');
+        $parent = collect($data['tables'])->firstWhere('name', 'auditor_fk_parent');
+
+        expect($child)->toBeArray()
+            ->and($child)->toHaveKey('foreign_keys')
+            ->and($parent['foreign_keys'] ?? null)->toBe([]);
+
+        $fk = collect($child['foreign_keys'])->first(
+            fn (array $row): bool => in_array('auditor_fk_parent_id', $row['columns'], true),
+        );
+
+        expect($fk)->toBeArray()
+            ->and($fk)->toHaveKeys(['name', 'columns', 'foreign_schema', 'foreign_table', 'foreign_columns', 'on_update', 'on_delete'])
+            ->and($fk['foreign_table'])->toBe('auditor_fk_parent')
+            ->and($fk['foreign_columns'])->toContain('id')
+            ->and(strtolower((string) $fk['on_delete']))->toBe('cascade');
+    } finally {
+        Schema::dropIfExists('auditor_fk_child');
+        Schema::dropIfExists('auditor_fk_parent');
+    }
+});
+
+it('reports foreign keys through auditor:context', function () {
+    $data = app(DatabaseSchemaCollector::class)->collect();
+
+    if (($data['available'] ?? false) !== true) {
+        $this->markTestSkipped('No database is available in this environment.');
+    }
+
+    if (! Schema::hasTable('users')) {
+        Schema::create('users', function (Blueprint $table): void {
+            $table->id();
+        });
+    }
+
+    Schema::dropIfExists('posts');
+    Schema::create('posts', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+        $table->string('title');
+        $table->text('body')->nullable();
+        $table->timestamps();
+    });
+
+    $path = sys_get_temp_dir().DIRECTORY_SEPARATOR.'auditor-schema-'.uniqid().'.json';
+
+    try {
+        $this->artisan('auditor:context', [
+            'collector' => 'database_schema',
+            '--output' => $path,
+        ])->assertSuccessful();
+
+        $payload = json_decode((string) file_get_contents($path), true);
+        $posts = collect($payload['tables'] ?? [])->firstWhere('name', 'posts');
+
+        expect($payload['available'])->toBeTrue()
+            ->and($posts)->toBeArray()
+            ->and($posts)->toHaveKey('foreign_keys');
+
+        $fk = collect($posts['foreign_keys'])->first(
+            fn (array $row): bool => in_array('user_id', $row['columns'], true),
+        );
+
+        expect($fk)->toBeArray()
+            ->and($fk)->toHaveKeys(['name', 'columns', 'foreign_schema', 'foreign_table', 'foreign_columns', 'on_update', 'on_delete'])
+            ->and($fk['columns'])->toBe(['user_id'])
+            ->and($fk['foreign_table'])->toBe('users')
+            ->and($fk['foreign_columns'])->toContain('id')
+            ->and(strtolower((string) $fk['on_delete']))->toBe('cascade');
+    } finally {
+        if (is_file($path)) {
+            unlink($path);
+        }
+
+        Schema::dropIfExists('posts');
+    }
+});
+
 it('collects the database schema read-only', function () {
     $data = app(DatabaseSchemaCollector::class)->collect();
 
     expect($data)->toHaveKey('available');
 
     if ($data['available']) {
-        expect($data)->toHaveKeys(['driver', 'connection', 'tables']);
+        expect($data)->toHaveKeys(['driver', 'connection', 'database', 'tables']);
         expect($data['tables'])->toBeArray();
+        expect($data['database'])->toBe(app('db')->connection()->getDatabaseName());
+        expect($data['tables'])->each->toHaveKeys(['name', 'columns', 'indexes', 'foreign_keys']);
     } else {
         expect($data)->toHaveKey('reason');
     }

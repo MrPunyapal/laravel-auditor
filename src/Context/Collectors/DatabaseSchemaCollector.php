@@ -29,7 +29,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
 
     public function description(): string
     {
-        return 'Read the database schema: tables, columns, types, and indexes (read-only). Optional filter: table (substring).';
+        return 'Read the database schema: tables, columns, types, indexes, and foreign keys (read-only). Optional filter: table (substring).';
     }
 
     public function filters(): array
@@ -68,6 +68,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
             'available' => true,
             'driver' => $driver,
             'connection' => $connection->getName(),
+            'database' => $connection->getDatabaseName(),
             'tables' => $tables,
         ];
     }
@@ -130,6 +131,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
                     'name' => (string) $table,
                     'columns' => $this->columns($connection, (string) $table, $driver),
                     'indexes' => $this->indexes($connection, (string) $table, $driver),
+                    'foreign_keys' => $this->foreignKeys($connection, (string) $table),
                 ];
             }
 
@@ -137,18 +139,26 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
         }
 
         $schema = $connection->getSchemaBuilder();
+        $listing = $schema->getCurrentSchemaListing();
 
-        foreach ($schema->getTables() as $row) {
+        if (! self::hasSchemaScope($listing)) {
+            return [];
+        }
+
+        foreach ($schema->getTables($listing) as $row) {
             $table = (string) $row['name'];
 
             if ($table === '') {
                 continue;
             }
 
+            $qualified = $row['schema_qualified_name'];
+
             $tables[] = [
                 'name' => $table,
-                'columns' => $this->columns($connection, $table, $driver),
-                'indexes' => $this->indexes($connection, $table, $driver),
+                'columns' => $this->columns($connection, $qualified, $driver),
+                'indexes' => $this->indexes($connection, $qualified, $driver),
+                'foreign_keys' => $this->foreignKeys($connection, $qualified),
             ];
         }
 
@@ -217,8 +227,42 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
         }, $rows);
     }
 
+    /**
+     * @return list<array{name: string|null, columns: list<string>, foreign_schema: string|null, foreign_table: string, foreign_columns: list<string>, on_update: string|null, on_delete: string|null}>
+     */
+    private function foreignKeys(Connection $connection, string $table): array
+    {
+        $rows = $connection->getSchemaBuilder()->getForeignKeys($table);
+
+        return array_map(static function (array $row): array {
+            return [
+                'name' => is_string($row['name'] ?? null) ? $row['name'] : null,
+                'columns' => array_map('strval', $row['columns']),
+                'foreign_schema' => is_string($row['foreign_schema'] ?? null) ? $row['foreign_schema'] : null,
+                'foreign_table' => (string) $row['foreign_table'],
+                'foreign_columns' => array_map('strval', $row['foreign_columns']),
+                'on_update' => is_string($row['on_update'] ?? null) ? $row['on_update'] : null,
+                'on_delete' => is_string($row['on_delete'] ?? null) ? $row['on_delete'] : null,
+            ];
+        }, $rows);
+    }
+
     private function quoteIdentifier(string $value): string
     {
         return '"'.str_replace('"', '""', $value).'"';
+    }
+
+    /**
+     * Whether getTables() should be called for this schema listing.
+     *
+     * An empty listing means the connection has no current schema and must
+     * not fall through to an unscoped catalog query. On MySQL that query
+     * returns every visible database except the system schemas.
+     *
+     * @param  array<string>|null  $listing
+     */
+    public static function hasSchemaScope(?array $listing): bool
+    {
+        return $listing !== [];
     }
 }

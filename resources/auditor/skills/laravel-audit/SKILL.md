@@ -37,7 +37,7 @@ Gather deterministic project facts first. When Artisan is available, start with 
 - `project_info`: Laravel version, PHP version, database engine, ecosystem packages, architecture signals.
 - `routes`: registered routes and their handlers.
 - `models`: models, tables, fillable/guarded, casts, relationships.
-- `database_schema`: tables, columns, types, indexes (read-only).
+- `database_schema`: tables, columns, types, indexes, and foreign keys (read-only).
 - `dependencies`: composer packages and versions.
 - `configuration`: config keys and safe values.
 - `policies_authorization`: gates, policies, middleware.

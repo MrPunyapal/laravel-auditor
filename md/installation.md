@@ -84,6 +84,8 @@ When run interactively, the installer asks which AI agents to configure (pre-sel
 
 When none of those resolve, no agents are wired. Re-run with `--agents` to attach skills and MCP for a specific tool. A `.github` or `.vscode` directory alone is not treated as Copilot.
 
+Unknown `--agents` values are skipped with a warning. To wire an agent that is not in the built-in list, add it under `laravel-auditor.custom_agents` and pass that key to `--agents`. See [Agent setup](/agents/).
+
 ### Options
 
 ```bash

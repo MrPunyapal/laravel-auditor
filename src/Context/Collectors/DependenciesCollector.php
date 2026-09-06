@@ -134,7 +134,14 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
         $output = json_decode($process->getOutput(), true);
 
         if (! is_array($output)) {
-            return ['available' => false, 'reason' => 'composer audit produced no parseable JSON output'];
+            return [
+                'available' => false,
+                'reason' => self::composerAuditFailureReason(
+                    $process->getExitCode(),
+                    $process->getOutput(),
+                    $process->getErrorOutput(),
+                ),
+            ];
         }
 
         $advisories = [];
@@ -162,6 +169,41 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
             'count' => count($advisories),
             'advisories' => $advisories,
         ];
+    }
+
+    /**
+     * Explain a failed `composer audit --format=json` run using the process
+     * exit code and stderr, so agents do not treat a network or Composer
+     * error as a JSON parsing problem.
+     */
+    public static function composerAuditFailureReason(?int $exitCode, string $stdout, string $stderr): string
+    {
+        $exit = $exitCode ?? -1;
+        $stderr = self::truncateDiagnostic($stderr);
+
+        if ($stderr !== '') {
+            return "composer audit failed (exit {$exit}): {$stderr}";
+        }
+
+        $stdout = self::truncateDiagnostic($stdout);
+
+        if ($stdout !== '') {
+            return "composer audit produced no parseable JSON output (exit {$exit}): {$stdout}";
+        }
+
+        return "composer audit produced no parseable JSON output (exit {$exit})";
+    }
+
+    private static function truncateDiagnostic(string $value, int $limit = 300): string
+    {
+        $normalized = preg_replace('/\s+/', ' ', trim($value));
+        $value = is_string($normalized) ? $normalized : trim($value);
+
+        if (strlen($value) <= $limit) {
+            return $value;
+        }
+
+        return rtrim(substr($value, 0, $limit - 3)).'...';
     }
 
     /**

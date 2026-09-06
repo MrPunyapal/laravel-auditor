@@ -181,6 +181,8 @@ When run interactively, the installer asks which AI agents to configure (pre-sel
 
 When none of those resolve, no agents are wired. Re-run with `--agents` to attach skills and MCP for a specific tool. A `.github` or `.vscode` directory alone is not treated as Copilot.
 
+Unknown `--agents` values are skipped with a warning. To wire an agent that is not in the built-in list, add it under `laravel-auditor.custom_agents` and pass that key to `--agents`. See [Agent setup](/agents/).
+
 ### Options
 
 ```bash
@@ -358,7 +360,8 @@ Key settings:
 - `domains` — which audit domains are advertised in reports
 - `rules` — additional directories containing rule definition files
 - `resources_target` — where the standalone installer publishes agent resources (default: `.ai`)
-- `agents` — default agents for non-interactive installation
+- `agents` — default agents for non-interactive installation (built-in keys or `custom_agents` keys)
+- `custom_agents` — additional installer targets for agents that are not in the built-in list
 - `context.composer_audit` — enable the `composer audit` call from the dependencies collector (on by default; it hits the network and waits up to 60 seconds per collection, so set `false` to skip the shell-out when context collection must stay fully offline or fast)
 - `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
 - `report.format` — default format for `auditor:report`
@@ -404,6 +407,34 @@ The standalone installer supports eight agents:
 | Zed | `AGENTS.md` | `.agents/skills` | `.zed/settings.json` |
 
 Gemini does not support MCP. All other agents receive MCP registration when the installer runs.
+
+## Custom agents
+
+The built-in list stays aligned with Laravel Boost. For any other agent, add an entry under `custom_agents` in `config/laravel-auditor.php` instead of waiting for a first-class installer target.
+
+```php
+'custom_agents' => [
+    'my_agent' => [
+        'display_name' => 'My Agent',
+        'guidelines_path' => 'AGENTS.md',
+        'skills_path' => '.my-agent/skills',
+        'mcp_config_path' => '.my-agent/mcp.json',
+        'mcp_config_key' => 'mcpServers',
+        'detect_files' => [],
+        'detect_paths' => ['.my-agent'],
+    ],
+],
+```
+
+Then wire it like any built-in agent:
+
+```bash
+php artisan auditor:install --agents=my_agent
+```
+
+You can also put the custom key in `laravel-auditor.agents` for non-interactive installs, or let detection pick it up from `detect_files` / `detect_paths`.
+
+`mcp_config_path` is optional. The installer only auto-registers MCP when that path is a JSON or TOML file. If the agent uses a different config format, omit the path, install skills and guidelines, and register MCP yourself.
 
 ## What an adapter file contains
 
@@ -457,7 +488,7 @@ You are auditing the Laravel application in this project using the Laravel Audit
    - routes — the full route surface
    - models — all models with fillable/guarded, casts, relationships
    - migrations — schema changes over time
-   - database_schema — actual tables/columns/indexes
+   - database_schema — actual tables/columns/indexes/foreign keys
    - dependencies — installed packages and versions
    - configuration — config keys in use
    - policies_authorization — gates, policies, auth middleware
@@ -582,7 +613,7 @@ A client configuration example lives in `resources/auditor/mcp/mcp.json.example`
 | `routes` | Methods, URIs, names, actions, middleware |
 | `models` | Tables, fillable/guarded, casts, relationships |
 | `migrations` | Migration files |
-| `database_schema` | Tables, columns, indexes (read-only) |
+| `database_schema` | Tables, columns, indexes, and foreign keys (read-only) |
 | `dependencies` | Direct Composer requirements and versions |
 | `configuration` | Config keys and a small set of non-secret values |
 | `policies_authorization` | Gates, policies, auth middleware |

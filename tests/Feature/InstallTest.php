@@ -16,6 +16,7 @@ function auditorCleanupInstallArtifacts(): void
         'AGENTS.md',
         'CLAUDE.md',
         'GEMINI.md',
+        'MYAGENT.md',
         'opencode.json',
         'opencode.jsonc',
         '.mcp.json',
@@ -39,6 +40,7 @@ function auditorCleanupInstallArtifacts(): void
         '.junie',
         '.zed',
         '.vscode',
+        '.my-agent',
     ] as $directory) {
         $files->deleteDirectory(base_path($directory));
     }
@@ -285,6 +287,130 @@ it('prompts for agents when interactive', function () {
     expect(file_exists(base_path('CLAUDE.md')))->toBeTrue();
     expect(file_exists(base_path('.mcp.json')))->toBeTrue();
     expect(file_exists(base_path('opencode.json')))->toBeFalse();
+});
+
+it('wires a custom agent from configuration', function () {
+    auditorCleanupInstallArtifacts();
+
+    config()->set('laravel-auditor.custom_agents', [
+        'my_agent' => [
+            'display_name' => 'My Agent',
+            'guidelines_path' => 'MYAGENT.md',
+            'skills_path' => '.my-agent/skills',
+            'mcp_config_path' => '.my-agent/mcp.json',
+            'mcp_config_key' => 'mcpServers',
+            'detect_paths' => ['.my-agent'],
+        ],
+    ]);
+
+    $this->artisan('auditor:install', ['--agents' => ['my_agent'], '--no-interaction' => true])
+        ->assertSuccessful();
+
+    expect(file_exists(base_path('.my-agent/skills/laravel-audit/SKILL.md')))->toBeTrue();
+    expect((string) file_get_contents(base_path('MYAGENT.md')))->toContain('<!-- laravel-auditor -->');
+
+    $config = json_decode((string) file_get_contents(base_path('.my-agent/mcp.json')), true);
+    expect($config['mcpServers']['laravel-auditor']['command'])->toBe('php');
+    expect($config['mcpServers']['laravel-auditor']['args'])->toBe(['artisan', 'auditor:mcp', '-q']);
+    expect(file_exists(base_path('opencode.json')))->toBeFalse();
+});
+
+it('detects a custom agent from its project markers', function () {
+    auditorCleanupInstallArtifacts();
+
+    mkdir(base_path('.my-agent'), 0777, true);
+
+    config()->set('laravel-auditor.custom_agents', [
+        'my_agent' => [
+            'display_name' => 'My Agent',
+            'guidelines_path' => 'MYAGENT.md',
+            'skills_path' => '.my-agent/skills',
+            'detect_paths' => ['.my-agent'],
+        ],
+    ]);
+
+    $this->artisan('auditor:install', ['--no-interaction' => true])
+        ->assertSuccessful();
+
+    expect(file_exists(base_path('.my-agent/skills/laravel-audit/SKILL.md')))->toBeTrue();
+    expect(file_exists(base_path('MYAGENT.md')))->toBeTrue();
+    expect(file_exists(base_path('.my-agent/mcp.json')))->toBeFalse();
+});
+
+it('uses a custom agent from the configured agents list', function () {
+    auditorCleanupInstallArtifacts();
+
+    config()->set('laravel-auditor.custom_agents', [
+        'my_agent' => [
+            'display_name' => 'My Agent',
+            'guidelines_path' => 'MYAGENT.md',
+            'skills_path' => '.my-agent/skills',
+        ],
+    ]);
+    config()->set('laravel-auditor.agents', ['my_agent']);
+
+    $this->artisan('auditor:install', ['--no-interaction' => true])
+        ->assertSuccessful();
+
+    expect(file_exists(base_path('.my-agent/skills/laravel-audit/SKILL.md')))->toBeTrue();
+    expect(file_exists(base_path('CLAUDE.md')))->toBeFalse();
+});
+
+it('does not auto-register mcp for a custom agent without a json or toml config path', function () {
+    auditorCleanupInstallArtifacts();
+
+    config()->set('laravel-auditor.custom_agents', [
+        'my_agent' => [
+            'display_name' => 'My Agent',
+            'guidelines_path' => 'MYAGENT.md',
+            'skills_path' => '.my-agent/skills',
+            'mcp_config_path' => '.my-agent/overlay.yml',
+        ],
+    ]);
+
+    $this->artisan('auditor:install', ['--agents' => ['my_agent'], '--no-interaction' => true])
+        ->assertSuccessful();
+
+    expect(file_exists(base_path('.my-agent/skills/laravel-audit/SKILL.md')))->toBeTrue();
+    expect(file_exists(base_path('.my-agent/overlay.yml')))->toBeFalse();
+    expect(file_exists(base_path('.my-agent/mcp.json')))->toBeFalse();
+});
+
+it('warns about unknown agent names instead of treating them as built-in targets', function () {
+    auditorCleanupInstallArtifacts();
+
+    $this->artisan('auditor:install', ['--agents' => ['dsh'], '--no-interaction' => true])
+        ->expectsOutputToContain('Unknown agent(s): dsh')
+        ->expectsOutputToContain('No agents selected')
+        ->assertSuccessful();
+
+    expect(file_exists(base_path('.dsh')))->toBeFalse();
+    expect(file_exists(base_path('AGENTS.md')))->toBeFalse();
+});
+
+it('includes custom agents in the interactive prompt', function () {
+    auditorCleanupInstallArtifacts();
+
+    config()->set('laravel-auditor.custom_agents', [
+        'my_agent' => [
+            'display_name' => 'My Agent',
+            'guidelines_path' => 'MYAGENT.md',
+            'skills_path' => '.my-agent/skills',
+        ],
+    ]);
+
+    $options = collect(AgentRegistry::all())
+        ->mapWithKeys(fn ($agent): array => [$agent->name => $agent->displayName])
+        ->all();
+
+    expect($options)->toHaveKey('my_agent');
+
+    $this->artisan('auditor:install')
+        ->expectsChoice('Which AI agents would you like to configure?', ['my_agent'], $options)
+        ->assertSuccessful();
+
+    expect(file_exists(base_path('.my-agent/skills/laravel-audit/SKILL.md')))->toBeTrue();
+    expect(file_exists(base_path('MYAGENT.md')))->toBeTrue();
 });
 
 it('does not copy standalone resources when Boost is installed', function () {

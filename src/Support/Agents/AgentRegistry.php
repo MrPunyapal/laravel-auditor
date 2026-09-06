@@ -9,8 +9,9 @@ use Illuminate\Support\Collection;
 /**
  * Registry of AI agents the standalone installer can target.
  *
- * Mirrors the agents supported by Laravel Boost so a project wired with
- * either tool ends up with equivalent skills, guidelines, and MCP config.
+ * Built-in rows mirror the agents supported by Laravel Boost. Additional
+ * targets come from `laravel-auditor.custom_agents` so a project can wire
+ * any agent that reads guidelines, skills, or MCP config files.
  */
 final class AgentRegistry
 {
@@ -18,6 +19,14 @@ final class AgentRegistry
      * @return array<string, Agent>
      */
     public static function all(): array
+    {
+        return array_merge(self::builtIn(), self::custom());
+    }
+
+    /**
+     * @return array<string, Agent>
+     */
+    public static function builtIn(): array
     {
         return [
             'opencode' => new Agent(
@@ -91,6 +100,97 @@ final class AgentRegistry
                 detectPaths: ['.zed'],
             ),
         ];
+    }
+
+    /**
+     * @return array<string, Agent>
+     */
+    public static function custom(): array
+    {
+        $configured = config('laravel-auditor.custom_agents', []);
+
+        if (! is_array($configured)) {
+            return [];
+        }
+
+        $agents = [];
+
+        foreach ($configured as $name => $definition) {
+            $agent = self::fromConfig((string) $name, is_array($definition) ? $definition : []);
+
+            if ($agent instanceof Agent) {
+                $agents[$agent->name] = $agent;
+            }
+        }
+
+        return $agents;
+    }
+
+    /**
+     * @param  array<string, mixed>  $definition
+     */
+    public static function fromConfig(string $name, array $definition): ?Agent
+    {
+        $name = trim($name);
+
+        if ($name === '') {
+            return null;
+        }
+
+        $guidelines = self::stringValue($definition['guidelines_path'] ?? null);
+        $skills = self::stringValue($definition['skills_path'] ?? null);
+
+        if ($guidelines === '' || $skills === '') {
+            return null;
+        }
+
+        $mcp = self::stringValue($definition['mcp_config_path'] ?? null);
+        $mcp = $mcp !== '' ? $mcp : null;
+
+        $mcpKey = self::stringValue($definition['mcp_config_key'] ?? null);
+        $display = self::stringValue($definition['display_name'] ?? null);
+
+        return new Agent(
+            name: $name,
+            displayName: $display !== '' ? $display : $name,
+            guidelinesPath: $guidelines,
+            skillsPath: $skills,
+            mcpConfigPath: $mcp,
+            mcpConfigKey: $mcpKey !== '' ? $mcpKey : 'mcpServers',
+            detectFiles: self::stringList($definition['detect_files'] ?? []),
+            detectPaths: self::stringList($definition['detect_paths'] ?? []),
+        );
+    }
+
+    private static function stringValue(mixed $value): string
+    {
+        return is_string($value) ? trim($value) : '';
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function stringList(mixed $value): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $items = [];
+
+        foreach ($value as $item) {
+            if (! is_string($item)) {
+                continue;
+            }
+
+            $item = trim($item);
+
+            if ($item !== '') {
+                $items[] = $item;
+            }
+        }
+
+        return $items;
     }
 
     public static function find(string $name): ?Agent

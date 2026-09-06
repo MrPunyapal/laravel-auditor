@@ -32,7 +32,7 @@ class AuditorInstallCommand extends Command
     protected $signature = 'auditor:install
         {--force : Overwrite existing Auditor-owned resources}
         {--dry-run : Show what would be created without writing anything}
-        {--agents=* : Agents to configure (opencode, claude_code, cursor, copilot, gemini, codex, junie, zed)}';
+        {--agents=* : Agents to configure (built-in keys, or names from laravel-auditor.custom_agents)}';
 
     /**
      * The command description.
@@ -141,14 +141,31 @@ class AuditorInstallCommand extends Command
         $explicit = $this->agentsOption();
 
         if ($explicit !== []) {
-            return AgentRegistry::resolve($explicit);
+            return $this->resolvedAgents($explicit);
         }
 
         $names = $this->input->isInteractive()
             ? $this->promptForAgents()
             : $this->defaultAgents();
 
-        return AgentRegistry::resolve($names);
+        return $this->resolvedAgents($names);
+    }
+
+    /**
+     * @param  list<string>  $names
+     * @return Collection<int, Agent>
+     */
+    private function resolvedAgents(array $names): Collection
+    {
+        $resolved = AgentRegistry::resolve($names);
+        $known = $resolved->map(fn (Agent $agent): string => $agent->name)->all();
+        $unknown = array_values(array_unique(array_diff($names, $known)));
+
+        if ($unknown !== []) {
+            $this->components->warn('Unknown agent(s): '.implode(', ', $unknown).'. See custom_agents.');
+        }
+
+        return $resolved;
     }
 
     /**

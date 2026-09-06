@@ -42,6 +42,34 @@ The standalone installer supports eight agents:
 
 Gemini does not support MCP. All other agents receive MCP registration when the installer runs.
 
+## Custom agents
+
+The built-in list stays aligned with Laravel Boost. For any other agent, add an entry under `custom_agents` in `config/laravel-auditor.php` instead of waiting for a first-class installer target.
+
+```php
+'custom_agents' => [
+    'my_agent' => [
+        'display_name' => 'My Agent',
+        'guidelines_path' => 'AGENTS.md',
+        'skills_path' => '.my-agent/skills',
+        'mcp_config_path' => '.my-agent/mcp.json',
+        'mcp_config_key' => 'mcpServers',
+        'detect_files' => [],
+        'detect_paths' => ['.my-agent'],
+    ],
+],
+```
+
+Then wire it like any built-in agent:
+
+```bash
+php artisan auditor:install --agents=my_agent
+```
+
+You can also put the custom key in `laravel-auditor.agents` for non-interactive installs, or let detection pick it up from `detect_files` / `detect_paths`.
+
+`mcp_config_path` is optional. The installer only auto-registers MCP when that path is a JSON or TOML file. If the agent uses a different config format, omit the path, install skills and guidelines, and register MCP yourself.
+
 ## What an adapter file contains
 
 An adapter is a short file that tells the agent where to find the audit skill and guidelines. For example, the `CLAUDE.md` adapter contains:

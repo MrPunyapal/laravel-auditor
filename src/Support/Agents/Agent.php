@@ -30,6 +30,12 @@ final readonly class Agent
 
     public function supportsMcp(): bool
     {
-        return $this->mcpConfigPath !== null;
+        if ($this->mcpConfigPath === null) {
+            return false;
+        }
+
+        $path = strtolower($this->mcpConfigPath);
+
+        return str_ends_with($path, '.json') || str_ends_with($path, '.toml');
     }
 }

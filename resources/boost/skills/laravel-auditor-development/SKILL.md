@@ -46,7 +46,7 @@ php artisan auditor:install --agents=claude_code,opencode
 
 The installer is idempotent and safe. It detects the Laravel application context, detects whether Boost is installed, prepares Auditor's agent-facing resources, and reports what it created or updated.
 
-Non-interactive runs resolve agents from `--agents`, then `laravel-auditor.agents`, then project markers. When none of those resolve, no agents are wired. A `.github` directory alone is not treated as Copilot. Pass `--force` to refresh Auditor-owned resources, including an existing `laravel-auditor` MCP entry.
+Non-interactive runs resolve agents from `--agents`, then `laravel-auditor.agents`, then project markers. When none of those resolve, no agents are wired. A `.github` directory alone is not treated as Copilot. Unknown `--agents` values warn and are skipped. To wire an agent that is not in the built-in list, add it under `laravel-auditor.custom_agents`. Pass `--force` to refresh Auditor-owned resources, including an existing `laravel-auditor` MCP entry.
 
 ### 3. Verify setup
 
@@ -98,7 +98,7 @@ With Laravel Boost installed, the same context tools are registered automaticall
 - Reports: `php artisan auditor:report` (`--findings=`, `--example`, `--format=markdown|json|text|sarif`, `--output=`)
 - CI: `php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high`
 - Facade: `LaravelAuditor::collect('routes')`, `LaravelAuditor::rules()`, `LaravelAuditor::context()`, `LaravelAuditor::project()`
-- Config: `resources_target`, `agents`, `context.composer_audit` (on), `context.test_listing` (off)
+- Config: `resources_target`, `agents`, `custom_agents`, `context.composer_audit` (on), `context.test_listing` (off)
 - Config publish tag: `laravel-auditor-config`
 - Resource publish tag: `laravel-auditor-resources`
 - Schema publish tag: `laravel-auditor-schema`

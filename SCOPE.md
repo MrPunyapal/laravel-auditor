@@ -23,7 +23,7 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Installer | Idempotent standalone installer with `--dry-run`, `--force`, `--agents` options; wires only selected, configured, or detected agents; writes adapters only when missing |
 | Agent resources | 9 skills (8 audit + setup), 4 guidelines, 2 schemas, 1 example file — published via `vendor:publish` or `auditor:install` |
 | Facades | `LaravelAuditor` facade exposing `collect()`, `rules()`, `context()`, and `project()` |
-| Configuration | `config/laravel-auditor.php` with domains, extra rule directories, standalone resource target, agent list, context options |
+| Configuration | `config/laravel-auditor.php` with domains, extra rule directories, standalone resource target, agent list, custom agents, context options |
 | Documentation site | Docsmith-based docs deployed to GitHub Pages with OG images, sitemap, and per-page metadata |
 | CI | 24-job matrix (Ubuntu + Windows, PHP 8.3/8.4/8.5, Laravel 12/13, prefer-lowest/stable), PHPStan, Pint, type coverage, Pest |
 

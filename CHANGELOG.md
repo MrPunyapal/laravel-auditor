@@ -1,6 +1,18 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.5...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.6...HEAD)
+
+## [v0.1.6](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.5...v0.1.6) - 2026-09-06
+
+### Added
+
+- `custom_agents` config for additional standalone installer targets. Describe any agent with a guidelines file, skills directory, optional JSON/TOML MCP path, and detection markers instead of waiting for a first-class built-in. Unknown `--agents` values warn and are skipped.
+- `database_schema` now includes each table's foreign keys (`name`, `columns`, `foreign_schema`, `foreign_table`, `foreign_columns`, `on_update`, `on_delete`) so agents can verify constraints instead of inferring them from migrations.
+
+### Fixed
+
+- `database_schema` now scopes tables to the connection's current schema listing. On MySQL, Laravel's unscoped `getTables()` returns every visible database except system schemas; column and index lookups now use the schema-qualified table name.
+- `dependencies.composer_audit` failure reasons now include the process exit code and a trimmed stderr snippet, so a network or Composer error is not reported as "no parseable JSON output".
 
 ## [v0.1.5](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.4...v0.1.5) - 2026-08-23
 

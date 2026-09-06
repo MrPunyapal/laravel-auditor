@@ -33,7 +33,7 @@ A client configuration example lives in `resources/auditor/mcp/mcp.json.example`
 | `routes` | Methods, URIs, names, actions, middleware |
 | `models` | Tables, fillable/guarded, casts, relationships |
 | `migrations` | Migration files |
-| `database_schema` | Tables, columns, indexes (read-only) |
+| `database_schema` | Tables, columns, indexes, and foreign keys (read-only) |
 | `dependencies` | Direct Composer requirements and versions |
 | `configuration` | Config keys and a small set of non-secret values |
 | `policies_authorization` | Gates, policies, auth middleware |

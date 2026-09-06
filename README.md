@@ -80,7 +80,7 @@ Do not run `auditor:install` just to duplicate Boost setup. Boost consumes `reso
 php artisan auditor:install --agents=claude_code
 ```
 
-Pass the agent you actually use (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`). Interactive runs ask. Non-interactive runs with no `--agents`, no config, and no project markers wire nothing.
+Pass the agent you actually use (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`, or a key from `custom_agents`). Interactive runs ask. Non-interactive runs with no `--agents`, no config, and no project markers wire nothing.
 
 The installer is idempotent and safe. It:
 
@@ -103,7 +103,7 @@ php artisan auditor:install --force
 php artisan auditor:install --agents=opencode,claude_code
 ```
 
-`--agents` restricts wiring to the listed agent keys (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`). Non-interactive runs resolve agents from `--agents`, then `laravel-auditor.agents` config, then project detection. When none of those resolve, no agents are wired.
+`--agents` restricts wiring to the listed agent keys (`opencode`, `claude_code`, `cursor`, `copilot`, `gemini`, `codex`, `junie`, `zed`, or a `custom_agents` key). Non-interactive runs resolve agents from `--agents`, then `laravel-auditor.agents` config, then project detection. When none of those resolve, no agents are wired. Unknown names are skipped with a warning.
 
 `--force` refreshes Auditor-owned resources. It does not overwrite unrelated user-owned files unless you explicitly ask it to refresh an existing adapter.
 
@@ -170,7 +170,7 @@ The agent should:
 >    - `routes` — the full route surface
 >    - `models` — all models with fillable/guarded, casts, relationships
 >    - `migrations` — schema changes over time
->    - `database_schema` — actual tables/columns/indexes
+>    - `database_schema` — actual tables/columns/indexes/foreign keys
 >    - `dependencies` — installed packages and versions
 >    - `configuration` — config keys in use
 >    - `policies_authorization` — gates, policies, auth middleware
@@ -277,7 +277,7 @@ Tools:
 | `routes` | Methods, URIs, names, actions, middleware |
 | `models` | Tables, fillable/guarded, casts, relationships |
 | `migrations` | Migration files |
-| `database_schema` | Tables, columns, indexes (read-only) |
+| `database_schema` | Tables, columns, indexes, and foreign keys (read-only) |
 | `dependencies` | Direct Composer requirements and versions |
 | `configuration` | Config keys and a small set of non-secret values |
 | `policies_authorization` | Gates, policies, auth middleware |
@@ -341,6 +341,16 @@ return [
     ],
     'resources_target' => '.ai',
     'agents' => [],
+    'custom_agents' => [
+        // 'my_agent' => [
+        //     'display_name' => 'My Agent',
+        //     'guidelines_path' => 'AGENTS.md',
+        //     'skills_path' => '.my-agent/skills',
+        //     'mcp_config_path' => '.my-agent/mcp.json',
+        //     'mcp_config_key' => 'mcpServers',
+        //     'detect_paths' => ['.my-agent'],
+        // ],
+    ],
     'context' => [
         'composer_audit' => true,
         'test_listing' => false,

@@ -24,7 +24,7 @@ php artisan auditor:rules --domain=database --applicable
 - Inefficient relationships: relationship definitions that force expensive queries.
 - Suspicious migrations: destructive operations, deadlocks, or migrations that drop data without a path back.
 - Duplicate data modeling: the same fact stored in multiple tables/columns.
-- Bad foreign key choices: missing FKs, wrong ON DELETE behavior, or FKs to the wrong tables.
+- Bad foreign key choices: missing FKs, wrong ON DELETE behavior, or FKs to the wrong tables. Use `database_schema` `foreign_keys` (not only migrations) as the source of truth.
 - Nullable/non-nullable mismatches where they create risk.
 - Query inefficiencies: full-table scans on large tables, missing index coverage for common filters.
 - Relationship definitions inconsistent with schema or usage: `foreignId` that does not match the relationship, missing pivot table indexes, etc.
