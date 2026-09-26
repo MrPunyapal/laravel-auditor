@@ -24,7 +24,7 @@ php artisan auditor:rules --domain=architecture --applicable
 - Excessive controller responsibility: controllers doing far more than orchestrating HTTP.
 - Business logic in inappropriate layers: rules embedded in views, middleware, or migrations.
 - Oversized class or long method (`AUD-ARC-006`): one controller action, job `handle()`, Livewire component, or model mixing several responsibilities. Use Extract Method / Extract Class.
-- Primitive obsession, data clumps, or long parameter lists (`AUD-ARC-007`): the same 4+ scalars travelling together in two or more places. Use Introduce Parameter Object / Replace Primitive with Object (enum, value object, DTO, form request).
+- Primitive obsession, data clumps, or long parameter lists (`AUD-ARC-007`): the same 4+ scalars travelling together in two or more places, or the same loose values repeatedly validated or formatted at several call sites. Use Introduce Parameter Object / Replace Primitive with Object (enum, value object, DTO, form request).
 - Adding a variant requires editing core code (`AUD-ARC-008`): copied type-tag switches or hardcoded built-in lists where one new provider, format, or handler touches several files. Use Replace Conditional with Polymorphism (single registry or map; plain array is enough).
 - Feature envy, message chains, or inappropriate intimacy (`AUD-ARC-009`): `$order->user->profile->...` chains or repeated reaches into foreign state. Use Move Method / Hide Delegate. Trace the full path and state what happens when an intermediate link is null or unloaded.
 - Dead code or speculative generality (`AUD-ARC-010`): unused classes, methods, Blade components, routes, or config keys; abstractions added for a future that never arrived. Delete; do not deprecate unreleased speculation.

@@ -216,10 +216,11 @@ return [
         'recommendation' => 'Delete the dead unit and its tests, docs, and config entries. Prefer deletion over deprecation for unreleased speculative code.',
         'evidence' => [
             'The dead definition with file and line references.',
-            'Grep proof of zero references across source, tests, routes, config, Blade views, and docs, allowing for route or DI auto-wiring, events, policies, and string-based lookups.',
+            'Grep proof of zero runtime references across source, routes, config, and Blade views, allowing for route or DI auto-wiring, events, policies, and string-based lookups; plus a search across tests and docs to assess public use and plan cleanup.',
         ],
         'false_positive_considerations' => [
             'Framework conventions (route auto-wiring, policies, gates, event listeners, Blade components, queued jobs, scheduled commands) and the public package API are live callers even without a direct PHP reference.',
+            'Test-only or documentation-only references do not disqualify dead code; they mark tests and docs for deletion alongside the dead unit.',
             'Recently added code awaiting its first caller is not dead; require evidence it was abandoned.',
             'Do not report commented-out blocks as dead code without checking history; report them as comments only when they mislead.',
         ],
