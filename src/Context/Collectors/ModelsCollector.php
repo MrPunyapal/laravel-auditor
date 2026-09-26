@@ -138,7 +138,7 @@ final class ModelsCollector implements ContextCollector, FilterableCollector
     }
 
     /**
-     * @return list<string>
+     * @return list<class-string<Model>>
      */
     private function discoverModels(): array
     {
@@ -159,6 +159,7 @@ final class ModelsCollector implements ContextCollector, FilterableCollector
                 $class = $this->classFromFile($file->getPathname());
 
                 if ($class !== null && $this->isEloquentModel($class)) {
+                    /** @var class-string<Model> $class */
                     $models[] = $class;
                 }
             }
@@ -193,12 +194,11 @@ final class ModelsCollector implements ContextCollector, FilterableCollector
     }
 
     /**
+     * @param  class-string<Model>  $class
      * @return array<string, mixed>
      */
     private function inspect(string $class): array
     {
-        assert(is_a($class, Model::class, true));
-
         $reflection = new ReflectionClass($class);
         /** @var Model $model */
         $model = $reflection->newInstanceWithoutConstructor();
