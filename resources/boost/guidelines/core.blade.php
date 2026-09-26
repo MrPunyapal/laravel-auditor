@@ -43,3 +43,4 @@ Use the `laravel-audit` skill when asked to audit or review a Laravel applicatio
 - Never claim exploitability without sufficient evidence.
 - Read-only by default: never modify application code during an audit.
 - Few high-quality findings over noisy volume.
+- Name the consequence and the refactoring technique; dead-code and duplication claims need grep proof across source, tests, routes, config, views, and docs.

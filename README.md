@@ -123,7 +123,7 @@ The current 0.1.x catalog focuses on six domains. The package does **not** execu
 | --- | --- |
 | Security | Authorization gaps, mass assignment, sensitive data, unsafe redirects, file handling, committed secrets, debug exposure |
 | Performance | N+1 risks, materialized aggregates, PHP-vs-database work, queries in loops, unbounded retrieval, repeated HTTP/storage I/O, job payloads, rendering-path queries, Livewire/Filament/Inertia hot paths |
-| Architecture | Boundary violations, duplicated logic, unnecessary abstractions — without cargo-cult repository/service advice |
+| Architecture | Boundary violations, duplicated logic, code smells, coupling, dead code — without cargo-cult repository/service advice |
 | Database | Schema/relationship mismatches, destructive migrations, nullability risks |
 | Testing | Missing meaningful coverage, weak tests, missing authorization tests |
 | Laravel conventions | Version-inappropriate APIs, reinvented framework features, lifecycle misuse |
@@ -138,7 +138,7 @@ php artisan auditor:rules --domain=security
 php artisan auditor:rules --json
 ```
 
-0.1.x ships **75** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, and Pest packs that only apply when those packages are installed. Queue and DSA rules always apply. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
+0.1.x ships **81** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, and Pest packs that only apply when those packages are installed. Queue and DSA rules always apply. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
 
 Performance rules verify before they report: `AUD-PER-008` (materialized aggregates) and every other optimization rule requires the agent to confirm semantic equivalence - for example, `User::query()->get()->count()` is only flagged when the materialized collection has no other consumer; a collection that is also rendered must not be rewritten into a second query. See the `laravel-audit-performance` skill for the methodology.
 

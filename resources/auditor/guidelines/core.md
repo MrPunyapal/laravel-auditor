@@ -18,6 +18,7 @@ Laravel Auditor equips an AI coding agent with a specialized, evidence-based met
 8. **Style preferences are never high severity.** Keep them at `low` or `info`, or omit them.
 9. **Read-only by default.** Auditing must never modify application code.
 10. **Few high-quality rules over noisy volume.** A focused, trustworthy report is the product.
+11. **Name the consequence and the fix.** Architecture and code-smell findings must state what breaks (wrong result, missed variant, hidden failure, or the named places one change must touch) and name the refactoring technique (Extract Method, Introduce Parameter Object, Replace Conditional with Polymorphism, Move Method, Hide Delegate). Dead-code and duplication claims need grep proof across source, tests, routes, config, views, and docs, allowing for framework auto-wiring and string-based lookups.
 
 ## Severity and confidence
 
