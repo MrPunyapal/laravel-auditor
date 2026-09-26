@@ -15,7 +15,7 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Service provider | Singleton bindings, config merge, publish tags, command registration, Boost MCP registration |
 | Context collectors | 11 read-only collectors: project info, routes, models, migrations, database schema, dependencies, configuration, authorization, jobs/events/schedules, tests, subsystems |
 | MCP server | stdio MCP server exposing the 11 collectors as read-only tools; automatic Boost integration via `boost.mcp.tools.include` |
-| Audit rules | 75 evidence-first rules across 6 core domains (security, performance, architecture, database, testing, conventions), including a deep performance catalog (AUD-PER-008–018) with context-gated, semantic-equivalence-verified optimization rules |
+| Audit rules | 81 evidence-first rules across 6 core domains (security, performance, architecture, database, testing, conventions), including a deep performance catalog (AUD-PER-008–018) with context-gated, semantic-equivalence-verified optimization rules and an architecture code-smell catalog (AUD-ARC-006–011) |
 | Ecosystem rule packs | Livewire, Filament, Inertia, Sanctum, Pest — applied only when the target package is installed. Queue and DSA rules always apply. |
 | Findings | `Finding`, `FindingCollection`, `FindingLoader`, JSON schemas (`finding.schema.json`, `report.schema.json`), example findings file |
 | Reports | Markdown, JSON, CLI text, and SARIF renderers; `auditor:report` and `auditor:ci` commands |

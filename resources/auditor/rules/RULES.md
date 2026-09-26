@@ -57,6 +57,12 @@ Performance rules are context-gated by design: `AUD-PER-008` and `AUD-PER-010` e
 | AUD-ARC-003 | Unnecessary abstraction | low | medium |
 | AUD-ARC-004 | Application boundary violation | medium | medium |
 | AUD-ARC-005 | Inconsistent architectural convention | low | medium |
+| AUD-ARC-006 | Oversized class or long method | medium | medium |
+| AUD-ARC-007 | Primitive obsession, data clumps, or long parameter list | low | medium |
+| AUD-ARC-008 | Adding a variant requires editing core code | medium | medium |
+| AUD-ARC-009 | Feature envy, message chains, or inappropriate intimacy | medium | medium |
+| AUD-ARC-010 | Dead code or speculative generality | low | medium |
+| AUD-ARC-011 | Inconsistent sibling contracts or silent extension defaults | low | medium |
 
 ## Database
 
