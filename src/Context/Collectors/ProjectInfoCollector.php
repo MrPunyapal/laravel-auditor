@@ -57,12 +57,12 @@ final class ProjectInfoCollector implements ContextCollector
             'ecosystem' => $this->ecosystem($installed),
             'packages' => $this->notablePackages($installed),
             'paths' => [
-                'app' => $this->relative($this->paths->directories()[0] ?? app_path()),
-                'config' => $this->relative(config_path()),
-                'database' => $this->relative($this->paths->siblings('database')[0] ?? database_path()),
-                'routes' => $this->relative($this->paths->siblings('routes')[0] ?? base_path('routes')),
-                'resources' => $this->relative(resource_path()),
-                'tests' => $this->relative($this->paths->siblings('tests')[0] ?? base_path('tests')),
+                'app' => $this->paths->relativeToBase($this->paths->directories()[0] ?? app_path()),
+                'config' => $this->paths->relativeToBase(config_path()),
+                'database' => $this->paths->relativeToBase($this->paths->siblings('database')[0] ?? database_path()),
+                'routes' => $this->paths->relativeToBase($this->paths->siblings('routes')[0] ?? base_path('routes')),
+                'resources' => $this->paths->relativeToBase(resource_path()),
+                'tests' => $this->paths->relativeToBase($this->paths->siblings('tests')[0] ?? base_path('tests')),
             ],
         ];
     }
@@ -296,21 +296,5 @@ final class ProjectInfoCollector implements ContextCollector
         }
 
         return count($this->files->allFiles($path));
-    }
-
-    private function relative(string $path): string
-    {
-        $base = str_replace('\\', '/', rtrim(base_path(), '/\\'));
-        $path = str_replace('\\', '/', $path);
-
-        if ($path === $base) {
-            return '.';
-        }
-
-        if (str_starts_with($path, $base.'/')) {
-            return substr($path, strlen($base) + 1);
-        }
-
-        return $path;
     }
 }

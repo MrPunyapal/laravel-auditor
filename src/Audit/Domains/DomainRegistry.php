@@ -9,30 +9,18 @@ use LaravelAuditor\Audit\Enums\AuditDomain;
 /**
  * Central registry of the audit domains the package can report on.
  *
- * V1 ships the six core domains. The registry keeps the domain set explicit
- * and easy to extend with future domains without touching the core model.
+ * V1 ships the six core domains. The set is closed: findings, rules, and
+ * renderers all work with the `AuditDomain` enum, so the registry always
+ * reflects the enum rather than an injectable map.
  */
 final class DomainRegistry
 {
-    /**
-     * @var array<string, array{label: string, description: string}>
-     */
-    private array $domains;
-
-    /**
-     * @param  array<string, array{label: string, description: string}>  $domains
-     */
-    public function __construct(array $domains = [])
-    {
-        $this->domains = $domains === [] ? $this->defaultDomains() : $domains;
-    }
-
     /**
      * @return array<string, array{label: string, description: string}>
      */
     public function all(): array
     {
-        return $this->domains;
+        return $this->defaultDomains();
     }
 
     /**
@@ -40,7 +28,7 @@ final class DomainRegistry
      */
     public function keys(): array
     {
-        return array_keys($this->domains);
+        return array_keys($this->all());
     }
 
     /**

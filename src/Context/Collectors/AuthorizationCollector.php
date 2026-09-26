@@ -6,6 +6,7 @@ namespace LaravelAuditor\Context\Collectors;
 
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Routing\Router;
 use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\Support\ApplicationPaths;
 use ReflectionClass;
@@ -23,6 +24,7 @@ final class AuthorizationCollector implements ContextCollector
         private readonly Filesystem $files,
         private readonly ApplicationPaths $paths,
         private readonly ?Gate $gate = null,
+        private readonly ?Router $router = null,
     ) {}
 
     public function name(): string
@@ -128,7 +130,7 @@ final class AuthorizationCollector implements ContextCollector
     private function authMiddleware(): array
     {
         try {
-            $router = app('router');
+            $router = $this->router ?? app('router');
             $alias = $router->getMiddleware();
 
             return array_map('strval', array_keys((array) $alias));
@@ -139,14 +141,6 @@ final class AuthorizationCollector implements ContextCollector
 
     private function resolveGate(): ?Gate
     {
-        if ($this->gate !== null) {
-            return $this->gate;
-        }
-
-        try {
-            return app(Gate::class);
-        } catch (Throwable) {
-            return null;
-        }
+        return $this->gate;
     }
 }

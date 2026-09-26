@@ -26,12 +26,4 @@ class BoostDetector
 
         return InstalledVersions::getPrettyVersion(self::PACKAGE);
     }
-
-    public function supportsThirdPartyResources(): bool
-    {
-        // Boost loads third-party guidelines/skills from resources/boost in
-        // installed packages since v0.x. If Boost is installed, we rely on
-        // its installer consuming our packaged resources.
-        return $this->isInstalled();
-    }
 }

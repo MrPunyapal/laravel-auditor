@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelAuditor\Context;
 
+use Illuminate\Contracts\Config\Repository;
 use LaravelAuditor\Audit\Enums\AuditDomain;
 use LaravelAuditor\Context\Collectors\ProjectInfoCollector;
 
@@ -14,6 +15,7 @@ final class ProjectContext
 {
     public function __construct(
         private readonly ProjectInfoCollector $projectInfo,
+        private readonly Repository $config,
     ) {}
 
     /**
@@ -46,7 +48,7 @@ final class ProjectContext
     public function domainsPresent(): array
     {
         $configured = array_values(array_filter(
-            array_map('strval', (array) config('laravel-auditor.domains', [])),
+            array_map('strval', (array) $this->config->get('laravel-auditor.domains', [])),
             static fn (string $domain): bool => $domain !== '',
         ));
 

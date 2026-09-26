@@ -49,7 +49,7 @@ final class McpToolRegistry
 
         $properties = [];
 
-        foreach ($collector->filters() as $name => $description) {
+        foreach (FilterValidator::properties($collector) as $name => $description) {
             $properties[$name] = [
                 'type' => 'string',
                 'description' => $description,

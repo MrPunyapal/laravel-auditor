@@ -32,6 +32,7 @@ use LaravelAuditor\Context\ProjectContext;
 use LaravelAuditor\MCP\Boost\BoostMcpRegistrar;
 use LaravelAuditor\MCP\McpToolRegistry;
 use LaravelAuditor\Support\BoostDetector;
+use LaravelAuditor\Support\ResourcesTarget;
 
 class LaravelAuditorServiceProvider extends ServiceProvider
 {
@@ -174,8 +175,6 @@ class LaravelAuditorServiceProvider extends ServiceProvider
 
     private function resourcesTarget(): string
     {
-        $target = trim((string) config('laravel-auditor.resources_target', '.ai'), '/\\');
-
-        return $target !== '' ? $target : '.ai';
+        return ResourcesTarget::resolve();
     }
 }

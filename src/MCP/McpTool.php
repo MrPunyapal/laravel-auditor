@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace LaravelAuditor\MCP;
 
-use InvalidArgumentException;
 use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\Context\FilterableCollector;
 use Throwable;
@@ -49,31 +48,7 @@ final class McpTool
      */
     public static function validateFilters(FilterableCollector $collector, array $arguments): array
     {
-        $declared = $collector->filters();
-        $normalized = [];
-
-        foreach ($arguments as $key => $value) {
-            if (! array_key_exists($key, $declared)) {
-                throw new InvalidArgumentException(sprintf(
-                    'Unknown filter [%s] for tool [%s]. Accepted filters: %s.',
-                    $key,
-                    $collector->name(),
-                    implode(', ', array_keys($declared)),
-                ));
-            }
-
-            if ($value === null) {
-                continue;
-            }
-
-            if (is_array($value)) {
-                throw new InvalidArgumentException("Filter [{$key}] must be a single value.");
-            }
-
-            $normalized[$key] = (string) $value;
-        }
-
-        return $normalized;
+        return FilterValidator::validate($collector, $arguments);
     }
 
     /**
@@ -114,14 +89,15 @@ final class McpTool
      */
     private function result(array $arguments): array
     {
-        if ($this->collector instanceof FilterableCollector && $arguments !== []) {
-            $filters = self::validateFilters($this->collector, $arguments);
+        return self::collectWithFilters($this->collector, $arguments);
+    }
 
-            if ($filters !== []) {
-                return $this->collector->collectFiltered($filters);
-            }
-        }
-
-        return $this->collector->collect();
+    /**
+     * @param  array<string, mixed>  $arguments
+     * @return array<string, mixed>
+     */
+    public static function collectWithFilters(ContextCollector $collector, array $arguments): array
+    {
+        return FilterValidator::collectWithFilters($collector, $arguments);
     }
 }
