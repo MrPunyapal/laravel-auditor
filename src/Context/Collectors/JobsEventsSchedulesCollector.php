@@ -21,6 +21,7 @@ final class JobsEventsSchedulesCollector implements ContextCollector
         private readonly Filesystem $files,
         private readonly Dispatcher $events,
         private readonly ApplicationPaths $paths,
+        private readonly ?Schedule $schedule = null,
     ) {}
 
     public function name(): string
@@ -136,6 +137,10 @@ final class JobsEventsSchedulesCollector implements ContextCollector
 
     private function scheduler(): ?Schedule
     {
+        if ($this->schedule !== null) {
+            return $this->schedule;
+        }
+
         try {
             return app(Schedule::class);
         } catch (Throwable) {

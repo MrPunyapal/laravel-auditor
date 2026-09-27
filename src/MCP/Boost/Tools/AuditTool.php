@@ -11,6 +11,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
 use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\Context\FilterableCollector;
+use LaravelAuditor\MCP\FilterValidator;
 use LaravelAuditor\MCP\McpTool;
 use Throwable;
 
@@ -40,7 +41,7 @@ abstract class AuditTool extends Tool
 
         $properties = [];
 
-        foreach ($this->collector->filters() as $name => $description) {
+        foreach (FilterValidator::properties($this->collector) as $name => $description) {
             $properties[$name] = $schema->string()->description($description);
         }
 
@@ -50,15 +51,7 @@ abstract class AuditTool extends Tool
     public function handle(Request $request): Response
     {
         try {
-            $arguments = $request->all();
-
-            if ($this->collector instanceof FilterableCollector && $arguments !== []) {
-                $data = $this->collector->collectFiltered(
-                    McpTool::validateFilters($this->collector, $arguments),
-                );
-            } else {
-                $data = $this->collector->collect();
-            }
+            $data = McpTool::collectWithFilters($this->collector, $request->all());
 
             return Response::json($data);
         } catch (Throwable $throwable) {

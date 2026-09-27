@@ -54,7 +54,13 @@ final class Evidence implements JsonSerializable
 
     public static function dependency(string $package, ?string $version = null, ?string $detail = null): self
     {
-        return new self('dependency', $package, null, null, $detail ?? $version);
+        $metadata = [];
+
+        if ($version !== null && $detail !== null) {
+            $metadata['version'] = $version;
+        }
+
+        return new self('dependency', $package, null, null, $detail ?? $version, $metadata);
     }
 
     public static function migration(string $path, ?string $detail = null): self
@@ -75,6 +81,21 @@ final class Evidence implements JsonSerializable
     public static function log(string $reference, ?string $detail = null): self
     {
         return new self('log', $reference, null, null, $detail);
+    }
+
+    public function location(): string
+    {
+        $ref = $this->reference;
+
+        if ($this->line !== null) {
+            $ref .= ':'.$this->line;
+
+            if ($this->endLine !== null && $this->endLine !== $this->line) {
+                $ref .= '-'.$this->endLine;
+            }
+        }
+
+        return $ref;
     }
 
     /**

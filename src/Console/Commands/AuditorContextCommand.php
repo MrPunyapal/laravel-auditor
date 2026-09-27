@@ -60,7 +60,13 @@ class AuditorContextCommand extends Command
             return self::FAILURE;
         }
 
-        $json = (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        try {
+            $json = (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        } catch (Throwable $e) {
+            $this->components->error('Failed to encode ['.$collector.'] context: '.$e->getMessage());
+
+            return self::FAILURE;
+        }
 
         $output = $this->option('output');
 

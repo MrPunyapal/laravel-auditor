@@ -83,7 +83,7 @@ final class SubsystemsCollector implements ContextCollector
             if ($this->files->isDirectory($fallbackPath)) {
                 $files = array_merge($files, $this->sampleFiles($fallbackPath));
             } else {
-                $files[] = $this->relative($fallbackPath);
+                $files[] = $this->paths->relativeToBase($fallbackPath);
             }
         }
 
@@ -113,24 +113,8 @@ final class SubsystemsCollector implements ContextCollector
         }
 
         return array_values(array_map(
-            fn (SplFileInfo $file): string => $this->relative($file->getPathname()),
+            fn (SplFileInfo $file): string => $this->paths->relativeToBase($file->getPathname()),
             array_slice($this->files->allFiles($directory), 0, 20),
         ));
-    }
-
-    private function relative(string $path): string
-    {
-        $base = str_replace('\\', '/', rtrim(base_path(), '/\\'));
-        $path = str_replace('\\', '/', $path);
-
-        if ($path === $base) {
-            return '.';
-        }
-
-        if (str_starts_with($path, $base.'/')) {
-            return substr($path, strlen($base) + 1);
-        }
-
-        return $path;
     }
 }

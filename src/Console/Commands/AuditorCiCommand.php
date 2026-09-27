@@ -11,9 +11,7 @@ use LaravelAuditor\Audit\Findings\Finding;
 use LaravelAuditor\Audit\Findings\FindingCollection;
 use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Audit\Reports\AuditReport;
-use LaravelAuditor\Audit\Reports\JsonReportRenderer;
-use LaravelAuditor\Audit\Reports\SarifReportRenderer;
-use LaravelAuditor\Audit\Reports\TextReportRenderer;
+use LaravelAuditor\Audit\Reports\ReportRendererFactory;
 use LaravelAuditor\Context\ProjectContext;
 use RuntimeException;
 use ValueError;
@@ -96,11 +94,7 @@ class AuditorCiCommand extends Command
             return self::FAILURE;
         }
 
-        $content = match ($format) {
-            'json' => (new JsonReportRenderer)->render($report),
-            'sarif' => (new SarifReportRenderer)->render($report),
-            default => (new TextReportRenderer)->render($report),
-        };
+        $content = ReportRendererFactory::render($report, $format);
 
         $output = $this->option('output');
 

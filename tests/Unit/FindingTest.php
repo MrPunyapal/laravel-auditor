@@ -161,7 +161,11 @@ it('counts findings by severity and domain', function () {
 
     expect($collection->countsByDomain())->toBe([
         'security' => 2,
+        'performance' => 0,
+        'architecture' => 0,
         'database' => 1,
+        'testing' => 0,
+        'conventions' => 0,
     ]);
 });
 

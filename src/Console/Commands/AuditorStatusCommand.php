@@ -12,6 +12,7 @@ use LaravelAuditor\Audit\Rules\RuleRegistry;
 use LaravelAuditor\Context\ContextRegistry;
 use LaravelAuditor\Support\BoostDetector;
 use LaravelAuditor\Support\PackageVersion;
+use LaravelAuditor\Support\ResourcesTarget;
 use Throwable;
 
 /**
@@ -105,8 +106,6 @@ class AuditorStatusCommand extends Command
 
     private function resourcesTarget(): string
     {
-        $target = trim((string) config('laravel-auditor.resources_target', '.ai'), '/\\');
-
-        return $target !== '' ? $target : '.ai';
+        return ResourcesTarget::resolve();
     }
 }

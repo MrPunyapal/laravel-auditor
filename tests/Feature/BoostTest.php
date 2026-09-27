@@ -9,7 +9,6 @@ it('reports that Boost is absent in the package test application', function () {
 
     expect($detector->isInstalled())->toBeFalse();
     expect($detector->version())->toBeNull();
-    expect($detector->supportsThirdPartyResources())->toBeFalse();
     expect($detector::PACKAGE)->toBe('laravel/boost');
 });
 
@@ -66,11 +65,6 @@ it('describes the Boost mechanism when Boost is present', function () {
         public function version(): ?string
         {
             return '1.8.0';
-        }
-
-        public function supportsThirdPartyResources(): bool
-        {
-            return true;
         }
     };
 

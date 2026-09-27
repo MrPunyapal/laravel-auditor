@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelAuditor\Context\Collectors;
 
+use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Filesystem\Filesystem;
 use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\Support\ApplicationPaths;
@@ -17,6 +18,7 @@ final class MigrationsCollector implements ContextCollector
     public function __construct(
         private readonly Filesystem $files,
         private readonly ApplicationPaths $paths,
+        private readonly ?Migrator $migrator = null,
     ) {}
 
     public function name(): string
@@ -73,7 +75,9 @@ final class MigrationsCollector implements ContextCollector
         ];
 
         try {
-            foreach (app('migrator')->paths() as $path) {
+            $migrator = $this->migrator ?? app('migrator');
+
+            foreach ($migrator->paths() as $path) {
                 if ($path !== '') {
                     $candidates[] = $path;
                 }
@@ -100,7 +104,7 @@ final class MigrationsCollector implements ContextCollector
      */
     private function inspect(string $path): array
     {
-        $relative = $this->relative($path);
+        $relative = $this->paths->relativeToBase($path);
 
         return [
             'file' => $relative,
@@ -121,21 +125,5 @@ final class MigrationsCollector implements ContextCollector
         }
 
         return null;
-    }
-
-    private function relative(string $path): string
-    {
-        $base = str_replace('\\', '/', rtrim(base_path(), '/\\'));
-        $path = str_replace('\\', '/', $path);
-
-        if ($path === $base) {
-            return '.';
-        }
-
-        if (str_starts_with($path, $base.'/')) {
-            return substr($path, strlen($base) + 1);
-        }
-
-        return $path;
     }
 }

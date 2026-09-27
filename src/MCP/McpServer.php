@@ -27,7 +27,11 @@ final class McpServer
         private readonly McpToolRegistry $tools,
         private mixed $input,
         private mixed $output,
-    ) {}
+    ) {
+        if (! is_resource($input) || ! is_resource($output)) {
+            throw new InvalidArgumentException('McpServer requires stream resources for input and output.');
+        }
+    }
 
     public function run(): int
     {
@@ -41,6 +45,8 @@ final class McpServer
             $message = json_decode($line, true);
 
             if (! is_array($message)) {
+                $this->respond(null, null, $this->error(-32700, 'Parse error: malformed JSON frame.'));
+
                 continue;
             }
 
@@ -157,11 +163,7 @@ final class McpServer
      */
     private function respond(mixed $id, ?array $result, ?array $error): void
     {
-        $response = ['jsonrpc' => '2.0'];
-
-        if ($id !== null) {
-            $response['id'] = $id;
-        }
+        $response = ['jsonrpc' => '2.0', 'id' => $id];
 
         if ($error !== null) {
             $response['error'] = $error;

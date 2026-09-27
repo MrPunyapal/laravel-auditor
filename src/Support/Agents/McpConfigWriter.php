@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelAuditor\Support\Agents;
 
 use Illuminate\Filesystem\Filesystem;
+use LaravelAuditor\Support\ApplicationPaths;
 
 /**
  * Registers the Laravel Auditor MCP server in an agent's config file.
@@ -16,32 +17,32 @@ use Illuminate\Filesystem\Filesystem;
  */
 final class McpConfigWriter
 {
-    public function __construct(private readonly Filesystem $files) {}
+    public function __construct(
+        private readonly Filesystem $files,
+        private readonly ApplicationPaths $paths,
+    ) {}
 
     /**
      * Register the MCP server for the given agent.
      *
      * Existing `laravel-auditor` entries are left untouched unless `$force`
      * is true. Other servers in the same file are always preserved.
-     *
-     * @param  list<string>  $created
-     * @param  list<string>  $updated
-     * @param  list<string>  $skipped
-     * @return array{list<string>, list<string>, list<string>}
      */
-    public function write(Agent $agent, bool $dryRun, bool $force, array $created, array $updated, array $skipped): array
+    public function write(Agent $agent, bool $dryRun, bool $force, InstallResult $result): void
     {
         if (! $agent->supportsMcp()) {
-            return [$created, $updated, $skipped];
+            return;
         }
 
         $path = $this->mcpConfigPath($agent);
 
         if (str_ends_with(strtolower($path), '.toml')) {
-            return $this->writeToml($agent, $path, $dryRun, $force, $created, $updated, $skipped);
+            $this->writeToml($agent, $path, $dryRun, $force, $result);
+
+            return;
         }
 
-        return $this->writeJson($agent, $path, $dryRun, $force, $created, $updated, $skipped);
+        $this->writeJson($agent, $path, $dryRun, $force, $result);
     }
 
     private function mcpConfigPath(Agent $agent): string
@@ -49,13 +50,7 @@ final class McpConfigWriter
         return base_path($agent->mcpConfigPath);
     }
 
-    /**
-     * @param  list<string>  $created
-     * @param  list<string>  $updated
-     * @param  list<string>  $skipped
-     * @return array{list<string>, list<string>, list<string>}
-     */
-    private function writeJson(Agent $agent, string $path, bool $dryRun, bool $force, array $created, array $updated, array $skipped): array
+    private function writeJson(Agent $agent, string $path, bool $dryRun, bool $force, InstallResult $result): void
     {
         $existed = $this->files->exists($path);
         $config = [];
@@ -64,9 +59,9 @@ final class McpConfigWriter
             $decoded = json_decode((string) $this->files->get($path), true);
 
             if (! is_array($decoded)) {
-                $skipped[] = $this->relative($path);
+                $result->skipped[] = $this->paths->relativeToBase($path);
 
-                return [$created, $updated, $skipped];
+                return;
             }
 
             $config = $decoded;
@@ -79,9 +74,9 @@ final class McpConfigWriter
         }
 
         if ($existed && array_key_exists('laravel-auditor', $servers) && ! $force) {
-            $updated[] = $this->relative($path);
+            $result->skipped[] = $this->paths->relativeToBase($path);
 
-            return [$created, $updated, $skipped];
+            return;
         }
 
         $config[$agent->mcpConfigKey] = $servers;
@@ -94,18 +89,14 @@ final class McpConfigWriter
             $this->files->put($path, $encoded);
         }
 
-        $existed ? $updated[] = $this->relative($path) : $created[] = $this->relative($path);
-
-        return [$created, $updated, $skipped];
+        if ($existed) {
+            $result->updated[] = $this->paths->relativeToBase($path);
+        } else {
+            $result->created[] = $this->paths->relativeToBase($path);
+        }
     }
 
-    /**
-     * @param  list<string>  $created
-     * @param  list<string>  $updated
-     * @param  list<string>  $skipped
-     * @return array{list<string>, list<string>, list<string>}
-     */
-    private function writeToml(Agent $agent, string $path, bool $dryRun, bool $force, array $created, array $updated, array $skipped): array
+    private function writeToml(Agent $agent, string $path, bool $dryRun, bool $force, InstallResult $result): void
     {
         $header = "[{$agent->mcpConfigKey}.laravel-auditor]";
         $block = $header.PHP_EOL;
@@ -119,9 +110,9 @@ final class McpConfigWriter
 
             if (str_contains($contents, $header)) {
                 if (! $force) {
-                    $updated[] = $this->relative($path);
+                    $result->skipped[] = $this->paths->relativeToBase($path);
 
-                    return [$created, $updated, $skipped];
+                    return;
                 }
 
                 $replaced = preg_replace(
@@ -141,9 +132,11 @@ final class McpConfigWriter
             $this->files->put($path, $block);
         }
 
-        $existed ? $updated[] = $this->relative($path) : $created[] = $this->relative($path);
-
-        return [$created, $updated, $skipped];
+        if ($existed) {
+            $result->updated[] = $this->paths->relativeToBase($path);
+        } else {
+            $result->created[] = $this->paths->relativeToBase($path);
+        }
     }
 
     /**
@@ -163,13 +156,5 @@ final class McpConfigWriter
             'command' => 'php',
             'args' => ['artisan', 'auditor:mcp', '-q'],
         ];
-    }
-
-    private function relative(string $path): string
-    {
-        $base = str_replace('\\', '/', base_path());
-        $path = str_replace('\\', '/', $path);
-
-        return ltrim(substr($path, strlen($base)), '/');
     }
 }

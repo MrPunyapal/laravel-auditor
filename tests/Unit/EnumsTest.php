@@ -110,12 +110,13 @@ it('exposes the domain registry', function () {
     expect($registry->core())->toHaveCount(6);
 });
 
-it('accepts an explicit domain map', function () {
-    $registry = new DomainRegistry([
-        'custom' => ['label' => 'Custom', 'description' => 'A future domain.'],
-    ]);
+it('always reflects the core domain enum', function () {
+    $registry = new DomainRegistry;
 
-    expect($registry->keys())->toBe(['custom']);
+    expect($registry->keys())->toBe(array_map(
+        static fn (AuditDomain $domain): string => $domain->value,
+        AuditDomain::cases(),
+    ));
 });
 
 it('provides status labels', function () {

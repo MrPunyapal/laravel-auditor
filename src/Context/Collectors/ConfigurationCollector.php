@@ -42,7 +42,7 @@ final class ConfigurationCollector implements ContextCollector
         $keys = [];
 
         foreach ($files as $file) {
-            $root = pathinfo($file, PATHINFO_FILENAME);
+            $root = $this->configRoot($file);
             $keys[] = $root;
 
             foreach ($this->topLevelKeysInFile($file, $root) as $key) {
@@ -78,18 +78,24 @@ final class ConfigurationCollector implements ContextCollector
     }
 
     /**
+     * Derive the dotted config root from a path relative to config/.
+     *
+     * `config/nested/file.php` maps to `nested.file`, not `file`.
+     */
+    private function configRoot(string $file): string
+    {
+        $relative = str_replace(['/', '\\'], '.', $file);
+
+        return (string) preg_replace('/\.php$/', '', $relative);
+    }
+
+    /**
      * @return list<string>
      */
     private function topLevelKeysInFile(string $file, string $root): array
     {
-        $path = config_path($file);
-
-        if (! $this->files->exists($path)) {
-            return [];
-        }
-
         try {
-            $data = require $path;
+            $data = config($root);
         } catch (Throwable) {
             return [];
         }

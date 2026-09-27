@@ -63,13 +63,7 @@ final class TextReportRenderer
         }
 
         foreach ($finding->evidence->all() as $evidence) {
-            $ref = $evidence->reference;
-
-            if ($evidence->line !== null) {
-                $ref .= ':'.$evidence->line;
-            }
-
-            $lines[] = '  Evidence: '.$ref;
+            $lines[] = '  Evidence: '.$evidence->location();
         }
 
         $lines[] = '';

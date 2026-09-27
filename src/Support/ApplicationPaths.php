@@ -52,6 +52,27 @@ final class ApplicationPaths
         return $this->directories($subdirectory) !== [];
     }
 
+    /**
+     * Render a path relative to the application base for display.
+     *
+     * Paths outside the base are returned unchanged instead of mangled.
+     */
+    public function relativeToBase(string $path): string
+    {
+        $base = str_replace('\\', '/', rtrim(base_path(), '/\\'));
+        $normalized = str_replace('\\', '/', $path);
+
+        if ($normalized === $base) {
+            return '.';
+        }
+
+        if (str_starts_with($normalized, $base.'/')) {
+            return substr($normalized, strlen($base) + 1);
+        }
+
+        return $path;
+    }
+
     public function fileCount(string $subdirectory = ''): int
     {
         $count = 0;

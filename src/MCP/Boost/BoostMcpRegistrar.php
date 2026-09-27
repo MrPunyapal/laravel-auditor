@@ -41,22 +41,39 @@ final class BoostMcpRegistrar
     }
 
     /**
+     * Collector name to Boost tool class map. Keep in sync with
+     * ContextRegistry: every collector needs exactly one entry here,
+     * otherwise the Boost transport silently omits it.
+     *
+     * @var array<string, class-string<AuditTool>>
+     */
+    private const array COLLECTOR_TOOLS = [
+        'project_info' => ProjectInfoTool::class,
+        'routes' => RoutesTool::class,
+        'models' => ModelsTool::class,
+        'migrations' => MigrationsTool::class,
+        'database_schema' => DatabaseSchemaTool::class,
+        'dependencies' => DependenciesTool::class,
+        'configuration' => ConfigurationTool::class,
+        'policies_authorization' => AuthorizationTool::class,
+        'jobs_events_schedules' => JobsEventsSchedulesTool::class,
+        'tests' => TestsTool::class,
+        'subsystems' => SubsystemsTool::class,
+    ];
+
+    /**
      * @return array<int, class-string<AuditTool>>
      */
     public function toolClasses(): array
     {
-        return [
-            ProjectInfoTool::class,
-            RoutesTool::class,
-            ModelsTool::class,
-            MigrationsTool::class,
-            DatabaseSchemaTool::class,
-            DependenciesTool::class,
-            ConfigurationTool::class,
-            AuthorizationTool::class,
-            JobsEventsSchedulesTool::class,
-            TestsTool::class,
-            SubsystemsTool::class,
-        ];
+        return array_values(self::COLLECTOR_TOOLS);
+    }
+
+    /**
+     * @return array<string, class-string<AuditTool>> Keyed by collector name.
+     */
+    public static function collectorToolMap(): array
+    {
+        return self::COLLECTOR_TOOLS;
     }
 }

@@ -50,6 +50,10 @@ final class RoutesCollector implements ContextCollector, FilterableCollector
     {
         $all = $this->allRoutes();
 
+        if (array_intersect_key($arguments, $this->filters()) === []) {
+            return $this->buildRoutePayload($all);
+        }
+
         $routes = array_values(array_filter(
             $all,
             fn (array $route): bool => $this->matches($route, $arguments),

@@ -67,10 +67,13 @@ final class RuleRegistry
      */
     public function countsByDomain(): array
     {
-        $counts = [];
+        $counts = array_fill_keys(
+            array_map(static fn (AuditDomain $d): string => $d->value, AuditDomain::cases()),
+            0,
+        );
 
         foreach ($this->load() as $rule) {
-            $counts[$rule->domain->value] = ($counts[$rule->domain->value] ?? 0) + 1;
+            $counts[$rule->domain->value]++;
         }
 
         return $counts;

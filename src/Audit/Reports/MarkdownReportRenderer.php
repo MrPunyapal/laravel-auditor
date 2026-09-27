@@ -178,17 +178,7 @@ final class MarkdownReportRenderer
             $lines[] = '';
 
             foreach ($finding->evidence->all() as $evidence) {
-                $ref = $evidence->reference;
-
-                if ($evidence->line !== null) {
-                    $ref .= ':'.$evidence->line;
-
-                    if ($evidence->endLine !== null && $evidence->endLine !== $evidence->line) {
-                        $ref .= '-'.$evidence->endLine;
-                    }
-                }
-
-                $lines[] = sprintf('- `%s` — %s', $evidence->type, $ref);
+                $lines[] = sprintf('- `%s` — %s', $evidence->type, $evidence->location());
 
                 if ($evidence->detail !== null) {
                     $lines[] = '  - '.$evidence->detail;

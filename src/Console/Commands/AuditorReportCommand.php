@@ -8,10 +8,7 @@ use Illuminate\Console\Command;
 use LaravelAuditor\Audit\Findings\FindingCollection;
 use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Audit\Reports\AuditReport;
-use LaravelAuditor\Audit\Reports\JsonReportRenderer;
-use LaravelAuditor\Audit\Reports\MarkdownReportRenderer;
-use LaravelAuditor\Audit\Reports\SarifReportRenderer;
-use LaravelAuditor\Audit\Reports\TextReportRenderer;
+use LaravelAuditor\Audit\Reports\ReportRendererFactory;
 use LaravelAuditor\Context\ProjectContext;
 use RuntimeException;
 
@@ -26,7 +23,7 @@ class AuditorReportCommand extends Command
     protected $signature = 'auditor:report
         {--findings= : Path to a JSON file containing findings}
         {--example : Render the packaged example findings}
-        {--format=markdown : Output format (markdown, json, text, sarif)}
+        {--format= : Output format (markdown, json, text, sarif)}
         {--output= : Write the report to a file instead of stdout}';
 
     /**
@@ -48,6 +45,12 @@ class AuditorReportCommand extends Command
     {
         $findingsPath = $this->option('findings');
         $example = (bool) $this->option('example');
+
+        if ($example && is_string($findingsPath) && $findingsPath !== '') {
+            $this->components->error('Pass either --findings or --example, not both.');
+
+            return self::FAILURE;
+        }
 
         $findings = new FindingCollection;
 
@@ -77,8 +80,10 @@ class AuditorReportCommand extends Command
             ],
         );
 
-        $defaultFormat = (string) config('laravel-auditor.report.format', 'markdown');
-        $format = is_string($this->option('format')) ? $this->option('format') : $defaultFormat;
+        $option = $this->option('format');
+        $format = is_string($option) && $option !== ''
+            ? $option
+            : (string) config('laravel-auditor.report.format', 'markdown');
 
         if (! in_array($format, ['markdown', 'json', 'text', 'sarif'], true)) {
             $this->components->error("Unknown format [{$format}]. Use markdown, json, text, or sarif.");
@@ -86,12 +91,7 @@ class AuditorReportCommand extends Command
             return self::FAILURE;
         }
 
-        $content = match ($format) {
-            'json' => (new JsonReportRenderer)->render($report),
-            'text' => (new TextReportRenderer)->render($report),
-            'sarif' => (new SarifReportRenderer)->render($report),
-            default => (new MarkdownReportRenderer)->render($report),
-        };
+        $content = ReportRendererFactory::render($report, $format);
 
         $output = $this->option('output');
 

@@ -8,6 +8,7 @@ use ArrayAccess;
 use Countable;
 use IteratorAggregate;
 use JsonSerializable;
+use LaravelAuditor\Audit\Enums\AuditDomain;
 use LaravelAuditor\Audit\Enums\Severity;
 use Traversable;
 
@@ -109,10 +110,13 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
      */
     public function countsByDomain(): array
     {
-        $counts = [];
+        $counts = array_fill_keys(
+            array_map(static fn (AuditDomain $d): string => $d->value, AuditDomain::cases()),
+            0,
+        );
 
         foreach ($this->items as $finding) {
-            $counts[$finding->domain->value] = ($counts[$finding->domain->value] ?? 0) + 1;
+            $counts[$finding->domain->value]++;
         }
 
         return $counts;

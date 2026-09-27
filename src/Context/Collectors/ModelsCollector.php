@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace LaravelAuditor\Context\Collectors;
 
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
@@ -26,7 +25,6 @@ use Throwable;
 final class ModelsCollector implements ContextCollector, FilterableCollector
 {
     public function __construct(
-        private readonly Application $app,
         private readonly Filesystem $files,
         private readonly ApplicationPaths $paths,
     ) {}
@@ -60,6 +58,10 @@ final class ModelsCollector implements ContextCollector, FilterableCollector
     public function collectFiltered(array $arguments): array
     {
         $models = $this->inspectModels();
+
+        if (array_intersect_key($arguments, $this->filters()) === []) {
+            return $this->buildModelPayload($models);
+        }
 
         $filtered = array_values(array_filter(
             $models,
@@ -136,7 +138,7 @@ final class ModelsCollector implements ContextCollector, FilterableCollector
     }
 
     /**
-     * @return list<string>
+     * @return list<class-string<Model>>
      */
     private function discoverModels(): array
     {
@@ -157,6 +159,7 @@ final class ModelsCollector implements ContextCollector, FilterableCollector
                 $class = $this->classFromFile($file->getPathname());
 
                 if ($class !== null && $this->isEloquentModel($class)) {
+                    /** @var class-string<Model> $class */
                     $models[] = $class;
                 }
             }
@@ -191,11 +194,14 @@ final class ModelsCollector implements ContextCollector, FilterableCollector
     }
 
     /**
+     * @param  class-string<Model>  $class
      * @return array<string, mixed>
      */
     private function inspect(string $class): array
     {
-        $model = $this->app->make($class);
+        $reflection = new ReflectionClass($class);
+        /** @var Model $model */
+        $model = $reflection->newInstanceWithoutConstructor();
 
         $data = [
             'class' => $class,
@@ -208,10 +214,6 @@ final class ModelsCollector implements ContextCollector, FilterableCollector
             'primary_key' => $model->getKeyName(),
             'relationships' => $this->relationships($class),
         ];
-
-        if (! $model->usesTimestamps()) {
-            unset($data['timestamps']);
-        }
 
         return $data;
     }

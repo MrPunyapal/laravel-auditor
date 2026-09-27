@@ -6,6 +6,7 @@ namespace LaravelAuditor\Audit\Findings;
 
 use JsonException;
 use RuntimeException;
+use Throwable;
 
 /**
  * Loads a FindingCollection from a JSON findings file.
@@ -30,9 +31,20 @@ final class FindingLoader
 
         $list = is_array($data['findings'] ?? null) ? $data['findings'] : $data;
 
-        return FindingCollection::fromIterable(array_map(
-            static fn (array $item): Finding => Finding::fromArray($item),
-            $list,
-        ));
+        $findings = [];
+
+        foreach (array_values($list) as $index => $item) {
+            if (! is_array($item)) {
+                throw new RuntimeException("Findings file [{$path}] item [{$index}] must be an object.");
+            }
+
+            try {
+                $findings[] = Finding::fromArray($item);
+            } catch (Throwable $e) {
+                throw new RuntimeException("Findings file [{$path}] item [{$index}] is invalid: {$e->getMessage()}", previous: $e);
+            }
+        }
+
+        return new FindingCollection(...$findings);
     }
 }

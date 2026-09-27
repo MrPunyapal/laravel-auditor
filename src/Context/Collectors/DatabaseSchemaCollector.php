@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace LaravelAuditor\Context\Collectors;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\Connection;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\DatabaseManager;
 use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\Context\FilterableCollector;
 use stdClass;
@@ -20,7 +21,10 @@ use Throwable;
  */
 final class DatabaseSchemaCollector implements ContextCollector, FilterableCollector
 {
-    public function __construct() {}
+    public function __construct(
+        private readonly DatabaseManager $db,
+        private readonly Repository $config,
+    ) {}
 
     public function name(): string
     {
@@ -95,14 +99,14 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
 
     private function connection(): ?Connection
     {
-        $default = (string) config('database.default', '');
+        $default = (string) $this->config->get('database.default', '');
 
         if ($default === '') {
             return null;
         }
 
         try {
-            return DB::connection($default);
+            return $this->db->connection($default);
         } catch (Throwable) {
             return null;
         }
