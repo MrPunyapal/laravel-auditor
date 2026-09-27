@@ -1,6 +1,34 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.6...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.7...HEAD)
+
+## [v0.1.7](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.6...v0.1.7) - 2026-09-27
+
+### Added
+
+- Architecture code-smell catalog: 6 new rules — `AUD-ARC-006` through `AUD-ARC-011` (oversized class or long method, primitive obsession/data clumps/long parameter lists, adding a variant requires editing core code, feature envy/message chains/inappropriate intimacy, dead code or speculative generality, inconsistent sibling contracts or silent extension defaults). Every rule carries evidence requirements, false-positive considerations, and a named refactoring technique. Documentation rule counts updated from 75 to 81.
+- Architecture skill now teaches the full code-smell checklist with detection criteria, consequence-first evidence, refactoring names, and grep-proof requirements for dead-code claims.
+- Shared internals with regression coverage: `ResourcesTarget`, `ReportRendererFactory`, `FilterValidator`, `InstallResult`, `ApplicationPaths::relativeToBase()`, `Evidence::location()`, and a Boost tool-map parity test so a new collector cannot silently miss its Boost tool.
+
+### Fixed
+
+- `auditor:report --format` now honors the `report.format` config when the option is omitted.
+- Text reports no longer drop evidence end-lines; both renderers share one location formatter.
+- `FindingLoader` wraps invalid findings with the file path and item index instead of leaking `ValueError`/`TypeError`.
+- `routes`/`models` `collectFiltered([])` now returns the exact unfiltered payload, matching the `FilterableCollector` contract and the guarded siblings.
+- `ModelsCollector` instantiates models without the container, so constructor side effects never run during a read-only audit.
+- Boost and stdio MCP transports now agree on empty-filter handling through one shared policy.
+- Idempotent MCP writes are reported as `Skipped` instead of `Up to date`.
+- `counts_by_domain` pre-fills zero keys like `counts_by_severity`, so report payloads have a stable schema.
+- `McpServer` emits a JSON-RPC Parse error for malformed frames instead of hanging silently.
+- `configuration` derives nested roots from the relative path (`nested.file`, not `file`) and reads keys from the config repository instead of re-executing files.
+- Removed the dead `BoostDetector::supportsThirdPartyResources()` wrapper and the speculative `DomainRegistry` custom map.
+
+### Changed
+
+- `auditor:report` rejects `--findings` combined with `--example` instead of silently preferring the example.
+- `models[].timestamps` is now always present (previously omitted when false).
+- Constructor injection replaces service-locator calls across the collectors; internal signatures (`McpConfigWriter`, `DatabaseSchemaCollector`, `ProjectContext`, installer) changed accordingly. No public command, config key, MCP tool name, finding field, or rule ID was removed.
 
 ## [v0.1.6](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.5...v0.1.6) - 2026-09-06
 
