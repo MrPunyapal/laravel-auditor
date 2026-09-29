@@ -137,7 +137,8 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-o
 How the scope is decided:
 
 - A finding is in scope when `evidence` or `affected_resources` names one of the changed files.
-- Routes (`GET api/users.index`), config keys (`services.stripe.secret`), and symbols (`App\Models\User@save`) are not files, so they never match on their own.
+- Evidence types decide what a file is. `file`, `migration`, and `test` references count as paths; `route`, `config`, `symbol`, `query`, `dependency`, and `log` never do. An unrecognized type falls back to the file extension, so a new type keeps working.
+- An absolute reference is resolved against the application base, so `/var/www/app/Models/User.php` matches `app/Models/User.php`.
 - A finding with no file reference at all is kept. It cannot be proven unrelated to the change, and dropping it would hide a real problem.
 - The scope resolves through the same `changed_files` configuration as the collector, and each run reports the file count, the scoped count, and the total.
 

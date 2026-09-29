@@ -35,6 +35,24 @@ function scopedFinding(string $id, array $evidence = [], array $resources = []):
     );
 }
 
+/**
+ * Builds a finding with a single evidence entry of the given type.
+ */
+function typedFinding(string $id, string $type, string $reference): Finding
+{
+    return new Finding(
+        id: $id,
+        ruleId: 'AUD-X',
+        title: 'Test',
+        domain: AuditDomain::Security,
+        severity: Severity::High,
+        confidence: Confidence::High,
+        summary: 'Summary',
+        whyItMatters: 'Why',
+        evidence: new EvidenceCollection(new Evidence($type, $reference)),
+    );
+}
+
 it('keeps only findings that touch a changed file', function () {
     $collection = new FindingCollection(
         scopedFinding('F-1', ['app/Models/User.php']),
@@ -109,4 +127,71 @@ it('matches blade views and migrations, not directories', function () {
     ]);
 
     expect($filtered)->toHaveCount(2);
+});
+
+it('trusts a file-typed reference even without a recognizable extension', function () {
+    // An agent that cites `app/Services/UserService` as file evidence still gets scoped.
+    $collection = new FindingCollection(typedFinding('F-1', 'file', 'app/Services/UserService'));
+
+    expect($collection->touching(['app/Services/UserService']))->toHaveCount(1);
+});
+
+it('never matches a route, config, or symbol reference', function () {
+    $collection = new FindingCollection(
+        typedFinding('F-1', 'route', 'GET api/users.index'),
+        typedFinding('F-2', 'config', 'services.stripe.secret'),
+        typedFinding('F-3', 'symbol', 'App\\Models\\User@save'),
+    );
+
+    // Even when a changed path happens to equal the reference text.
+    expect($collection->touching(['GET api/users.index', 'services.stripe.secret'])->isEmpty())->toBeTrue();
+});
+
+it('matches migration and test typed references', function () {
+    $collection = new FindingCollection(
+        typedFinding('F-1', 'migration', 'database/migrations/2026_01_01_000000_add_body_to_posts'),
+        typedFinding('F-2', 'test', 'tests/Feature/PostTest'),
+    );
+
+    expect($collection->touching([
+        'database/migrations/2026_01_01_000000_add_body_to_posts',
+        'tests/Feature/PostTest',
+    ]))->toHaveCount(2);
+});
+
+it('resolves an absolute file reference against the application base', function () {
+    $collection = new FindingCollection(typedFinding('F-1', 'file', base_path('app/Models/User.php')));
+
+    expect($collection->touching(['app/Models/User.php']))->toHaveCount(1);
+});
+
+it('rejects a file reference that escapes the application base', function () {
+    $collection = new FindingCollection(
+        typedFinding('F-1', 'file', '../sibling/File.php'),
+        typedFinding('F-2', 'file', '/etc/passwd'),
+    );
+
+    expect($collection->touching(['../sibling/File.php', '/etc/passwd'])->isEmpty())->toBeTrue();
+});
+
+it('keeps a dotfile reference intact instead of trimming it into a name', function () {
+    $collection = new FindingCollection(typedFinding('F-1', 'file', '.env.example'));
+
+    expect($collection->touching(['.env.example']))->toHaveCount(1);
+});
+
+it('falls back to the shape test for an unknown evidence type', function () {
+    $collection = new FindingCollection(
+        typedFinding('F-1', 'custom', 'app/Models/User.php'),
+        typedFinding('F-2', 'custom', 'not a path at all'),
+    );
+
+    // An unrecognized type must not silently stop matching.
+    expect($collection->touching(['app/Models/User.php']))->toHaveCount(1);
+});
+
+it('matches a dotfile named in affected resources', function () {
+    $collection = new FindingCollection(scopedFinding('F-1', [], ['.env.example']));
+
+    expect($collection->touching(['.env.example']))->toHaveCount(1);
 });

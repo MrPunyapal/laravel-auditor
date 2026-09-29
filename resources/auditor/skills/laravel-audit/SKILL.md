@@ -103,7 +103,7 @@ Write findings to `storage/auditor-findings.json` (an array, or `{ "findings": [
 - `status`: `open` for new findings.
 - `summary`: what is wrong.
 - `why_it_matters`: why it matters for this app.
-- `evidence`: concrete references (file paths, lines, routes, symbols).
+- `evidence`: concrete references (file paths, lines, routes, symbols). Type each entry so it can be checked automatically: `file`, `migration`, or `test` for paths, and `route`, `config`, `symbol`, `query`, `dependency`, or `log` for everything else. A `file` entry is treated as a path even without an extension; a `route` or `config` entry never is.
 - `affected_resources`: files/routes/config involved.
 - `recommendation`: what to do about it.
 - `remediation`: optional step-by-step guidance.

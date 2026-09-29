@@ -148,4 +148,6 @@ php artisan auditor:report --findings=storage/auditor-findings.json --dirty
 php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
 ```
 
-Give findings a concrete `affected_resources` file path (or file evidence) so this scoping works. A finding with no file reference is always kept, because it cannot be proven unrelated to the change. See [Usage](/usage/).
+Typed evidence decides what counts as a file. `file`, `migration`, and `test` references are treated as paths; `route`, `config`, `symbol`, `query`, `dependency`, and `log` references never are. An unrecognized type falls back to matching on the file extension, so `type: file` with the reference `app/Services/UserService` still scopes correctly, and a route or config key is never mistaken for a file.
+
+A finding with no file reference at all is always kept, because it cannot be proven unrelated to the change. See [Usage](/usage/).

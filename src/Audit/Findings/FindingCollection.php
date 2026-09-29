@@ -10,6 +10,7 @@ use IteratorAggregate;
 use JsonSerializable;
 use LaravelAuditor\Audit\Enums\AuditDomain;
 use LaravelAuditor\Audit\Enums\Severity;
+use LaravelAuditor\Audit\Evidence\Evidence;
 use Traversable;
 
 /**
@@ -107,9 +108,11 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
         $normalized = [];
 
         foreach ($files as $file) {
-            $path = self::normalizePath($file);
+            // These come from git, so they are already project-relative paths
+            // and must not be filtered through the untyped-reference shape test.
+            $path = self::canonical($file);
 
-            if ($path !== null) {
+            if ($path !== '') {
                 $normalized[$path] = true;
             }
         }
@@ -129,52 +132,154 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
      */
     private static function referencesAny(Finding $finding, array $paths): bool
     {
-        $references = [];
+        $candidates = 0;
 
+        // Typed evidence is authoritative, so its path is compared directly.
         foreach ($finding->evidence as $evidence) {
-            if ($evidence->reference !== '') {
-                $references[] = $evidence->reference;
+            if ($evidence->reference === '') {
+                continue;
             }
-        }
 
-        foreach ($finding->affectedResources as $resource) {
-            $references[] = $resource;
-        }
+            $candidates++;
 
-        if ($references === []) {
-            return true;
-        }
-
-        foreach ($references as $reference) {
-            $path = self::normalizePath($reference);
+            $path = self::evidencePath($evidence);
 
             if ($path !== null && isset($paths[$path])) {
                 return true;
             }
         }
 
-        return false;
+        // affected_resources carry no type, so they fall back to the shape test.
+        foreach ($finding->affectedResources as $resource) {
+            $candidates++;
+
+            $path = self::normalizePath($resource);
+
+            if ($path !== null && isset($paths[$path])) {
+                return true;
+            }
+        }
+
+        return $candidates === 0;
+    }
+
+    /**
+     * Evidence types whose reference is a file path.
+     */
+    private const array FILE_EVIDENCE_TYPES = ['file', 'migration', 'test'];
+
+    /**
+     * Evidence types whose reference is never a file path.
+     *
+     * Without this, `GET api/users.index` would be read as the file
+     * `api/users.index` and a config key as `services.stripe.secret`.
+     */
+    private const array NON_FILE_EVIDENCE_TYPES = ['route', 'config', 'symbol', 'query', 'dependency', 'log'];
+
+    /**
+     * Resolves the path an evidence entry points at, or null when it is not a file.
+     *
+     * A known file type is authoritative, so its reference is used even without a
+     * recognizable extension. A known non-file type is never a path. An
+     * unrecognized type falls back to the extension heuristic, so a type added
+     * later keeps matching instead of silently dropping out of the scope.
+     */
+    private static function evidencePath(Evidence $evidence): ?string
+    {
+        $type = mb_strtolower(trim($evidence->type));
+
+        if (in_array($type, self::NON_FILE_EVIDENCE_TYPES, true)) {
+            return null;
+        }
+
+        if (in_array($type, self::FILE_EVIDENCE_TYPES, true)) {
+            return self::relativeToBase($evidence->reference);
+        }
+
+        return self::normalizePath($evidence->reference);
+    }
+
+    /**
+     * The comparison form of a path: forward slashes, no leading `./`.
+     *
+     * Only a whole leading `./` is removed, never character-wise, because a
+     * plain `ltrim($path, './')` would turn `.env` into `env`.
+     */
+    private static function canonical(string $path): string
+    {
+        $path = str_replace('\\', '/', trim($path));
+
+        if (str_starts_with($path, './')) {
+            $path = substr($path, 2);
+        }
+
+        return $path;
+    }
+
+    /**
+     * Strips the application base path so an absolute reference still compares.
+     */
+    private static function relativeToBase(string $reference): ?string
+    {
+        $path = self::canonical($reference);
+
+        if ($path === '') {
+            return null;
+        }
+
+        $base = str_replace('\\', '/', rtrim(base_path(), '/\\'));
+
+        if ($base !== '' && str_starts_with($path, $base.'/')) {
+            $path = substr($path, strlen($base) + 1);
+        }
+
+        return self::isSafeRelativePath($path) ? $path : null;
     }
 
     /**
      * Normalizes a reference that is a file path, or null when it is not one.
      *
-     * Routes (`GET api/users`), config keys (`services.stripe.secret`),
+     * Used for `affected_resources`, which carry no evidence type. Routes
+     * (`GET api/users`), config keys (`services.stripe.secret`),
      * symbols (`App\Models\User@save`), queries, and package names all carry
      * dots or slashes but are not files, so only extension-bearing relative
      * paths are treated as files.
      */
     private static function normalizePath(string $reference): ?string
     {
-        $path = str_replace('\\', '/', trim($reference));
+        $path = self::canonical($reference);
 
-        if (preg_match('#^[A-Za-z0-9_./\- ]+\.(php|blade\.php|js|ts|tsx|jsx|vue|css|scss|json|ya?ml|md|env|sql|xml|twig)$#i', $path) !== 1) {
-            return null;
+        return self::looksLikeFilePath($path) ? $path : null;
+    }
+
+    /**
+     * Rejects absolute, parent, and URL references.
+     */
+    private static function isSafeRelativePath(string $path): bool
+    {
+        if ($path === '' || str_starts_with($path, '/') || preg_match('#^[A-Za-z]:#', $path) === 1) {
+            return false;
         }
 
-        $path = ltrim($path, './');
+        return ! str_contains($path, '://') && ! in_array('..', explode('/', $path), true);
+    }
 
-        return $path === '' ? null : $path;
+    /**
+     * Whether an untyped reference is shaped like a source file path.
+     */
+    private static function looksLikeFilePath(string $path): bool
+    {
+        if (! self::isSafeRelativePath($path)) {
+            return false;
+        }
+
+        // Dotfiles carry no useful extension (`.env`, `.env.example`), and a
+        // config key never starts with a dot segment at the root of a path.
+        if (str_starts_with(basename($path), '.') && preg_match('#^\.[A-Za-z0-9_.\-]+$#', basename($path)) === 1) {
+            return true;
+        }
+
+        return preg_match('#^[A-Za-z0-9_./\- ]+\.(php|blade\.php|js|ts|tsx|jsx|vue|css|scss|json|ya?ml|md|env|sql|xml|twig)$#i', $path) === 1;
     }
 
     /**
