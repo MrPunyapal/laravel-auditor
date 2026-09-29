@@ -125,6 +125,26 @@ CI output formats: `text`, `json`, `sarif`.
 
 The `--fail-on` threshold accepts: `critical`, `high`, `medium`, `low`, `info`.
 
+## Scope a run to uncommitted work
+
+`--dirty` works on both `auditor:report` and `auditor:ci`. It keeps only the findings that reference a changed file, so unrelated pre-existing findings do not dominate the output or fail a build.
+
+```bash
+php artisan auditor:report --findings=storage/auditor-findings.json --dirty
+php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
+```
+
+How the scope is decided:
+
+- A finding is in scope when `evidence` or `affected_resources` names one of the changed files.
+- Routes (`GET api/users.index`), config keys (`services.stripe.secret`), and symbols (`App\Models\User@save`) are not files, so they never match on their own.
+- A finding with no file reference at all is kept. It cannot be proven unrelated to the change, and dropping it would hide a real problem.
+- The scope resolves through the same `changed_files` configuration as the collector, and each run reports the file count, the scoped count, and the total.
+
+`--dirty` needs `git` on the host. If the scope cannot be resolved, the command fails with the reason and suggests dropping the flag.
+
+`--dirty` reads the uncommitted working tree only. In a CI checkout the working tree is clean, so the scope is empty and nothing is gated. A merge-base or branch diff scope is a separate concern and is not included here.
+
 ## Configuration
 
 Publish `config/laravel-auditor.php` to change the default domain list, extra rule directories, standalone resource target, and default report format.

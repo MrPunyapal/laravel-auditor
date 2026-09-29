@@ -10,6 +10,7 @@ use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Audit\Reports\AuditReport;
 use LaravelAuditor\Audit\Reports\ReportRendererFactory;
 use LaravelAuditor\Context\ProjectContext;
+use LaravelAuditor\Support\DirtyScope;
 use RuntimeException;
 
 /**
@@ -24,7 +25,8 @@ class AuditorReportCommand extends Command
         {--findings= : Path to a JSON file containing findings}
         {--example : Render the packaged example findings}
         {--format= : Output format (markdown, json, text, sarif)}
-        {--output= : Write the report to a file instead of stdout}';
+        {--output= : Write the report to a file instead of stdout}
+        {--dirty : Limit the report to findings touching uncommitted files}';
 
     /**
      * The command description.
@@ -34,6 +36,7 @@ class AuditorReportCommand extends Command
     public function __construct(
         private readonly ProjectContext $project,
         private readonly FindingLoader $loader,
+        private readonly DirtyScope $dirty,
     ) {
         parent::__construct();
     }
@@ -68,16 +71,44 @@ class AuditorReportCommand extends Command
             }
         }
 
+        $meta = [
+            'generated_at' => now()->toDateTimeString(),
+            'generator' => 'laravel-auditor',
+        ];
+
+        if ((bool) $this->option('dirty')) {
+            $scope = $this->dirty->apply($findings);
+
+            if ($scope['ok'] !== true) {
+                $this->components->error('Cannot resolve --dirty scope: '.$scope['reason']);
+                $this->components->info('Drop --dirty to report on every finding, or run the audit outside a git repository.');
+
+                return self::FAILURE;
+            }
+
+            $total = $findings->count();
+            $findings = $scope['findings'];
+
+            $meta['scope'] = 'dirty';
+            $meta['scope_file_count'] = $scope['file_count'];
+            $meta['scope_truncated'] = $scope['truncated'];
+            $meta['scope_total_findings'] = $total;
+
+            $this->components->info(sprintf(
+                'Dirty scope: %d uncommitted file(s), %d of %d finding(s) in scope.',
+                $scope['file_count'],
+                $findings->count(),
+                $total,
+            ));
+        }
+
         $domainsRun = $this->project->domainsPresent();
 
         $report = new AuditReport(
             project: $this->project->facts(),
             domainsRun: $domainsRun,
             findings: $findings,
-            meta: [
-                'generated_at' => now()->toDateTimeString(),
-                'generator' => 'laravel-auditor',
-            ],
+            meta: $meta,
         );
 
         $option = $this->option('format');

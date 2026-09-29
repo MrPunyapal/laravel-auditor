@@ -138,3 +138,14 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high -
 ```
 
 CI fails when an open finding meets or exceeds the `--fail-on` threshold.
+
+## Scoping to uncommitted work
+
+Both commands accept `--dirty`, which keeps only the findings that reference an uncommitted file:
+
+```bash
+php artisan auditor:report --findings=storage/auditor-findings.json --dirty
+php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
+```
+
+Give findings a concrete `affected_resources` file path (or file evidence) so this scoping works. A finding with no file reference is always kept, because it cannot be proven unrelated to the change. See [Usage](/usage/).

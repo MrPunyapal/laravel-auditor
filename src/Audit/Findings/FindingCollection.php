@@ -89,6 +89,95 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
     }
 
     /**
+     * Findings that reference at least one of the given files.
+     *
+     * Both `evidence` references and `affected_resources` are considered, since
+     * a finding may point at a file in either place. A finding that references no
+     * file at all is kept: it cannot be proven unrelated to the change, and
+     * silently dropping it would hide a real problem.
+     *
+     * @param  list<string>  $files
+     */
+    public function touching(array $files): self
+    {
+        if ($files === []) {
+            return new self;
+        }
+
+        $normalized = [];
+
+        foreach ($files as $file) {
+            $path = self::normalizePath($file);
+
+            if ($path !== null) {
+                $normalized[$path] = true;
+            }
+        }
+
+        if ($normalized === []) {
+            return new self;
+        }
+
+        return new self(...array_values(array_filter(
+            $this->items,
+            static fn (Finding $finding): bool => self::referencesAny($finding, $normalized),
+        )));
+    }
+
+    /**
+     * @param  array<string, true>  $paths
+     */
+    private static function referencesAny(Finding $finding, array $paths): bool
+    {
+        $references = [];
+
+        foreach ($finding->evidence as $evidence) {
+            if ($evidence->reference !== '') {
+                $references[] = $evidence->reference;
+            }
+        }
+
+        foreach ($finding->affectedResources as $resource) {
+            $references[] = $resource;
+        }
+
+        if ($references === []) {
+            return true;
+        }
+
+        foreach ($references as $reference) {
+            $path = self::normalizePath($reference);
+
+            if ($path !== null && isset($paths[$path])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Normalizes a reference that is a file path, or null when it is not one.
+     *
+     * Routes (`GET api/users`), config keys (`services.stripe.secret`),
+     * symbols (`App\Models\User@save`), queries, and package names all carry
+     * dots or slashes but are not files, so only extension-bearing relative
+     * paths are treated as files.
+     */
+    private static function normalizePath(string $reference): ?string
+    {
+        $path = str_replace('\\', '/', trim($reference));
+
+        if (preg_match('#^[A-Za-z0-9_./\- ]+\.(php|blade\.php|js|ts|tsx|jsx|vue|css|scss|json|ya?ml|md|env|sql|xml|twig)$#i', $path) !== 1) {
+            return null;
+        }
+
+        $path = ltrim($path, './');
+
+        return $path === '' ? null : $path;
+    }
+
+    /**
      * @return array<string, int>
      */
     public function countsBySeverity(): array

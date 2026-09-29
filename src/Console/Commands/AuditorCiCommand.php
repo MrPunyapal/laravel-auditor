@@ -13,6 +13,7 @@ use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Audit\Reports\AuditReport;
 use LaravelAuditor\Audit\Reports\ReportRendererFactory;
 use LaravelAuditor\Context\ProjectContext;
+use LaravelAuditor\Support\DirtyScope;
 use RuntimeException;
 use ValueError;
 
@@ -28,7 +29,8 @@ class AuditorCiCommand extends Command
         {--findings= : Path to a JSON file containing findings}
         {--fail-on=high : Minimum severity that fails CI (critical, high, medium, low, info)}
         {--format=text : Output format (text, json, sarif)}
-        {--output= : Write the report to a file}';
+        {--output= : Write the report to a file}
+        {--dirty : Only fail on findings that touch uncommitted files}';
 
     /**
      * The command description.
@@ -38,6 +40,7 @@ class AuditorCiCommand extends Command
     public function __construct(
         private readonly ProjectContext $project,
         private readonly FindingLoader $loader,
+        private readonly DirtyScope $dirty,
     ) {
         parent::__construct();
     }
@@ -68,6 +71,39 @@ class AuditorCiCommand extends Command
             return self::FAILURE;
         }
 
+        $meta = [
+            'generated_at' => now()->toDateTimeString(),
+            'generator' => 'laravel-auditor',
+            'mode' => 'ci',
+            'fail_on' => $threshold->value,
+        ];
+
+        if ((bool) $this->option('dirty')) {
+            $scope = $this->dirty->apply($findings);
+
+            if ($scope['ok'] !== true) {
+                $this->components->error('Cannot resolve --dirty scope: '.$scope['reason']);
+                $this->components->info('Drop --dirty to gate on every finding, or run the audit outside a git repository.');
+
+                return self::FAILURE;
+            }
+
+            $total = $findings->count();
+            $findings = $scope['findings'];
+
+            $meta['scope'] = 'dirty';
+            $meta['scope_file_count'] = $scope['file_count'];
+            $meta['scope_truncated'] = $scope['truncated'];
+            $meta['scope_total_findings'] = $total;
+
+            $this->components->info(sprintf(
+                'Dirty scope: %d uncommitted file(s), %d of %d finding(s) in scope.',
+                $scope['file_count'],
+                $findings->count(),
+                $total,
+            ));
+        }
+
         $blocking = new FindingCollection(...array_values(array_filter(
             $findings->all(),
             static fn (Finding $finding): bool => $finding->status === FindingStatus::Open
@@ -78,12 +114,7 @@ class AuditorCiCommand extends Command
             project: $this->project->facts(),
             domainsRun: $this->project->domainsPresent(),
             findings: $findings,
-            meta: [
-                'generated_at' => now()->toDateTimeString(),
-                'generator' => 'laravel-auditor',
-                'mode' => 'ci',
-                'fail_on' => $threshold->value,
-            ],
+            meta: $meta,
         );
 
         $format = is_string($this->option('format')) ? $this->option('format') : 'text';

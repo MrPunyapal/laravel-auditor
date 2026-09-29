@@ -33,6 +33,8 @@ use LaravelAuditor\Context\ProjectContext;
 use LaravelAuditor\MCP\Boost\BoostMcpRegistrar;
 use LaravelAuditor\MCP\McpToolRegistry;
 use LaravelAuditor\Support\BoostDetector;
+use LaravelAuditor\Support\ChangedFilesOptions;
+use LaravelAuditor\Support\DirtyScope;
 use LaravelAuditor\Support\GitStatus;
 use LaravelAuditor\Support\ResourcesTarget;
 
@@ -152,8 +154,10 @@ class LaravelAuditorServiceProvider extends ServiceProvider
         $this->app->singleton(JobsEventsSchedulesCollector::class);
         $this->app->singleton(TestsCollector::class);
         $this->app->singleton(SubsystemsCollector::class);
+        $this->app->singleton(ChangedFilesOptions::class);
         $this->app->singleton(GitStatus::class, static fn (): GitStatus => new GitStatus(base_path()));
         $this->app->singleton(ChangedFilesCollector::class);
+        $this->app->singleton(DirtyScope::class);
     }
 
     private function registerMcp(): void

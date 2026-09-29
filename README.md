@@ -313,6 +313,17 @@ Finding and report JSON schemas live in `resources/auditor/schema`. See the [fin
 
 `auditor:report` does not invent findings. The agent produces findings; the command renders them as Markdown, JSON, or CLI text with project facts, domain scope, counts, key risks, evidence, and recommendations.
 
+### Scoping to uncommitted work
+
+`--dirty` narrows a report or a CI gate to findings that touch uncommitted files, so an old high-severity finding elsewhere in the codebase does not block work on something else.
+
+```bash
+php artisan auditor:report --findings=storage/auditor-findings.json --dirty
+php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
+```
+
+A finding is in scope when its `evidence` or `affected_resources` reference a changed file. The scope resolves through the same `changed_files` configuration as the collector, and each run reports how many files and findings it considered. `--dirty` needs `git`: when the scope cannot be resolved the command fails with a reason instead of quietly reporting everything.
+
 There is no web dashboard. Reports are CLI, Markdown, JSON, or SARIF.
 
 ## Architecture

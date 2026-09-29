@@ -121,6 +121,8 @@ php artisan auditor:report --findings=storage/auditor-findings.json
 php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 ```
 
+To report or gate only on the work in progress, add `--dirty`. It keeps findings whose evidence or affected resources name an uncommitted file. Note that a clean working tree yields an empty scope, so in CI `--dirty` gates nothing.
+
 The report includes project facts, domains audited, counts by severity/domain, priority synthesis, and the key risks.
 
 ## Anti-patterns to avoid
