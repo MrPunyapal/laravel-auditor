@@ -83,7 +83,7 @@ Supported formats: `markdown`, `json`, `text`, `sarif`. Finding schema: publish 
 php artisan auditor:mcp -q
 ```
 
-Register that stdio command with the agent so it can call `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, and `subsystems`. Use `-q` so Artisan boot output cannot break MCP stdio framing.
+Register that stdio command with the agent so it can call `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`, and `changed_files`. Use `-q` so Artisan boot output cannot break MCP stdio framing.
 
 With Laravel Boost installed, the same context tools are registered automatically inside Boost's MCP server (via `boost.mcp.tools.include`); no extra setup is needed.
 
@@ -98,7 +98,7 @@ With Laravel Boost installed, the same context tools are registered automaticall
 - Reports: `php artisan auditor:report` (`--findings=`, `--example`, `--format=markdown|json|text|sarif`, `--output=`)
 - CI: `php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high`
 - Facade: `LaravelAuditor::collect('routes')`, `LaravelAuditor::rules()`, `LaravelAuditor::context()`, `LaravelAuditor::project()`
-- Config: `resources_target`, `agents`, `custom_agents`, `context.composer_audit` (on), `context.test_listing` (off)
+- Config: `resources_target`, `agents`, `custom_agents`, `context.composer_audit` (on), `context.test_listing` (off), `changed_files.include_untracked`, `changed_files.ignore`, `changed_files.max_files`
 - Config publish tag: `laravel-auditor-config`
 - Resource publish tag: `laravel-auditor-resources`
 - Schema publish tag: `laravel-auditor-schema`
@@ -118,7 +118,7 @@ Full audit prompt:
 > You are auditing the Laravel application in this project using the Laravel Auditor methodology.
 >
 > 1. Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.
-> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code: `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`.
+> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code: `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`, `changed_files`.
 > 3. Scope the relevant domains (security, database, architecture, testing, ...). Pick the domains with the most risk signal and go deep.
 > 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 > 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
@@ -126,7 +126,7 @@ Full audit prompt:
 
 Discover-only quick pass:
 
-> Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+> Start with a Discover phase only: run all 12 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
 
 ## Anti-patterns
 

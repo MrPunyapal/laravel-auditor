@@ -176,6 +176,7 @@ The agent should:
 >    - `policies_authorization` — gates, policies, auth middleware
 >    - `jobs_events_schedules` — queues, events, cron
 >    - `tests` — test coverage layout
+>    - `changed_files` — uncommitted files, for scoping a review to the work in progress
 > 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
 > 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 > 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
@@ -183,7 +184,11 @@ The agent should:
 
 For a quick Discover-only pass:
 
-> Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+> Start with a Discover phase only: run all 12 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+
+For a review scoped to the work in progress:
+
+> Review only my uncommitted work. Call `changed_files` first, treat those paths as the scope boundary, then audit just those files.
 
 For a data-structure / ownership pass:
 
@@ -241,7 +246,10 @@ You do not need MCP to inspect the app. Dump any collector from Artisan:
 php artisan auditor:context --list
 php artisan auditor:context project_info
 php artisan auditor:context routes --output=storage/auditor-routes.json
+php artisan auditor:context changed_files
 ```
+
+`changed_files` lists uncommitted paths so a review can be scoped to the work in progress instead of the whole application. It needs `git` on the host; when git or the repository is missing it returns `available: false` with a `reason` instead of failing.
 
 Over MCP, the `routes`, `models`, `database_schema`, and `dependencies` tools also accept optional read-only filters (for example `routes {uri: "api"}`) so an agent can verify a focused slice instead of pulling the whole inventory. See [MCP tools](https://laravel-auditor.com/mcp/).
 
@@ -284,6 +292,7 @@ Tools:
 | `jobs_events_schedules` | Jobs, events/listeners, schedules |
 | `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
+| `changed_files` | Uncommitted files (staged, unstaged, untracked) for scoping a review |
 
 These tools are read-only. They return structured facts, not unfiltered source dumps.
 
@@ -354,6 +363,11 @@ return [
     'context' => [
         'composer_audit' => true,
         'test_listing' => false,
+    ],
+    'changed_files' => [
+        'include_untracked' => true,
+        'ignore' => ['vendor', 'node_modules', 'storage', 'bootstrap/cache'],
+        'max_files' => 500,
     ],
     'report' => [
         'format' => 'markdown',

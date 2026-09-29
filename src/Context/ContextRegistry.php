@@ -6,6 +6,7 @@ namespace LaravelAuditor\Context;
 
 use InvalidArgumentException;
 use LaravelAuditor\Context\Collectors\AuthorizationCollector;
+use LaravelAuditor\Context\Collectors\ChangedFilesCollector;
 use LaravelAuditor\Context\Collectors\ConfigurationCollector;
 use LaravelAuditor\Context\Collectors\DatabaseSchemaCollector;
 use LaravelAuditor\Context\Collectors\DependenciesCollector;
@@ -39,6 +40,7 @@ final class ContextRegistry
         private readonly JobsEventsSchedulesCollector $jobsEventsSchedules,
         private readonly TestsCollector $tests,
         private readonly SubsystemsCollector $subsystems,
+        private readonly ChangedFilesCollector $changedFiles,
     ) {}
 
     /**
@@ -58,6 +60,7 @@ final class ContextRegistry
             $this->jobsEventsSchedules->name() => $this->jobsEventsSchedules,
             $this->tests->name() => $this->tests,
             $this->subsystems->name() => $this->subsystems,
+            $this->changedFiles->name() => $this->changedFiles,
         ];
     }
 

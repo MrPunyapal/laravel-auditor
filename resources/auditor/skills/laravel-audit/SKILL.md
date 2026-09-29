@@ -45,6 +45,7 @@ Gather deterministic project facts first. When Artisan is available, start with 
 - `tests`: test framework and coverage signals.
 - `migrations`: migration files.
 - `subsystems`: ownership-bounded inventory for a DSA-style coordinator audit.
+- `changed_files`: uncommitted files (staged, unstaged, untracked) for scoping a review.
 
 Four tools accept optional read-only filters for focused verification: `routes` (`uri`, `name`, `action`, `method`), `models` (`class`, `table`), `database_schema` (`table`), and `dependencies` (`package`). Filtered responses report `total_count` so you always know how much of the full inventory was returned; call without arguments for the complete payload.
 
@@ -59,6 +60,8 @@ Build a **feature inventory** from the route surface and UI entry points before 
 Select only the audit domains relevant to this application. Do not blindly run every check. Reason about which domains matter and state the scope before investigating.
 
 Default domains: `security`, `performance`, `architecture`, `database`, `testing`, `conventions`. Skip domains that are clearly irrelevant (e.g. skip queue analysis when the app has no jobs or queue driver).
+
+When the user asks for a review of recent or in-progress work, call `changed_files` first and treat it as the scope boundary. It reports uncommitted paths only. If it returns `available: false`, git is unavailable and the scope is unknown — say so and fall back to a full application scope rather than assuming an empty change set. A clean working tree returning zero files is a valid result, not a collection failure.
 
 ### Phase C: Investigate
 

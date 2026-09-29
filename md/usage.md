@@ -72,8 +72,13 @@ php artisan auditor:status
 php artisan auditor:context --list
 php artisan auditor:context project_info
 php artisan auditor:context subsystems
+php artisan auditor:context changed_files
 php artisan auditor:context routes --output=storage/auditor-routes.json
 ```
+
+`changed_files` lists uncommitted paths — staged, unstaged, and untracked — so a review can be scoped to the work in progress instead of the whole application. It requires `git` on the host. When git or the repository is missing, the collector returns `available: false` with a `reason` rather than failing, so an audit can continue with a full scope. A clean working tree returns zero files, which is a valid result.
+
+Tune it with `changed_files.include_untracked`, `changed_files.ignore` (path prefixes), and `changed_files.max_files`.
 
 From PHP:
 
@@ -137,4 +142,7 @@ Key settings:
 - `custom_agents` — additional installer targets for agents that are not in the built-in list
 - `context.composer_audit` — enable the `composer audit` call from the dependencies collector (on by default; it hits the network and waits up to 60 seconds per collection, so set `false` to skip the shell-out when context collection must stay fully offline or fast)
 - `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
+- `changed_files.include_untracked` — include untracked paths in the `changed_files` collector (on by default)
+- `changed_files.ignore` — repository-relative path prefixes excluded from `changed_files`
+- `changed_files.max_files` — cap on the number of paths `changed_files` returns (default `500`)
 - `report.format` — default format for `auditor:report`

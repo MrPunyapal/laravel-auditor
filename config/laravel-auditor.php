@@ -128,6 +128,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Changed Files Options
+    |--------------------------------------------------------------------------
+    |
+    | Options for the `changed_files` collector, which lists uncommitted files
+    | so an agent can scope a review to the work in progress. Git is an optional
+    | host tool: when it or the repository is unavailable the collector returns
+    | `available: false` with a reason and never throws.
+    |
+    | `ignore` entries are repository-relative path prefixes matched on whole
+    | path segments, so `storage` also excludes `storage/framework`.
+    |
+    */
+
+    'changed_files' => [
+        'include_untracked' => true,
+        'ignore' => [
+            'vendor',
+            'node_modules',
+            'storage',
+            'bootstrap/cache',
+        ],
+        'max_files' => 500,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Report Defaults
     |--------------------------------------------------------------------------
     |

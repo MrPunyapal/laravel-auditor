@@ -9,7 +9,7 @@ slug: mcp
 
 MCP does not audit the app. It only answers the agent's questions with structured Laravel facts (routes, models, schema, and so on) so the agent does not have to guess from raw files.
 
-Laravel Auditor ships a local stdio MCP server that exposes 11 read-only context tools. When Laravel Boost is installed, the same tools are also registered inside Boost's MCP server automatically.
+Laravel Auditor ships a local stdio MCP server that exposes 12 read-only context tools. When Laravel Boost is installed, the same tools are also registered inside Boost's MCP server automatically.
 
 ## Register the server
 
@@ -40,6 +40,7 @@ A client configuration example lives in `resources/auditor/mcp/mcp.json.example`
 | `jobs_events_schedules` | Jobs, events/listeners, schedules |
 | `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
+| `changed_files` | Uncommitted files (staged, unstaged, untracked) for scoping a review |
 
 ## Optional filters
 
@@ -79,6 +80,7 @@ The same context is available without MCP through Artisan:
 ```bash
 php artisan auditor:context project_info
 php artisan auditor:context routes --output=storage/auditor-routes.json
+php artisan auditor:context changed_files
 php artisan auditor:context --list
 ```
 
@@ -98,4 +100,4 @@ All tools are read-only. They return structured facts about the application. The
 
 ## Laravel Boost integration
 
-When Laravel Boost is installed, the service provider registers the same 11 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
+When Laravel Boost is installed, the service provider registers the same 12 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
