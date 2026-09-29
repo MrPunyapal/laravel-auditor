@@ -39,8 +39,8 @@ final class GitStatus
     {
         $prefix = $this->prefix();
 
-        if (isset($prefix['reason'])) {
-            return ['available' => false, 'reason' => $prefix['reason'], 'files' => [], 'truncated' => false];
+        if ($prefix['prefix'] === null) {
+            return ['available' => false, 'reason' => (string) $prefix['reason'], 'files' => [], 'truncated' => false];
         }
 
         $result = $this->run([
@@ -172,19 +172,22 @@ final class GitStatus
     /**
      * The path of the application root relative to the repository root.
      *
-     * @return array{prefix: string}|array{reason: string}
+     * @return array{prefix: string|null, reason: string|null}
      */
     private function prefix(): array
     {
         $result = $this->run(['rev-parse', '--show-prefix']);
 
         if (! $result['ok']) {
-            return ['reason' => $result['reason']];
+            return ['prefix' => null, 'reason' => $result['reason']];
         }
 
         $prefix = str_replace('\\', '/', trim($result['output']));
 
-        return ['prefix' => $prefix === '' ? '' : rtrim($prefix, '/').'/'];
+        return [
+            'prefix' => $prefix === '' ? '' : rtrim($prefix, '/').'/',
+            'reason' => null,
+        ];
     }
 
     /**
