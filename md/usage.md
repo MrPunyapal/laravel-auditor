@@ -73,10 +73,13 @@ php artisan auditor:context --list
 php artisan auditor:context project_info
 php artisan auditor:context subsystems
 php artisan auditor:context changed_files
+php artisan auditor:context review_scope
 php artisan auditor:context routes --output=storage/auditor-routes.json
 ```
 
-`changed_files` lists uncommitted paths — staged, unstaged, and untracked — so a review can be scoped to the work in progress instead of the whole application. It requires `git` on the host. When git or the repository is missing, the collector returns `available: false` with a `reason` rather than failing, so an audit can continue with a full scope. A clean working tree returns zero files, which is a valid result.
+`changed_files` lists uncommitted paths — staged, unstaged, and untracked — so a review can be scoped to the work in progress instead of the whole application. It requires `git` on the host. When git or the repository is missing, the collector returns `available: false` with a `reason` rather than failing. That means the scope is unknown. A clean working tree returns zero files, which is a valid result.
+
+`review_scope` is the default audit. `changed` is the same uncommitted set. `related` adds the view, test, or class those files directly use, and `scope` is the union. An agent reads `scope` and leaves the rest of the application alone. Ask for a whole-application audit when every file should be reviewed. A finding about a related file is still in the review, so render that findings file without `--dirty`. `--dirty` would drop it, because the related file may not be dirty itself.
 
 Tune it with `changed_files.include_untracked`, `changed_files.ignore` (path prefixes), and `changed_files.max_files`.
 

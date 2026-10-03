@@ -32,7 +32,14 @@ For a bounded data-structure / ownership / organizing-model pass (inventory ever
 
 ### Phase A: Discover
 
-Gather deterministic project facts first. When Artisan is available, start with `php artisan auditor:status`, `php artisan auditor:context --list`, and `php artisan auditor:rules --applicable`. Then run the Laravel Auditor context tools (MCP) or inspect:
+Call `review_scope` before any other context tool.
+
+- A non-empty `scope` is the default audit. Read those files and stop there, unless the user asked to audit the whole application. `changed` files are the uncommitted work. `related` files are the view, test, or class that work directly uses, so a finding in the companion view or test still belongs in the review. On this default audit, do not inventory the rest of the application, and do not dump full `routes`, `models`, or `database_schema`. Use a filtered context tool only for a symbol you found in the scope.
+- An empty `changed` list means the working tree is clean. Say so. Continue into a whole-application audit only when the user asked for the whole application.
+- `available: false` means git cannot tell you what changed. Say the reason. Do not treat it as a clean tree, and do not start a whole-application audit unless the user asked for one.
+- `truncated: true` means the file list was capped. Say that the scope is partial.
+
+When the user asked for a whole-application audit, gather deterministic project facts. When Artisan is available, start with `php artisan auditor:status`, `php artisan auditor:context --list`, and `php artisan auditor:rules --applicable`. Then run the Laravel Auditor context tools (MCP) or inspect:
 
 - `project_info`: Laravel version, PHP version, database engine, ecosystem packages, architecture signals.
 - `routes`: registered routes and their handlers.
@@ -45,7 +52,8 @@ Gather deterministic project facts first. When Artisan is available, start with 
 - `tests`: test framework and coverage signals.
 - `migrations`: migration files.
 - `subsystems`: ownership-bounded inventory for a DSA-style coordinator audit.
-- `changed_files`: uncommitted files (staged, unstaged, untracked) for scoping a review.
+- `changed_files`: uncommitted files (staged, unstaged, untracked).
+- `review_scope`: the audit boundary for that work. `changed` is the dirty files. `related` is the view, test, or class those files directly use. `scope` is the union, and it is the only set of files to read.
 
 Four tools accept optional read-only filters for focused verification: `routes` (`uri`, `name`, `action`, `method`), `models` (`class`, `table`), `database_schema` (`table`), and `dependencies` (`package`). Filtered responses report `total_count` so you always know how much of the full inventory was returned; call without arguments for the complete payload.
 
@@ -53,7 +61,7 @@ Fall back to `composer.json`, `bootstrap/app.php`, `config/app.php`, and the fil
 
 Record the application type (web, API, admin panel, package) and any ecosystem packages (Livewire, Filament, Inertia, Pest, Sanctum, Horizon, etc.) — these determine which rules apply.
 
-Build a **feature inventory** from the route surface and UI entry points before scoping. List each feature (login, checkout, admin dashboard, etc.), the routes and views that implement it, and the model/service behind it. This inventory drives testing and authorization coverage later, and surfaces stubbed or hallucinated features (a route pointing at a missing controller, an empty view, a TODO handler) early.
+On a whole-application audit, build a **feature inventory** from the route surface and UI entry points before scoping. List each feature (login, checkout, admin dashboard, etc.), the routes and views that implement it, and the model/service behind it. This inventory drives testing and authorization coverage later, and surfaces stubbed or hallucinated features (a route pointing at a missing controller, an empty view, a TODO handler) early. A `review_scope` audit inventories only the features touched by `scope`.
 
 ### Phase B: Scope
 
@@ -61,7 +69,7 @@ Select only the audit domains relevant to this application. Do not blindly run e
 
 Default domains: `security`, `performance`, `architecture`, `database`, `testing`, `conventions`. Skip domains that are clearly irrelevant (e.g. skip queue analysis when the app has no jobs or queue driver).
 
-When the user asks for a review of uncommitted work, call `changed_files` first and treat it as the scope boundary. It reports uncommitted paths only. If it returns `available: false`, git is unavailable and the scope is unknown — say so and fall back to a full application scope rather than assuming an empty change set. A clean working tree returning zero files is a valid result, not a collection failure.
+`review_scope` is the default boundary. `changed_files` is the raw uncommitted list without the related view, test, or class. Use `changed_files` only when you need that raw list. A clean working tree returning zero files is a valid result, not a collection failure. Widen a non-empty `review_scope` to the whole application only when the user asked for that.
 
 When the user asks to gate a pull request or CI, do not use `changed_files` or `--dirty` as the scope. Those see the working tree, which a CI checkout leaves clean. Use `--base=origin/main` (or the pull request's base ref) on `auditor:ci`. The ref must exist locally.
 
@@ -69,9 +77,9 @@ When the user asks to gate a pull request or CI, do not use `changed_files` or `
 
 For each selected domain:
 
-1. Collect relevant project facts using the context tools.
+1. Collect relevant project facts using the context tools. In a `review_scope` audit the facts are the files in `scope`; do not open a full collector.
 2. Inspect source code around the facts.
-3. Trace important behavior across files (controller → service → model → route → view).
+3. Trace important behavior across files already in `scope` (controller → service → model → route → view). Do not follow a symbol into a file outside `scope`.
 4. Cross-check evidence across multiple sources.
 5. Separate confirmed problems from hypotheses.
 
@@ -116,7 +124,7 @@ Write findings to `storage/auditor-findings.json` (an array, or `{ "findings": [
   - **P2** — useful invariant improvements with narrower impact
   - **P3** — telemetry / diagnostics / maintainability
 
-Then render:
+Then render. For a `review_scope` audit, render the findings file as it stands. Do not pass `--dirty`: a finding on a related file is about a file that may not itself be dirty, and `--dirty` would drop it.
 
 ```bash
 php artisan auditor:report --findings=storage/auditor-findings.json
@@ -147,3 +155,5 @@ The report includes project facts, domains audited, counts by severity/domain, p
 - Claiming the audit is complete when evidence was missing.
 - Running `migrate`, `db:wipe`, `db:seed`, or any other mutating Artisan command to "verify" schema.
 - Treating `composer_audit.available: false` (or an empty advisory list) as “no vulnerabilities” when the collector did not actually run `composer audit`.
+- Auditing the whole application when `review_scope` returned a non-empty `scope` and the user did not ask for the whole application.
+- Ignoring `related` and reviewing only the dirty file, or wandering past `scope` into unrelated callers.

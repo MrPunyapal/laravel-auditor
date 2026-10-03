@@ -13,8 +13,8 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Area | What is included |
 | --- | --- |
 | Service provider | Singleton bindings, config merge, publish tags, command registration, Boost MCP registration |
-| Context collectors | 12 read-only collectors: project info, routes, models, migrations, database schema, dependencies, configuration, authorization, jobs/events/schedules, tests, subsystems, changed files |
-| MCP server | stdio MCP server exposing the 12 collectors as read-only tools; automatic Boost integration via `boost.mcp.tools.include` |
+| Context collectors | 13 read-only collectors: project info, routes, models, migrations, database schema, dependencies, configuration, authorization, jobs/events/schedules, tests, subsystems, changed files, review scope |
+| MCP server | stdio MCP server exposing the 13 collectors as read-only tools; automatic Boost integration via `boost.mcp.tools.include` |
 | Audit rules | 81 evidence-first rules across 6 core domains (security, performance, architecture, database, testing, conventions), including a deep performance catalog (AUD-PER-008–018) with context-gated, semantic-equivalence-verified optimization rules and an architecture code-smell catalog (AUD-ARC-006–011) |
 | Ecosystem rule packs | Livewire, Filament, Inertia, Sanctum, Pest — applied only when the target package is installed. Queue and DSA rules always apply. |
 | Findings | `Finding`, `FindingCollection`, `FindingLoader`, JSON schemas (`finding.schema.json`, `report.schema.json`), example findings file |
@@ -72,6 +72,7 @@ resources/
 - Audit knowledge stays agent-neutral. `AGENTS.md` / `CLAUDE.md` adapters only point at that source of truth.
 - Collectors return structured data, not raw source dumps.
 - `changed_files` is a scope signal, not a baseline. It reports uncommitted paths only and never diffs two audit runs. `--base` is the committed diff from `git merge-base <ref> HEAD` to `HEAD`. `--dirty` is the working tree. Neither stores a previous audit.
+- `review_scope` is the default audit boundary: dirty files plus the view, test, or class they directly use. A whole-application audit runs when the user asks for one.
 - The MCP server is read-only; it cannot modify application code.
 - Rules reference evidence; they do not invent findings.
 

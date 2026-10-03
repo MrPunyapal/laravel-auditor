@@ -24,7 +24,7 @@ it('resolves Laravel Auditor services from the container', function () {
     $auditor = app(LaravelAuditor::class);
 
     expect($auditor->rules()->count())->toBeGreaterThanOrEqual(18);
-    expect($auditor->context()->names())->toHaveCount(12);
+    expect($auditor->context()->names())->toHaveCount(13);
     expect($auditor->project()->facts()['php_version'])->toBe(PHP_VERSION);
 });
 
@@ -46,8 +46,8 @@ it('loads additional rules from configured directories', function () {
 it('registers all ten context collectors', function () {
     $registry = app(ContextRegistry::class);
 
-    expect($registry->all())->toHaveCount(12);
-    expect($registry->names())->toContain('project_info', 'routes', 'models', 'migrations', 'database_schema', 'dependencies', 'configuration', 'policies_authorization', 'jobs_events_schedules', 'tests', 'subsystems', 'changed_files');
+    expect($registry->all())->toHaveCount(13);
+    expect($registry->names())->toContain('project_info', 'routes', 'models', 'migrations', 'database_schema', 'dependencies', 'configuration', 'policies_authorization', 'jobs_events_schedules', 'tests', 'subsystems', 'changed_files', 'review_scope');
 });
 
 it('exposes named collectors through the registry', function () {

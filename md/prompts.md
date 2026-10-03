@@ -9,11 +9,30 @@ slug: prompts
 
 Pick the prompt that matches what you want out of the run. Every prompt is read-only: the agent gathers evidence and reports, it never modifies application code.
 
-## Full audit
+The default audit is the uncommitted work. Use the whole-application prompt when you want every file reviewed.
 
-The complete methodology pass: discover, scope, verify, report.
+## Uncommitted work
+
+The default. The agent reads the dirty files and the view, test, or class they directly use.
 
 ```text
+Review my uncommitted work using the laravel-audit skill.
+
+1. Call review_scope first. Audit scope only: the dirty files and the views, tests, and classes they directly use.
+2. If it returns available: false, git is unavailable — say the scope is unknown. Do not assume nothing changed, and do not start a full audit unless asked.
+3. An empty changed list means a clean working tree. Report that and stop; do not fall back to a full audit unasked.
+4. Pick the domains that match the files in scope (controller changes → security, query changes → performance, migration changes → database).
+5. Do not pull the full route, model, or schema inventory. Use a filtered context tool only for a symbol you found in scope.
+6. Verify every finding against a file in scope, then report with evidence and fixes. Read-only. Render the findings file without --dirty, because a related file may not itself be dirty.
+```
+
+## Whole application
+
+The complete methodology pass over every file: discover, scope, verify, report. This is the prompt to use when you want more than the dirty scope.
+
+```text
+Audit the whole application, including files outside the dirty scope.
+
 You are auditing the Laravel application in this project using the Laravel Auditor methodology.
 
 1. Use the laravel-audit skill. Follow its Discover -> Scope -> Verify -> Report workflow.
@@ -29,7 +48,6 @@ You are auditing the Laravel application in this project using the Laravel Audit
    - jobs_events_schedules — queues, events, cron
    - tests — test suite: framework, case counts (feature/unit)
    - subsystems — ownership-bounded inventory for a DSA-style coordinator audit
-   - changed_files — uncommitted files, for scoping a review to the work in progress
 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
@@ -42,12 +60,12 @@ You are auditing the Laravel application in this project using the Laravel Audit
 A fast, non-exhaustive first look when you only want orientation:
 
 ```text
-Start with a Discover phase only: run all 12 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+Start with a Discover phase only: run all 13 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
 ```
 
 ## Domain-focused audit
 
-When you already know where the risk is, scope hard instead of skimming everything:
+When you already know where the risk is, scope hard instead of skimming everything. This still starts from `review_scope` unless you ask for the whole application:
 
 ```text
 Audit this application for security issues only, using the laravel-audit skill and its security rules.
@@ -71,21 +89,6 @@ Gate this audit on the pull request diff.
 2. Run: php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
 3. If the command says the base ref cannot be resolved, fetch it. In GitHub Actions set fetch-depth: 0. Do not drop --base and treat a full-repo failure as the pull request result.
 4. --dirty is the uncommitted working tree. On a clean checkout it gates nothing. Use it for local edits, or pass it with --base when those edits should count too.
-```
-
-## Changed-files review
-
-When the user wants a review of work in progress rather than the whole application:
-
-```text
-Review only my uncommitted work using the laravel-audit skill.
-
-1. Call changed_files first. Treat those paths as the scope boundary.
-2. If it returns available: false, git is unavailable — say the scope is unknown and audit the whole application instead of assuming nothing changed.
-3. Zero files means a clean working tree. Report that and stop; do not fall back to a full audit unasked.
-4. Pick the domains that match the changed files (controller changes → security, query changes → performance, migration changes → database).
-5. Only use the context tools those domains need. Do not pull the full inventory.
-6. Verify every finding against the changed file, then report with evidence and fixes. Read-only.
 ```
 
 ## Performance audit

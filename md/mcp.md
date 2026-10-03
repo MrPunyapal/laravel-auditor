@@ -41,6 +41,7 @@ A client configuration example lives in `resources/auditor/mcp/mcp.json.example`
 | `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 | `changed_files` | Uncommitted files (staged, unstaged, untracked) for scoping a review |
+| `review_scope` | Dirty files plus the view, test, or class they directly use. `scope` is what an agent should read |
 
 ## Optional filters
 
@@ -81,6 +82,7 @@ The same context is available without MCP through Artisan:
 php artisan auditor:context project_info
 php artisan auditor:context routes --output=storage/auditor-routes.json
 php artisan auditor:context changed_files
+php artisan auditor:context review_scope
 php artisan auditor:context --list
 ```
 
@@ -100,4 +102,4 @@ All tools are read-only. They return structured facts about the application. The
 
 ## Laravel Boost integration
 
-When Laravel Boost is installed, the service provider registers the same 12 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
+When Laravel Boost is installed, the service provider registers the same 13 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.

@@ -25,6 +25,7 @@ use LaravelAuditor\Context\Collectors\JobsEventsSchedulesCollector;
 use LaravelAuditor\Context\Collectors\MigrationsCollector;
 use LaravelAuditor\Context\Collectors\ModelsCollector;
 use LaravelAuditor\Context\Collectors\ProjectInfoCollector;
+use LaravelAuditor\Context\Collectors\ReviewScopeCollector;
 use LaravelAuditor\Context\Collectors\RoutesCollector;
 use LaravelAuditor\Context\Collectors\SubsystemsCollector;
 use LaravelAuditor\Context\Collectors\TestsCollector;
@@ -37,6 +38,7 @@ use LaravelAuditor\Support\ChangedFilesOptions;
 use LaravelAuditor\Support\DirtyScope;
 use LaravelAuditor\Support\GitStatus;
 use LaravelAuditor\Support\ResourcesTarget;
+use LaravelAuditor\Support\ReviewScope;
 
 class LaravelAuditorServiceProvider extends ServiceProvider
 {
@@ -140,6 +142,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
                 tests: $app->make(TestsCollector::class),
                 subsystems: $app->make(SubsystemsCollector::class),
                 changedFiles: $app->make(ChangedFilesCollector::class),
+                reviewScope: $app->make(ReviewScopeCollector::class),
             );
         });
 
@@ -157,6 +160,12 @@ class LaravelAuditorServiceProvider extends ServiceProvider
         $this->app->singleton(ChangedFilesOptions::class);
         $this->app->singleton(GitStatus::class, static fn (): GitStatus => new GitStatus(base_path()));
         $this->app->singleton(ChangedFilesCollector::class);
+        $this->app->singleton(ReviewScope::class, static fn (Application $app): ReviewScope => new ReviewScope(
+            git: $app->make(GitStatus::class),
+            options: $app->make(ChangedFilesOptions::class),
+            root: base_path(),
+        ));
+        $this->app->singleton(ReviewScopeCollector::class);
         $this->app->singleton(DirtyScope::class);
     }
 

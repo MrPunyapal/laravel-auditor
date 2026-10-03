@@ -150,19 +150,25 @@ php artisan auditor:rules --applicable
 
 Ask the agent:
 
-> Use the laravel-audit skill to audit this application. Discover the project first, scope the relevant domains, and report only evidenced findings.
+> Use the laravel-audit skill to audit this application. Call `review_scope` first and audit `scope`: the dirty files and the views, tests, and classes they directly use. Report only evidenced findings.
 
 The agent should:
 
-1. Collect project facts (`auditor:status` or the MCP tools)
-2. Scope the domains that actually apply
-3. Investigate with routes, models, schema, policies, tests, and source
+1. Call `review_scope`. That is the default boundary.
+2. Read the files in `scope` and scope the domains that apply to them
+3. Investigate with the source in that set, plus a filtered context tool only for a symbol found there
 4. Verify high-severity claims before reporting them
 5. Produce structured findings and a report
 
-### Full example prompt
+A whole-application audit is a separate request. Ask for it when every file should be reviewed.
 
-> You are auditing the Laravel application in this project using the Laravel Auditor methodology.
+### Default example prompt
+
+> Review my uncommitted work. Call `review_scope` first. Audit `scope`: the dirty files and the views, tests, and classes they directly use. Leave the rest of the application alone. If `changed` is empty, say the working tree is clean and stop.
+
+### Whole-application prompt
+
+> Audit the whole application, including files outside the dirty scope.
 >
 > 1. Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.
 > 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code:
@@ -176,7 +182,7 @@ The agent should:
 >    - `policies_authorization` — gates, policies, auth middleware
 >    - `jobs_events_schedules` — queues, events, cron
 >    - `tests` — test coverage layout
->    - `changed_files` — uncommitted files, for scoping a review to the work in progress
+>    - `subsystems` — ownership-bounded inventory
 > 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
 > 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 > 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
@@ -184,11 +190,7 @@ The agent should:
 
 For a quick Discover-only pass:
 
-> Start with a Discover phase only: run all 12 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
-
-For a review scoped to the work in progress:
-
-> Review only my uncommitted work. Call `changed_files` first, treat those paths as the scope boundary, then audit just those files.
+> Start with a Discover phase only: run all 13 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
 
 For a data-structure / ownership pass:
 
@@ -293,6 +295,7 @@ Tools:
 | `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 | `changed_files` | Uncommitted files (staged, unstaged, untracked) for scoping a review |
+| `review_scope` | Dirty files plus the view, test, or class they directly use. `scope` is the audit boundary |
 
 These tools are read-only. They return structured facts, not unfiltered source dumps.
 

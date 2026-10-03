@@ -46,11 +46,13 @@ Write findings to JSON and render them with `php artisan auditor:report --findin
 The Laravel Auditor context tools provide deterministic Laravel context:
 
 - `project_info`, `routes`, `models`, `migrations`, `database_schema`.
-- `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`, `changed_files`.
+- `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`, `changed_files`, `review_scope`.
 
 List them with `php artisan auditor:context --list`. Prefer `php artisan auditor:rules --applicable` before investigating ecosystem-specific issues.
 
 `changed_files` lists uncommitted paths so a review can be scoped to the work in progress. It needs git on the host: when git or the repository is unavailable it returns `available: false` with a `reason`, which means "scope unknown", not "nothing changed". A clean tree legitimately returns zero files.
+
+`review_scope` is the default audit boundary. `changed` is the dirty files. `related` is the view, test, or class those files directly use. Read `scope` and leave the rest of the application alone. An empty `changed` list is a clean tree. Audit every file only when the user asks for the whole application.
 
 Gate a pull request with `php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high`. `--base` is the committed diff. `--dirty` is the working tree and gates nothing on a clean checkout. The base ref must exist locally.
 

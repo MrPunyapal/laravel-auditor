@@ -14,6 +14,7 @@ use LaravelAuditor\Context\Collectors\JobsEventsSchedulesCollector;
 use LaravelAuditor\Context\Collectors\MigrationsCollector;
 use LaravelAuditor\Context\Collectors\ModelsCollector;
 use LaravelAuditor\Context\Collectors\ProjectInfoCollector;
+use LaravelAuditor\Context\Collectors\ReviewScopeCollector;
 use LaravelAuditor\Context\Collectors\RoutesCollector;
 use LaravelAuditor\Context\Collectors\SubsystemsCollector;
 use LaravelAuditor\Context\Collectors\TestsCollector;
@@ -41,6 +42,7 @@ final class ContextRegistry
         private readonly TestsCollector $tests,
         private readonly SubsystemsCollector $subsystems,
         private readonly ChangedFilesCollector $changedFiles,
+        private readonly ReviewScopeCollector $reviewScope,
     ) {}
 
     /**
@@ -61,6 +63,7 @@ final class ContextRegistry
             $this->tests->name() => $this->tests,
             $this->subsystems->name() => $this->subsystems,
             $this->changedFiles->name() => $this->changedFiles,
+            $this->reviewScope->name() => $this->reviewScope,
         ];
     }
 
