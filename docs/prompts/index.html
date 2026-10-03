@@ -67,6 +67,7 @@
 </span></span><span class="line"><span class="token">   - jobs_events_schedules — queues, events, cron
 </span></span><span class="line"><span class="token">   - tests — test suite: framework, case counts (feature/unit)
 </span></span><span class="line"><span class="token">   - subsystems — ownership-bounded inventory for a DSA-style coordinator audit
+</span></span><span class="line"><span class="token">   - changed_files — uncommitted files, for scoping a review to the work in progress
 </span></span><span class="line"><span class="token">3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
 </span></span><span class="line"><span class="token">4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 </span></span><span class="line"><span class="token">5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
@@ -75,7 +76,7 @@
 </span></span></code></pre>
 <h2 id="quick-discover-pass">Quick discover pass</h2>
 <p>A fast, non-exhaustive first look when you only want orientation:</p>
-<pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+<pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Start with a Discover phase only: run all 12 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
 </span></span></code></pre>
 <h2 id="domain-focused-audit">Domain-focused audit</h2>
 <p>When you already know where the risk is, scope hard instead of skimming everything:</p>
@@ -87,6 +88,17 @@
 </span></span><span class="line"><span class="token">4. Rank findings P0–P3 with concrete evidence and fixes. Read-only.
 </span></span></code></pre>
 <p>Swap the domain and tool list for <code>database</code>, <code>architecture</code>, or <code>testing</code> as needed.</p>
+<h2 id="changed-files-review">Changed-files review</h2>
+<p>When the user wants a review of work in progress rather than the whole application:</p>
+<pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Review only my uncommitted work using the laravel-audit skill.
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token">1. Call changed_files first. Treat those paths as the scope boundary.
+</span></span><span class="line"><span class="token">2. If it returns available: false, git is unavailable — say the scope is unknown and audit the whole application instead of assuming nothing changed.
+</span></span><span class="line"><span class="token">3. Zero files means a clean working tree. Report that and stop; do not fall back to a full audit unasked.
+</span></span><span class="line"><span class="token">4. Pick the domains that match the changed files (controller changes → security, query changes → performance, migration changes → database).
+</span></span><span class="line"><span class="token">5. Only use the context tools those domains need. Do not pull the full inventory.
+</span></span><span class="line"><span class="token">6. Verify every finding against the changed file, then report with evidence and fixes. Read-only.
+</span></span></code></pre>
 <h2 id="performance-audit">Performance audit</h2>
 <p>A deep performance pass that verifies before it reports:</p>
 <pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Audit this application's performance using the laravel-audit-performance skill.
@@ -132,7 +144,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../agents/"><span>Previous</span><strong>Agent setup</strong></a><a class="pager-link pager-link-next" href="../mcp/"><span>Next</span><strong>MCP tools</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#full-audit" data-docsmith-toc-link="full-audit">Full audit</a><a class="toc-link toc-link-level-2" href="#quick-discover-pass" data-docsmith-toc-link="quick-discover-pass">Quick discover pass</a><a class="toc-link toc-link-level-2" href="#domain-focused-audit" data-docsmith-toc-link="domain-focused-audit">Domain-focused audit</a><a class="toc-link toc-link-level-2" href="#performance-audit" data-docsmith-toc-link="performance-audit">Performance audit</a><a class="toc-link toc-link-level-2" href="#focused-verification-with-tool-filters" data-docsmith-toc-link="focused-verification-with-tool-filters">Focused verification with tool filters</a><a class="toc-link toc-link-level-2" href="#re-audit-after-fixes" data-docsmith-toc-link="re-audit-after-fixes">Re-audit after fixes</a><a class="toc-link toc-link-level-2" href="#dsa-subsystem-audit" data-docsmith-toc-link="dsa-subsystem-audit">DSA / subsystem audit</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#full-audit" data-docsmith-toc-link="full-audit">Full audit</a><a class="toc-link toc-link-level-2" href="#quick-discover-pass" data-docsmith-toc-link="quick-discover-pass">Quick discover pass</a><a class="toc-link toc-link-level-2" href="#domain-focused-audit" data-docsmith-toc-link="domain-focused-audit">Domain-focused audit</a><a class="toc-link toc-link-level-2" href="#changed-files-review" data-docsmith-toc-link="changed-files-review">Changed-files review</a><a class="toc-link toc-link-level-2" href="#performance-audit" data-docsmith-toc-link="performance-audit">Performance audit</a><a class="toc-link toc-link-level-2" href="#focused-verification-with-tool-filters" data-docsmith-toc-link="focused-verification-with-tool-filters">Focused verification with tool filters</a><a class="toc-link toc-link-level-2" href="#re-audit-after-fixes" data-docsmith-toc-link="re-audit-after-fixes">Re-audit after fixes</a><a class="toc-link toc-link-level-2" href="#dsa-subsystem-audit" data-docsmith-toc-link="dsa-subsystem-audit">DSA / subsystem audit</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>

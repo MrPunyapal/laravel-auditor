@@ -299,8 +299,13 @@ php artisan auditor:status
 php artisan auditor:context --list
 php artisan auditor:context project_info
 php artisan auditor:context subsystems
+php artisan auditor:context changed_files
 php artisan auditor:context routes --output=storage/auditor-routes.json
 ```
+
+`changed_files` lists uncommitted paths — staged, unstaged, and untracked — so a review can be scoped to the work in progress instead of the whole application. It requires `git` on the host. When git or the repository is missing, the collector returns `available: false` with a `reason` rather than failing, so an audit can continue with a full scope. A clean working tree returns zero files, which is a valid result.
+
+Tune it with `changed_files.include_untracked`, `changed_files.ignore` (path prefixes), and `changed_files.max_files`.
 
 From PHP:
 
@@ -364,6 +369,9 @@ Key settings:
 - `custom_agents` — additional installer targets for agents that are not in the built-in list
 - `context.composer_audit` — enable the `composer audit` call from the dependencies collector (on by default; it hits the network and waits up to 60 seconds per collection, so set `false` to skip the shell-out when context collection must stay fully offline or fast)
 - `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
+- `changed_files.include_untracked` — include untracked paths in the `changed_files` collector (on by default)
+- `changed_files.ignore` — repository-relative path prefixes excluded from `changed_files`
+- `changed_files.max_files` — cap on the number of paths `changed_files` returns (default `500`)
 - `report.format` — default format for `auditor:report`
 
 
@@ -495,6 +503,7 @@ You are auditing the Laravel application in this project using the Laravel Audit
    - jobs_events_schedules — queues, events, cron
    - tests — test suite: framework, case counts (feature/unit)
    - subsystems — ownership-bounded inventory for a DSA-style coordinator audit
+   - changed_files — uncommitted files, for scoping a review to the work in progress
 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
@@ -507,7 +516,7 @@ You are auditing the Laravel application in this project using the Laravel Audit
 A fast, non-exhaustive first look when you only want orientation:
 
 ```text
-Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+Start with a Discover phase only: run all 12 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
 ```
 
 ## Domain-focused audit
@@ -524,6 +533,21 @@ Audit this application for security issues only, using the laravel-audit skill a
 ```
 
 Swap the domain and tool list for `database`, `architecture`, or `testing` as needed.
+
+## Changed-files review
+
+When the user wants a review of work in progress rather than the whole application:
+
+```text
+Review only my uncommitted work using the laravel-audit skill.
+
+1. Call changed_files first. Treat those paths as the scope boundary.
+2. If it returns available: false, git is unavailable — say the scope is unknown and audit the whole application instead of assuming nothing changed.
+3. Zero files means a clean working tree. Report that and stop; do not fall back to a full audit unasked.
+4. Pick the domains that match the changed files (controller changes → security, query changes → performance, migration changes → database).
+5. Only use the context tools those domains need. Do not pull the full inventory.
+6. Verify every finding against the changed file, then report with evidence and fixes. Read-only.
+```
 
 ## Performance audit
 
@@ -589,7 +613,7 @@ See [DSA audit](/dsa/) for how the coordinator splits the work.
 
 MCP does not audit the app. It only answers the agent's questions with structured Laravel facts (routes, models, schema, and so on) so the agent does not have to guess from raw files.
 
-Laravel Auditor ships a local stdio MCP server that exposes 11 read-only context tools. When Laravel Boost is installed, the same tools are also registered inside Boost's MCP server automatically.
+Laravel Auditor ships a local stdio MCP server that exposes 12 read-only context tools. When Laravel Boost is installed, the same tools are also registered inside Boost's MCP server automatically.
 
 ## Register the server
 
@@ -620,6 +644,7 @@ A client configuration example lives in `resources/auditor/mcp/mcp.json.example`
 | `jobs_events_schedules` | Jobs, events/listeners, schedules |
 | `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
+| `changed_files` | Uncommitted files (staged, unstaged, untracked) for scoping a review |
 
 ## Optional filters
 
@@ -659,6 +684,7 @@ The same context is available without MCP through Artisan:
 ```bash
 php artisan auditor:context project_info
 php artisan auditor:context routes --output=storage/auditor-routes.json
+php artisan auditor:context changed_files
 php artisan auditor:context --list
 ```
 
@@ -678,7 +704,7 @@ All tools are read-only. They return structured facts about the application. The
 
 ## Laravel Boost integration
 
-When Laravel Boost is installed, the service provider registers the same 11 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
+When Laravel Boost is installed, the service provider registers the same 12 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
 
 
 ---
