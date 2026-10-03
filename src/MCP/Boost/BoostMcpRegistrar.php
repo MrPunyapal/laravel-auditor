@@ -6,6 +6,7 @@ namespace LaravelAuditor\MCP\Boost;
 
 use LaravelAuditor\MCP\Boost\Tools\AuditTool;
 use LaravelAuditor\MCP\Boost\Tools\AuthorizationTool;
+use LaravelAuditor\MCP\Boost\Tools\ChangedFilesTool;
 use LaravelAuditor\MCP\Boost\Tools\ConfigurationTool;
 use LaravelAuditor\MCP\Boost\Tools\DatabaseSchemaTool;
 use LaravelAuditor\MCP\Boost\Tools\DependenciesTool;
@@ -59,6 +60,7 @@ final class BoostMcpRegistrar
         'jobs_events_schedules' => JobsEventsSchedulesTool::class,
         'tests' => TestsTool::class,
         'subsystems' => SubsystemsTool::class,
+        'changed_files' => ChangedFilesTool::class,
     ];
 
     /**

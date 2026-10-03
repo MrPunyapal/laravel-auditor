@@ -2,6 +2,12 @@
 
 ## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.7...HEAD)
 
+### Added
+
+- `changed_files` context collector (12th) listing uncommitted files — staged, unstaged, and untracked — so an agent can scope a review to the work in progress instead of re-reading the whole application. Available as `auditor:context changed_files`, as an MCP tool, and automatically through Laravel Boost.
+- `Support\GitStatus`: a read-only, fail-soft git reader. Uses `git status --porcelain=v1 -z` so unusual filenames survive intact, consumes the extra field of rename/copy entries, rewrites repository-relative paths to application-relative ones, and rejects paths outside the application root instead of emitting `../` references. Missing git, a missing repository, or a failed call returns a reason rather than throwing.
+- `changed_files` config block: `include_untracked` (on), `ignore` path prefixes (vendor, node_modules, storage, bootstrap/cache), and `max_files` (500). A truncated result is reported as `truncated: true` so nothing is silently hidden.
+
 ## [v0.1.7](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.6...v0.1.7) - 2026-09-27
 
 ### Added

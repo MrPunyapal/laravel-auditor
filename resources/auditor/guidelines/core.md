@@ -46,9 +46,11 @@ Write findings to JSON and render them with `php artisan auditor:report --findin
 The Laravel Auditor context tools provide deterministic Laravel context:
 
 - `project_info`, `routes`, `models`, `migrations`, `database_schema`.
-- `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`.
+- `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`, `changed_files`.
 
 List them with `php artisan auditor:context --list`. Prefer `php artisan auditor:rules --applicable` before investigating ecosystem-specific issues.
+
+`changed_files` lists uncommitted paths so a review can be scoped to the work in progress. It needs git on the host: when git or the repository is unavailable it returns `available: false` with a `reason`, which means "scope unknown", not "nothing changed". A clean tree legitimately returns zero files.
 
 `dependencies.composer_audit` is **on by default**. `tests` case listing is **off by default**. Do not treat `composer_audit.available: false` or a file-count test total as proof there are no advisories or that every test case was listed. If `available` is false, read `reason` (or run `composer audit --format=json` yourself). Enable `laravel-auditor.context.test_listing` or run the test runner yourself for accurate case counts.
 

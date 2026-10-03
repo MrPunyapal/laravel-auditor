@@ -16,7 +16,7 @@ use LaravelAuditor\Support\BoostDetector;
 it('exposes one Boost tool adapter for every context collector', function () {
     $tools = app(BoostMcpRegistrar::class)->toolClasses();
 
-    expect($tools)->toHaveCount(11);
+    expect($tools)->toHaveCount(12);
     expect($tools)->each->toBeString();
 
     foreach ($tools as $toolClass) {
@@ -94,7 +94,7 @@ it('merges boost tool classes into boost.mcp.tools.include when Boost is install
     $include = config('boost.mcp.tools.include');
 
     expect($include)->toContain('Some\\ExistingTool');
-    expect($include)->toHaveCount(12);
+    expect($include)->toHaveCount(13);
     expect($include)->toContain(ProjectInfoTool::class);
 });
 

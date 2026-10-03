@@ -29,6 +29,7 @@ You are auditing the Laravel application in this project using the Laravel Audit
    - jobs_events_schedules — queues, events, cron
    - tests — test suite: framework, case counts (feature/unit)
    - subsystems — ownership-bounded inventory for a DSA-style coordinator audit
+   - changed_files — uncommitted files, for scoping a review to the work in progress
 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
@@ -41,7 +42,7 @@ You are auditing the Laravel application in this project using the Laravel Audit
 A fast, non-exhaustive first look when you only want orientation:
 
 ```text
-Start with a Discover phase only: run all 11 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+Start with a Discover phase only: run all 12 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
 ```
 
 ## Domain-focused audit
@@ -58,6 +59,21 @@ Audit this application for security issues only, using the laravel-audit skill a
 ```
 
 Swap the domain and tool list for `database`, `architecture`, or `testing` as needed.
+
+## Changed-files review
+
+When the user wants a review of work in progress rather than the whole application:
+
+```text
+Review only my uncommitted work using the laravel-audit skill.
+
+1. Call changed_files first. Treat those paths as the scope boundary.
+2. If it returns available: false, git is unavailable — say the scope is unknown and audit the whole application instead of assuming nothing changed.
+3. Zero files means a clean working tree. Report that and stop; do not fall back to a full audit unasked.
+4. Pick the domains that match the changed files (controller changes → security, query changes → performance, migration changes → database).
+5. Only use the context tools those domains need. Do not pull the full inventory.
+6. Verify every finding against the changed file, then report with evidence and fixes. Read-only.
+```
 
 ## Performance audit
 

@@ -13,8 +13,8 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Area | What is included |
 | --- | --- |
 | Service provider | Singleton bindings, config merge, publish tags, command registration, Boost MCP registration |
-| Context collectors | 11 read-only collectors: project info, routes, models, migrations, database schema, dependencies, configuration, authorization, jobs/events/schedules, tests, subsystems |
-| MCP server | stdio MCP server exposing the 11 collectors as read-only tools; automatic Boost integration via `boost.mcp.tools.include` |
+| Context collectors | 12 read-only collectors: project info, routes, models, migrations, database schema, dependencies, configuration, authorization, jobs/events/schedules, tests, subsystems, changed files |
+| MCP server | stdio MCP server exposing the 12 collectors as read-only tools; automatic Boost integration via `boost.mcp.tools.include` |
 | Audit rules | 81 evidence-first rules across 6 core domains (security, performance, architecture, database, testing, conventions), including a deep performance catalog (AUD-PER-008–018) with context-gated, semantic-equivalence-verified optimization rules and an architecture code-smell catalog (AUD-ARC-006–011) |
 | Ecosystem rule packs | Livewire, Filament, Inertia, Sanctum, Pest — applied only when the target package is installed. Queue and DSA rules always apply. |
 | Findings | `Finding`, `FindingCollection`, `FindingLoader`, JSON schemas (`finding.schema.json`, `report.schema.json`), example findings file |
@@ -23,7 +23,7 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Installer | Idempotent standalone installer with `--dry-run`, `--force`, `--agents` options; wires only selected, configured, or detected agents; writes adapters only when missing |
 | Agent resources | 9 skills (8 audit + setup), 4 guidelines, 2 schemas, 1 example file — published via `vendor:publish` or `auditor:install` |
 | Facades | `LaravelAuditor` facade exposing `collect()`, `rules()`, `context()`, and `project()` |
-| Configuration | `config/laravel-auditor.php` with domains, extra rule directories, standalone resource target, agent list, custom agents, context options |
+| Configuration | `config/laravel-auditor.php` with domains, extra rule directories, standalone resource target, agent list, custom agents, context options, changed-file options |
 | Documentation site | Docsmith-based docs deployed to GitHub Pages with OG images, sitemap, and per-page metadata |
 | CI | 24-job matrix (Ubuntu + Windows, PHP 8.3/8.4/8.5, Laravel 12/13, prefer-lowest/stable), PHPStan, Pint, type coverage, Pest |
 
@@ -71,6 +71,7 @@ resources/
 
 - Audit knowledge stays agent-neutral. `AGENTS.md` / `CLAUDE.md` adapters only point at that source of truth.
 - Collectors return structured data, not raw source dumps.
+- `changed_files` is a scope signal, not a baseline. It reports uncommitted paths only and never diffs two audit runs.
 - The MCP server is read-only; it cannot modify application code.
 - Rules reference evidence; they do not invent findings.
 
