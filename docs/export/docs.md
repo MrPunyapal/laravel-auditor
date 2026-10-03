@@ -300,10 +300,13 @@ php artisan auditor:context --list
 php artisan auditor:context project_info
 php artisan auditor:context subsystems
 php artisan auditor:context changed_files
+php artisan auditor:context review_scope
 php artisan auditor:context routes --output=storage/auditor-routes.json
 ```
 
-`changed_files` lists uncommitted paths — staged, unstaged, and untracked — so a review can be scoped to the work in progress instead of the whole application. It requires `git` on the host. When git or the repository is missing, the collector returns `available: false` with a `reason` rather than failing, so an audit can continue with a full scope. A clean working tree returns zero files, which is a valid result.
+`changed_files` lists uncommitted paths — staged, unstaged, and untracked — so a review can be scoped to the work in progress instead of the whole application. It requires `git` on the host. When git or the repository is missing, the collector returns `available: false` with a `reason` rather than failing. That means the scope is unknown. A clean working tree returns zero files, which is a valid result.
+
+`review_scope` is the default audit. `changed` is the same uncommitted set. `related` adds the view, test, or class those files directly use, and `scope` is the union. An agent reads `scope` and leaves the rest of the application alone. Ask for a whole-application audit when every file should be reviewed. A finding about a related file is still in the review, so render that findings file without `--dirty`. `--dirty` would drop it, because the related file may not be dirty itself.
 
 Tune it with `changed_files.include_untracked`, `changed_files.ignore` (path prefixes), and `changed_files.max_files`.
 
@@ -352,6 +355,30 @@ CI output formats: `text`, `json`, `sarif`.
 
 The `--fail-on` threshold accepts: `critical`, `high`, `medium`, `low`, `info`.
 
+## Scope a run to a branch or to uncommitted work
+
+Both `auditor:report` and `auditor:ci` accept `--base` and `--dirty`. `--base` is the one that gates a pull request: it keeps findings that reference a file in the committed diff between the merge base of that ref and `HEAD`. `--dirty` keeps findings that reference an uncommitted file. Unrelated pre-existing findings then do not dominate the output or fail the build.
+
+```bash
+php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
+php artisan auditor:report --findings=storage/auditor-findings.json --base=origin/main
+php artisan auditor:report --findings=storage/auditor-findings.json --dirty
+php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
+```
+
+`--base=origin/main` works on a clean CI checkout because the commits are still there. The ref must already exist locally. In GitHub Actions, set `fetch-depth: 0` on `actions/checkout` so `origin/main` is fetched. `--dirty` reads the working tree only, so on that same clean checkout it matches no files and gates nothing. Pass both flags when a local run should include committed branch work and uncommitted edits. `--base` alone does not include uncommitted files.
+
+How the scope is decided:
+
+- A finding is in scope when `evidence` or `affected_resources` names one of the changed files.
+- Evidence types decide what a file is. `file`, `migration`, and `test` references count as paths; `route`, `config`, `symbol`, `query`, `dependency`, and `log` never do. An unrecognized type falls back to the file extension, so a new type keeps working.
+- An absolute reference is resolved against the application base, so `/var/www/app/Models/User.php` matches `app/Models/User.php`.
+- A finding with no file reference at all is kept, including when the diff is empty. It cannot be proven unrelated to the change, and dropping it would hide a real problem.
+- A rename keeps both the old path and the new path, so a finding on either side stays in scope.
+- The scope uses the same `changed_files.ignore` list and `changed_files.max_files` cap as the collector. `include_untracked` applies to `--dirty` only. Each run reports the base ref (when set), the file count, the scoped count, and the total.
+
+Both flags need `git` on the host. If the scope cannot be resolved, the command fails with the reason. A missing `--base` ref fails the same way: the command does not fall back to reporting every finding. If the change set is larger than `changed_files.max_files`, the command fails rather than gating on a truncated list.
+
 ## Configuration
 
 Publish `config/laravel-auditor.php` to change the default domain list, extra rule directories, standalone resource target, and default report format.
@@ -369,9 +396,9 @@ Key settings:
 - `custom_agents` — additional installer targets for agents that are not in the built-in list
 - `context.composer_audit` — enable the `composer audit` call from the dependencies collector (on by default; it hits the network and waits up to 60 seconds per collection, so set `false` to skip the shell-out when context collection must stay fully offline or fast)
 - `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
-- `changed_files.include_untracked` — include untracked paths in the `changed_files` collector (on by default)
-- `changed_files.ignore` — repository-relative path prefixes excluded from `changed_files`
-- `changed_files.max_files` — cap on the number of paths `changed_files` returns (default `500`)
+- `changed_files.include_untracked` — include untracked paths in the `changed_files` collector and in `--dirty` (on by default). `--base` never includes untracked files
+- `changed_files.ignore` — repository-relative path prefixes excluded from `changed_files`, `--dirty`, and `--base`
+- `changed_files.max_files` — cap on the number of paths returned or gated (default `500`). A scoped command fails when the change set is larger
 - `report.format` — default format for `auditor:report`
 
 
@@ -483,11 +510,30 @@ Auditing must not modify application code. Installation may write Auditor-owned 
 
 Pick the prompt that matches what you want out of the run. Every prompt is read-only: the agent gathers evidence and reports, it never modifies application code.
 
-## Full audit
+The default audit is the uncommitted work. Use the whole-application prompt when you want every file reviewed.
 
-The complete methodology pass: discover, scope, verify, report.
+## Uncommitted work
+
+The default. The agent reads the dirty files and the view, test, or class they directly use.
 
 ```text
+Review my uncommitted work using the laravel-audit skill.
+
+1. Call review_scope first. Audit scope only: the dirty files and the views, tests, and classes they directly use.
+2. If it returns available: false, git is unavailable — say the scope is unknown. Do not assume nothing changed, and do not start a full audit unless asked.
+3. An empty changed list means a clean working tree. Report that and stop; do not fall back to a full audit unasked.
+4. Pick the domains that match the files in scope (controller changes → security, query changes → performance, migration changes → database).
+5. Do not pull the full route, model, or schema inventory. Use a filtered context tool only for a symbol you found in scope.
+6. Verify every finding against a file in scope, then report with evidence and fixes. Read-only. Render the findings file without --dirty, because a related file may not itself be dirty.
+```
+
+## Whole application
+
+The complete methodology pass over every file: discover, scope, verify, report. This is the prompt to use when you want more than the dirty scope.
+
+```text
+Audit the whole application, including files outside the dirty scope.
+
 You are auditing the Laravel application in this project using the Laravel Auditor methodology.
 
 1. Use the laravel-audit skill. Follow its Discover -> Scope -> Verify -> Report workflow.
@@ -503,7 +549,6 @@ You are auditing the Laravel application in this project using the Laravel Audit
    - jobs_events_schedules — queues, events, cron
    - tests — test suite: framework, case counts (feature/unit)
    - subsystems — ownership-bounded inventory for a DSA-style coordinator audit
-   - changed_files — uncommitted files, for scoping a review to the work in progress
 3. Scope the relevant domains (e.g., security, database, architecture, testing). Do NOT audit everything superficially — pick the domains with the most risk signal and go deep.
 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
@@ -516,12 +561,12 @@ You are auditing the Laravel application in this project using the Laravel Audit
 A fast, non-exhaustive first look when you only want orientation:
 
 ```text
-Start with a Discover phase only: run all 12 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+Start with a Discover phase only: run all 13 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
 ```
 
 ## Domain-focused audit
 
-When you already know where the risk is, scope hard instead of skimming everything:
+When you already know where the risk is, scope hard instead of skimming everything. This still starts from `review_scope` unless you ask for the whole application:
 
 ```text
 Audit this application for security issues only, using the laravel-audit skill and its security rules.
@@ -534,19 +579,17 @@ Audit this application for security issues only, using the laravel-audit skill a
 
 Swap the domain and tool list for `database`, `architecture`, or `testing` as needed.
 
-## Changed-files review
+## Pull request gate
 
-When the user wants a review of work in progress rather than the whole application:
+When the user wants CI, or a review, limited to what a branch changed:
 
 ```text
-Review only my uncommitted work using the laravel-audit skill.
+Gate this audit on the pull request diff.
 
-1. Call changed_files first. Treat those paths as the scope boundary.
-2. If it returns available: false, git is unavailable — say the scope is unknown and audit the whole application instead of assuming nothing changed.
-3. Zero files means a clean working tree. Report that and stop; do not fall back to a full audit unasked.
-4. Pick the domains that match the changed files (controller changes → security, query changes → performance, migration changes → database).
-5. Only use the context tools those domains need. Do not pull the full inventory.
-6. Verify every finding against the changed file, then report with evidence and fixes. Read-only.
+1. Write findings to storage/auditor-findings.json. Type file evidence as file, migration, or test.
+2. Run: php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
+3. If the command says the base ref cannot be resolved, fetch it. In GitHub Actions set fetch-depth: 0. Do not drop --base and treat a full-repo failure as the pull request result.
+4. --dirty is the uncommitted working tree. On a clean checkout it gates nothing. Use it for local edits, or pass it with --base when those edits should count too.
 ```
 
 ## Performance audit
@@ -645,6 +688,7 @@ A client configuration example lives in `resources/auditor/mcp/mcp.json.example`
 | `tests` | Framework, test case counts (feature/unit), file layout |
 | `subsystems` | Ownership-bounded inventory for a DSA-style coordinator audit |
 | `changed_files` | Uncommitted files (staged, unstaged, untracked) for scoping a review |
+| `review_scope` | Dirty files plus the view, test, or class they directly use. `scope` is what an agent should read |
 
 ## Optional filters
 
@@ -685,6 +729,7 @@ The same context is available without MCP through Artisan:
 php artisan auditor:context project_info
 php artisan auditor:context routes --output=storage/auditor-routes.json
 php artisan auditor:context changed_files
+php artisan auditor:context review_scope
 php artisan auditor:context --list
 ```
 
@@ -704,7 +749,7 @@ All tools are read-only. They return structured facts about the application. The
 
 ## Laravel Boost integration
 
-When Laravel Boost is installed, the service provider registers the same 12 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
+When Laravel Boost is installed, the service provider registers the same 13 context collectors as read-only tools inside Boost's `laravel-boost` MCP server through `boost.mcp.tools.include`. No extra setup is needed — the tools appear in Boost's `tools/list` and run through Boost's subprocess executor.
 
 
 ---
@@ -957,6 +1002,21 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high -
 ```
 
 CI fails when an open finding meets or exceeds the `--fail-on` threshold.
+
+## Scoping to a branch or to uncommitted work
+
+`--base` keeps findings that reference a file in the committed diff since a ref. That is the CI gate: a clean checkout still has the pull request's commits. `--dirty` keeps findings that reference an uncommitted file, which is useful locally and matches nothing on a clean checkout.
+
+```bash
+php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
+php artisan auditor:report --findings=storage/auditor-findings.json --base=origin/main
+php artisan auditor:report --findings=storage/auditor-findings.json --dirty
+php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
+```
+
+Typed evidence decides what counts as a file. `file`, `migration`, and `test` references are treated as paths; `route`, `config`, `symbol`, `query`, `dependency`, and `log` references never are. An unrecognized type falls back to matching on the file extension, so `type: file` with the reference `app/Services/UserService` still scopes correctly, and a route or config key is never mistaken for a file.
+
+A finding with no file reference at all is always kept, because it cannot be proven unrelated to the change. See [Usage](/usage/).
 
 
 ---
