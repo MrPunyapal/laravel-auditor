@@ -13,6 +13,7 @@ use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Audit\Reports\AuditReport;
 use LaravelAuditor\Audit\Reports\ReportRendererFactory;
 use LaravelAuditor\Context\ProjectContext;
+use LaravelAuditor\Support\DirtyScope;
 use RuntimeException;
 use ValueError;
 
@@ -28,7 +29,9 @@ class AuditorCiCommand extends Command
         {--findings= : Path to a JSON file containing findings}
         {--fail-on=high : Minimum severity that fails CI (critical, high, medium, low, info)}
         {--format=text : Output format (text, json, sarif)}
-        {--output= : Write the report to a file}';
+        {--output= : Write the report to a file}
+        {--base= : Only fail on findings that touch files changed since this ref, for example origin/main}
+        {--dirty : Only fail on findings that touch uncommitted files}';
 
     /**
      * The command description.
@@ -38,6 +41,7 @@ class AuditorCiCommand extends Command
     public function __construct(
         private readonly ProjectContext $project,
         private readonly FindingLoader $loader,
+        private readonly DirtyScope $dirty,
     ) {
         parent::__construct();
     }
@@ -68,6 +72,22 @@ class AuditorCiCommand extends Command
             return self::FAILURE;
         }
 
+        $meta = [
+            'generated_at' => now()->toDateTimeString(),
+            'generator' => 'laravel-auditor',
+            'mode' => 'ci',
+            'fail_on' => $threshold->value,
+        ];
+
+        $scoped = $this->scopedFindings($findings);
+
+        if ($scoped === null) {
+            return self::FAILURE;
+        }
+
+        $findings = $scoped['findings'];
+        $meta = [...$meta, ...$scoped['meta']];
+
         $blocking = new FindingCollection(...array_values(array_filter(
             $findings->all(),
             static fn (Finding $finding): bool => $finding->status === FindingStatus::Open
@@ -78,12 +98,7 @@ class AuditorCiCommand extends Command
             project: $this->project->facts(),
             domainsRun: $this->project->domainsPresent(),
             findings: $findings,
-            meta: [
-                'generated_at' => now()->toDateTimeString(),
-                'generator' => 'laravel-auditor',
-                'mode' => 'ci',
-                'fail_on' => $threshold->value,
-            ],
+            meta: $meta,
         );
 
         $format = is_string($this->option('format')) ? $this->option('format') : 'text';
@@ -118,5 +133,40 @@ class AuditorCiCommand extends Command
         ));
 
         return self::FAILURE;
+    }
+
+    /**
+     * Applies `--base` and `--dirty` when either was passed.
+     *
+     * @return array{findings: FindingCollection, meta: array<string, bool|int|string>}|null
+     */
+    private function scopedFindings(FindingCollection $findings): ?array
+    {
+        $base = $this->option('base');
+        $dirty = (bool) $this->option('dirty');
+        $baseRef = is_string($base) ? trim($base) : null;
+
+        if ($baseRef === '') {
+            $this->components->error('Pass a commit, branch, or tag to --base, for example origin/main.');
+
+            return null;
+        }
+
+        if ($baseRef === null && ! $dirty) {
+            return ['findings' => $findings, 'meta' => []];
+        }
+
+        $scope = $this->dirty->resolve($findings, $baseRef, $dirty);
+
+        if ($scope['ok'] !== true) {
+            $this->components->error($scope['message']);
+            $this->components->info($scope['hint']);
+
+            return null;
+        }
+
+        $this->components->info($scope['summary']);
+
+        return ['findings' => $scope['findings'], 'meta' => $scope['meta']];
     }
 }

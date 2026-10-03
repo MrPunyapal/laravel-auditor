@@ -10,6 +10,7 @@ use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Audit\Reports\AuditReport;
 use LaravelAuditor\Audit\Reports\ReportRendererFactory;
 use LaravelAuditor\Context\ProjectContext;
+use LaravelAuditor\Support\DirtyScope;
 use RuntimeException;
 
 /**
@@ -24,7 +25,9 @@ class AuditorReportCommand extends Command
         {--findings= : Path to a JSON file containing findings}
         {--example : Render the packaged example findings}
         {--format= : Output format (markdown, json, text, sarif)}
-        {--output= : Write the report to a file instead of stdout}';
+        {--output= : Write the report to a file instead of stdout}
+        {--base= : Limit the report to findings that touch files changed since this ref, for example origin/main}
+        {--dirty : Limit the report to findings touching uncommitted files}';
 
     /**
      * The command description.
@@ -34,6 +37,7 @@ class AuditorReportCommand extends Command
     public function __construct(
         private readonly ProjectContext $project,
         private readonly FindingLoader $loader,
+        private readonly DirtyScope $dirty,
     ) {
         parent::__construct();
     }
@@ -68,16 +72,27 @@ class AuditorReportCommand extends Command
             }
         }
 
+        $meta = [
+            'generated_at' => now()->toDateTimeString(),
+            'generator' => 'laravel-auditor',
+        ];
+
+        $scoped = $this->scopedFindings($findings);
+
+        if ($scoped === null) {
+            return self::FAILURE;
+        }
+
+        $findings = $scoped['findings'];
+        $meta = [...$meta, ...$scoped['meta']];
+
         $domainsRun = $this->project->domainsPresent();
 
         $report = new AuditReport(
             project: $this->project->facts(),
             domainsRun: $domainsRun,
             findings: $findings,
-            meta: [
-                'generated_at' => now()->toDateTimeString(),
-                'generator' => 'laravel-auditor',
-            ],
+            meta: $meta,
         );
 
         $option = $this->option('format');
@@ -105,5 +120,40 @@ class AuditorReportCommand extends Command
         $this->line($content);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Applies `--base` and `--dirty` when either was passed.
+     *
+     * @return array{findings: FindingCollection, meta: array<string, bool|int|string>}|null
+     */
+    private function scopedFindings(FindingCollection $findings): ?array
+    {
+        $base = $this->option('base');
+        $dirty = (bool) $this->option('dirty');
+        $baseRef = is_string($base) ? trim($base) : null;
+
+        if ($baseRef === '') {
+            $this->components->error('Pass a commit, branch, or tag to --base, for example origin/main.');
+
+            return null;
+        }
+
+        if ($baseRef === null && ! $dirty) {
+            return ['findings' => $findings, 'meta' => []];
+        }
+
+        $scope = $this->dirty->resolve($findings, $baseRef, $dirty);
+
+        if ($scope['ok'] !== true) {
+            $this->components->error($scope['message']);
+            $this->components->info($scope['hint']);
+
+            return null;
+        }
+
+        $this->components->info($scope['summary']);
+
+        return ['findings' => $scope['findings'], 'meta' => $scope['meta']];
     }
 }

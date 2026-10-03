@@ -83,7 +83,7 @@ Supported formats: `markdown`, `json`, `text`, `sarif`. Finding schema: publish 
 php artisan auditor:mcp -q
 ```
 
-Register that stdio command with the agent so it can call `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`, and `changed_files`. Use `-q` so Artisan boot output cannot break MCP stdio framing.
+Register that stdio command with the agent so it can call `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`, `changed_files`, and `review_scope`. Use `-q` so Artisan boot output cannot break MCP stdio framing.
 
 With Laravel Boost installed, the same context tools are registered automatically inside Boost's MCP server (via `boost.mcp.tools.include`); no extra setup is needed.
 
@@ -95,8 +95,8 @@ With Laravel Boost installed, the same context tools are registered automaticall
 - Diagnostics: `php artisan auditor:status`
 - Rules: `php artisan auditor:rules` (`--domain=`, `--json`, `--applicable`)
 - Context: `php artisan auditor:context` (`--list`, `{collector}`, `--output=`)
-- Reports: `php artisan auditor:report` (`--findings=`, `--example`, `--format=markdown|json|text|sarif`, `--output=`)
-- CI: `php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high`
+- Reports: `php artisan auditor:report` (`--findings=`, `--example`, `--format=markdown|json|text|sarif`, `--output=`, `--base=origin/main`, `--dirty`)
+- CI: `php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high` (`--base` gates the committed diff; `--dirty` gates only uncommitted work and matches nothing on a clean checkout)
 - Facade: `LaravelAuditor::collect('routes')`, `LaravelAuditor::rules()`, `LaravelAuditor::context()`, `LaravelAuditor::project()`
 - Config: `resources_target`, `agents`, `custom_agents`, `context.composer_audit` (on), `context.test_listing` (off), `changed_files.include_untracked`, `changed_files.ignore`, `changed_files.max_files`
 - Config publish tag: `laravel-auditor-config`
@@ -109,24 +109,29 @@ With Laravel Boost installed, the same context tools are registered automaticall
 
 Ask the agent:
 
-> Use the laravel-audit skill. Discover this Laravel app, scope the relevant domains, and report only findings with file, route, or schema evidence.
+> Use the laravel-audit skill. Call `review_scope` first and audit the dirty files plus the views, tests, and classes they directly use. Report only findings with file, route, or schema evidence.
 
 A finding should include `rule_id`, `severity`, `confidence`, `summary`, `why_it_matters`, `evidence`, and `recommendation`.
 
-Full audit prompt:
+Default audit prompt:
 
 > You are auditing the Laravel application in this project using the Laravel Auditor methodology.
 >
 > 1. Use the laravel-audit skill. Follow its Discover → Scope → Verify → Report workflow.
-> 2. Start by calling the context MCP tools to gather deterministic facts BEFORE reading code: `project_info`, `routes`, `models`, `migrations`, `database_schema`, `dependencies`, `configuration`, `policies_authorization`, `jobs_events_schedules`, `tests`, `subsystems`, `changed_files`.
-> 3. Scope the relevant domains (security, database, architecture, testing, ...). Pick the domains with the most risk signal and go deep.
-> 4. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
-> 5. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
-> 6. Be read-only. Do not modify any application code.
+> 2. Call `review_scope` first. When `scope` is non-empty, audit those files only: the dirty files and the views, tests, and classes they directly use. Do not pull the full route, model, or schema inventory.
+> 3. When `changed` is empty, say the working tree is clean. Audit the whole application only if the user asked for that.
+> 4. Scope the relevant domains (security, database, architecture, testing, ...). Pick the domains with the most risk signal and go deep.
+> 5. For every potential finding, verify against actual files, routes, or schema. Never report a guess.
+> 6. Report findings ranked P0–P3, each with: file/route/schema evidence, the rule violated, why it matters, and a concrete fix.
+> 7. Be read-only. Do not modify any application code.
+
+Whole-application prompt:
+
+> Audit the whole application, including files outside the dirty scope. Use the laravel-audit skill, gather the context tools, and report only evidenced findings.
 
 Discover-only quick pass:
 
-> Start with a Discover phase only: run all 12 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
+> Start with a Discover phase only: run all 13 context tools, summarize what this app is (framework versions, database, route surface, model list, test coverage), and flag any immediate red flags in 3-5 bullets. Do not write findings yet.
 
 ## Anti-patterns
 

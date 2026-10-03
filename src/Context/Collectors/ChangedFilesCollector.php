@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelAuditor\Context\Collectors;
 
 use LaravelAuditor\Context\ContextCollector;
+use LaravelAuditor\Support\ChangedFilesOptions;
 use LaravelAuditor\Support\GitStatus;
 
 /**
@@ -19,6 +20,7 @@ final class ChangedFilesCollector implements ContextCollector
 {
     public function __construct(
         private readonly GitStatus $git,
+        private readonly ChangedFilesOptions $options,
     ) {}
 
     public function name(): string
@@ -37,9 +39,9 @@ final class ChangedFilesCollector implements ContextCollector
     public function collect(): array
     {
         $result = $this->git->changedFiles(
-            includeUntracked: (bool) config('laravel-auditor.changed_files.include_untracked', true),
-            ignore: $this->ignore(),
-            max: $this->max(),
+            includeUntracked: $this->options->includeUntracked(),
+            ignore: $this->options->ignore(),
+            max: $this->options->maxFiles(),
         );
 
         if (! $result['available']) {
@@ -57,26 +59,5 @@ final class ChangedFilesCollector implements ContextCollector
             'truncated' => $result['truncated'],
             'files' => $result['files'],
         ];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function ignore(): array
-    {
-        return array_values(array_filter(
-            array_map(
-                static fn (mixed $path): string => str_replace('\\', '/', trim((string) $path, " \t\n\r\0\x0B/")),
-                (array) config('laravel-auditor.changed_files.ignore', []),
-            ),
-            static fn (string $path): bool => $path !== '',
-        ));
-    }
-
-    private function max(): int
-    {
-        $max = (int) config('laravel-auditor.changed_files.max_files', 500);
-
-        return $max > 0 ? $max : 500;
     }
 }

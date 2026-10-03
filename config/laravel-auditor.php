@@ -131,13 +131,19 @@ return [
     | Changed Files Options
     |--------------------------------------------------------------------------
     |
-    | Options for the `changed_files` collector, which lists uncommitted files
-    | so an agent can scope a review to the work in progress. Git is an optional
+    | Options for the `changed_files` collector and for the `--dirty` and
+    | `--base` scopes on `auditor:report` and `auditor:ci`. Git is an optional
     | host tool: when it or the repository is unavailable the collector returns
-    | `available: false` with a reason and never throws.
+    | `available: false` with a reason and never throws. A scoped command fails
+    | instead, so a gate is never silently skipped.
     |
     | `ignore` entries are repository-relative path prefixes matched on whole
-    | path segments, so `storage` also excludes `storage/framework`.
+    | path segments, so `storage` also excludes `storage/framework`. `ignore`
+    | and `max_files` apply to the collector and to both scope flags.
+    | `include_untracked` applies to the collector and to `--dirty` only.
+    | `--base` is the committed diff since a ref and does not include
+    | untracked files. A scoped command fails when the change set exceeds
+    | `max_files` rather than gating on a partial list.
     |
     */
 

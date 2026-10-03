@@ -33,6 +33,10 @@ Useful commands: `auditor:status`, `auditor:rules` (`--applicable`), `auditor:co
 
 `changed_files` needs git on the host. `available: false` means the scope is unknown, not that nothing changed.
 
+`review_scope` is the default audit. `changed` is the dirty files. `related` is the view, test, or class those files directly use. Read `scope` and do not inventory the rest of the application. An empty `changed` list is a clean tree. Audit every file only when the user asks for the whole application.
+
+Gate a pull request with `php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high`. `--base` is the committed diff and works on a clean checkout. `--dirty` is uncommitted work only. The base ref must exist locally (`fetch-depth: 0` in GitHub Actions).
+
 ### Audit skill
 
 Use the `laravel-audit` skill when asked to audit or review a Laravel application. It contains the full workflow, evidence requirements, and severity/confidence guidance. Domain skills (`laravel-audit-security`, `laravel-audit-performance`, `laravel-audit-architecture`, `laravel-audit-database`, `laravel-audit-testing`, `laravel-audit-conventions`) go deeper once the scope is chosen. Use `laravel-audit-dsa` for a bounded subsystem / data-structure / ownership audit (`auditor:context subsystems`, P0–P3 ranking).

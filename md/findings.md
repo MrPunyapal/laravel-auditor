@@ -138,3 +138,18 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high -
 ```
 
 CI fails when an open finding meets or exceeds the `--fail-on` threshold.
+
+## Scoping to a branch or to uncommitted work
+
+`--base` keeps findings that reference a file in the committed diff since a ref. That is the CI gate: a clean checkout still has the pull request's commits. `--dirty` keeps findings that reference an uncommitted file, which is useful locally and matches nothing on a clean checkout.
+
+```bash
+php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
+php artisan auditor:report --findings=storage/auditor-findings.json --base=origin/main
+php artisan auditor:report --findings=storage/auditor-findings.json --dirty
+php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
+```
+
+Typed evidence decides what counts as a file. `file`, `migration`, and `test` references are treated as paths; `route`, `config`, `symbol`, `query`, `dependency`, and `log` references never are. An unrecognized type falls back to matching on the file extension, so `type: file` with the reference `app/Services/UserService` still scopes correctly, and a route or config key is never mistaken for a file.
+
+A finding with no file reference at all is always kept, because it cannot be proven unrelated to the change. See [Usage](/usage/).

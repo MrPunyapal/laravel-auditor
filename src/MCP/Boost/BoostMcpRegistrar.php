@@ -14,6 +14,7 @@ use LaravelAuditor\MCP\Boost\Tools\JobsEventsSchedulesTool;
 use LaravelAuditor\MCP\Boost\Tools\MigrationsTool;
 use LaravelAuditor\MCP\Boost\Tools\ModelsTool;
 use LaravelAuditor\MCP\Boost\Tools\ProjectInfoTool;
+use LaravelAuditor\MCP\Boost\Tools\ReviewScopeTool;
 use LaravelAuditor\MCP\Boost\Tools\RoutesTool;
 use LaravelAuditor\MCP\Boost\Tools\SubsystemsTool;
 use LaravelAuditor\MCP\Boost\Tools\TestsTool;
@@ -61,6 +62,7 @@ final class BoostMcpRegistrar
         'tests' => TestsTool::class,
         'subsystems' => SubsystemsTool::class,
         'changed_files' => ChangedFilesTool::class,
+        'review_scope' => ReviewScopeTool::class,
     ];
 
     /**
