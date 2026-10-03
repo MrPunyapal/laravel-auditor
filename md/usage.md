@@ -125,26 +125,29 @@ CI output formats: `text`, `json`, `sarif`.
 
 The `--fail-on` threshold accepts: `critical`, `high`, `medium`, `low`, `info`.
 
-## Scope a run to uncommitted work
+## Scope a run to a branch or to uncommitted work
 
-`--dirty` works on both `auditor:report` and `auditor:ci`. It keeps only the findings that reference a changed file, so unrelated pre-existing findings do not dominate the output or fail a build.
+Both `auditor:report` and `auditor:ci` accept `--base` and `--dirty`. `--base` is the one that gates a pull request: it keeps findings that reference a file in the committed diff between the merge base of that ref and `HEAD`. `--dirty` keeps findings that reference an uncommitted file. Unrelated pre-existing findings then do not dominate the output or fail the build.
 
 ```bash
+php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
+php artisan auditor:report --findings=storage/auditor-findings.json --base=origin/main
 php artisan auditor:report --findings=storage/auditor-findings.json --dirty
 php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
 ```
+
+`--base=origin/main` works on a clean CI checkout because the commits are still there. The ref must already exist locally. In GitHub Actions, set `fetch-depth: 0` on `actions/checkout` so `origin/main` is fetched. `--dirty` reads the working tree only, so on that same clean checkout it matches no files and gates nothing. Pass both flags when a local run should include committed branch work and uncommitted edits. `--base` alone does not include uncommitted files.
 
 How the scope is decided:
 
 - A finding is in scope when `evidence` or `affected_resources` names one of the changed files.
 - Evidence types decide what a file is. `file`, `migration`, and `test` references count as paths; `route`, `config`, `symbol`, `query`, `dependency`, and `log` never do. An unrecognized type falls back to the file extension, so a new type keeps working.
 - An absolute reference is resolved against the application base, so `/var/www/app/Models/User.php` matches `app/Models/User.php`.
-- A finding with no file reference at all is kept. It cannot be proven unrelated to the change, and dropping it would hide a real problem.
-- The scope resolves through the same `changed_files` configuration as the collector, and each run reports the file count, the scoped count, and the total.
+- A finding with no file reference at all is kept, including when the diff is empty. It cannot be proven unrelated to the change, and dropping it would hide a real problem.
+- A rename keeps both the old path and the new path, so a finding on either side stays in scope.
+- The scope uses the same `changed_files.ignore` list and `changed_files.max_files` cap as the collector. `include_untracked` applies to `--dirty` only. Each run reports the base ref (when set), the file count, the scoped count, and the total.
 
-`--dirty` needs `git` on the host. If the scope cannot be resolved, the command fails with the reason and suggests dropping the flag.
-
-`--dirty` reads the uncommitted working tree only. In a CI checkout the working tree is clean, so the scope is empty and nothing is gated. A merge-base or branch diff scope is a separate concern and is not included here.
+Both flags need `git` on the host. If the scope cannot be resolved, the command fails with the reason. A missing `--base` ref fails the same way: the command does not fall back to reporting every finding. If the change set is larger than `changed_files.max_files`, the command fails rather than gating on a truncated list.
 
 ## Configuration
 
@@ -163,7 +166,7 @@ Key settings:
 - `custom_agents` — additional installer targets for agents that are not in the built-in list
 - `context.composer_audit` — enable the `composer audit` call from the dependencies collector (on by default; it hits the network and waits up to 60 seconds per collection, so set `false` to skip the shell-out when context collection must stay fully offline or fast)
 - `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
-- `changed_files.include_untracked` — include untracked paths in the `changed_files` collector (on by default)
-- `changed_files.ignore` — repository-relative path prefixes excluded from `changed_files`
-- `changed_files.max_files` — cap on the number of paths `changed_files` returns (default `500`)
+- `changed_files.include_untracked` — include untracked paths in the `changed_files` collector and in `--dirty` (on by default). `--base` never includes untracked files
+- `changed_files.ignore` — repository-relative path prefixes excluded from `changed_files`, `--dirty`, and `--base`
+- `changed_files.max_files` — cap on the number of paths returned or gated (default `500`). A scoped command fails when the change set is larger
 - `report.format` — default format for `auditor:report`

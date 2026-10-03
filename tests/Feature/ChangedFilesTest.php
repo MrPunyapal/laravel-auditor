@@ -96,6 +96,55 @@ it('excludes untracked files when the option is disabled', function () {
     }
 });
 
+it('lists committed files changed since a base ref and drops paths outside the app', function () {
+    $root = changedFilesRepository();
+    $app = $root.DIRECTORY_SEPARATOR.'packages'.DIRECTORY_SEPARATOR.'api';
+
+    try {
+        writeRepositoryFile($root, 'packages/api/app/Models/User.php', '<?php');
+        writeRepositoryFile($root, 'README.md', 'root');
+        runGit($root, 'add', '-A');
+        runGit($root, 'commit', '-qm', 'init');
+        runGit($root, 'branch', '-M', 'main');
+        runGit($root, 'checkout', '-q', '-b', 'feature');
+        writeRepositoryFile($root, 'packages/api/app/Models/User.php', '<?php // edited');
+        writeRepositoryFile($root, 'other/File.php', '<?php');
+        runGit($root, 'add', '-A');
+        runGit($root, 'commit', '-qm', 'feature');
+        runGit($app, 'mv', 'app/Models/User.php', 'app/Models/Account.php');
+        runGit($app, 'commit', '-qm', 'rename');
+
+        $result = (new GitStatus($app))->changedSince('main', ignore: ['storage']);
+
+        expect($result['available'])->toBeTrue();
+        expect($result['files'])->toBe([
+            'app/Models/Account.php',
+            'app/Models/User.php',
+        ]);
+        expect($result['truncated'])->toBeFalse();
+    } finally {
+        removeRepository($root);
+    }
+});
+
+it('reports a missing base ref instead of pretending the change set is empty', function () {
+    $path = changedFilesRepository();
+
+    try {
+        writeRepositoryFile($path, 'app/Models/User.php', '<?php');
+        runGit($path, 'add', '-A');
+        runGit($path, 'commit', '-qm', 'init');
+
+        $result = (new GitStatus($path))->changedSince('no-such-ref');
+
+        expect($result['available'])->toBeFalse();
+        expect($result['reason'])->toContain('no-such-ref');
+        expect($result['files'])->toBe([]);
+    } finally {
+        removeRepository($path);
+    }
+});
+
 it('dumps the changed files collector through artisan', function () {
     $exit = Artisan::call('auditor:context', ['collector' => 'changed_files']);
 

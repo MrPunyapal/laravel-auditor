@@ -60,6 +60,19 @@ Audit this application for security issues only, using the laravel-audit skill a
 
 Swap the domain and tool list for `database`, `architecture`, or `testing` as needed.
 
+## Pull request gate
+
+When the user wants CI, or a review, limited to what a branch changed:
+
+```text
+Gate this audit on the pull request diff.
+
+1. Write findings to storage/auditor-findings.json. Type file evidence as file, migration, or test.
+2. Run: php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
+3. If the command says the base ref cannot be resolved, fetch it. In GitHub Actions set fetch-depth: 0. Do not drop --base and treat a full-repo failure as the pull request result.
+4. --dirty is the uncommitted working tree. On a clean checkout it gates nothing. Use it for local edits, or pass it with --base when those edits should count too.
+```
+
 ## Changed-files review
 
 When the user wants a review of work in progress rather than the whole application:

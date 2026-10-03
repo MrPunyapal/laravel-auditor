@@ -80,6 +80,18 @@ it('returns nothing when no file changed', function () {
     expect($collection->touching([])->isEmpty())->toBeTrue();
 });
 
+it('keeps a finding with no file reference when nothing changed', function () {
+    $collection = new FindingCollection(
+        scopedFinding('F-unscoped'),
+        scopedFinding('F-file', ['app/Models/User.php']),
+    );
+
+    $filtered = $collection->touching([]);
+
+    expect($filtered)->toHaveCount(1);
+    expect($filtered[0]->id)->toBe('F-unscoped');
+});
+
 it('keeps a finding that references no file at all', function () {
     // A finding with no file reference cannot be proven unrelated to the change.
     $collection = new FindingCollection(

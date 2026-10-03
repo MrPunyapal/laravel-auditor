@@ -55,6 +55,30 @@ it('ignores configured prefixes on whole path segments only', function () {
         ->toBe(['app/StoragePolicy.php']);
 });
 
+it('parses a diff name-status list and keeps both sides of a rename', function () {
+    // git diff -z emits the original path first, then the destination. Status porcelain does the reverse.
+    $output = "M\0app/Models/User.php\0R100\0app/Models/Old.php\0app/Models/Account.php\0D\0app/Gone.php\0";
+
+    expect(GitStatus::parseDiffStatus($output))->toBe([
+        'app/Gone.php',
+        'app/Models/Account.php',
+        'app/Models/Old.php',
+        'app/Models/User.php',
+    ]);
+});
+
+it('rewrites diff paths to the application root and drops siblings', function () {
+    $output = "M\0packages/api/app/Models/User.php\0A\0other/File.php\0M\0packages/api/storage/framework/cache.php\0";
+
+    expect(GitStatus::parseDiffStatus($output, 'packages/api/', ['storage']))
+        ->toBe(['app/Models/User.php']);
+});
+
+it('keeps unusual diff paths intact', function () {
+    expect(GitStatus::parseDiffStatus("A\0app/Ünïcode File.php\0"))
+        ->toBe(['app/Ünïcode File.php']);
+});
+
 it('de-duplicates a file that is both staged and unstaged', function () {
     $output = "MM app/Models/User.php\0 M app/Models/User.php\0";
 

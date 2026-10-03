@@ -26,6 +26,7 @@ class AuditorReportCommand extends Command
         {--example : Render the packaged example findings}
         {--format= : Output format (markdown, json, text, sarif)}
         {--output= : Write the report to a file instead of stdout}
+        {--base= : Limit the report to findings that touch files changed since this ref, for example origin/main}
         {--dirty : Limit the report to findings touching uncommitted files}';
 
     /**
@@ -76,31 +77,14 @@ class AuditorReportCommand extends Command
             'generator' => 'laravel-auditor',
         ];
 
-        if ((bool) $this->option('dirty')) {
-            $scope = $this->dirty->apply($findings);
+        $scoped = $this->scopedFindings($findings);
 
-            if ($scope['ok'] !== true) {
-                $this->components->error('Cannot resolve --dirty scope: '.$scope['reason']);
-                $this->components->info('Drop --dirty to report on every finding, or run the audit outside a git repository.');
-
-                return self::FAILURE;
-            }
-
-            $total = $findings->count();
-            $findings = $scope['findings'];
-
-            $meta['scope'] = 'dirty';
-            $meta['scope_file_count'] = $scope['file_count'];
-            $meta['scope_truncated'] = $scope['truncated'];
-            $meta['scope_total_findings'] = $total;
-
-            $this->components->info(sprintf(
-                'Dirty scope: %d uncommitted file(s), %d of %d finding(s) in scope.',
-                $scope['file_count'],
-                $findings->count(),
-                $total,
-            ));
+        if ($scoped === null) {
+            return self::FAILURE;
         }
+
+        $findings = $scoped['findings'];
+        $meta = [...$meta, ...$scoped['meta']];
 
         $domainsRun = $this->project->domainsPresent();
 
@@ -136,5 +120,40 @@ class AuditorReportCommand extends Command
         $this->line($content);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Applies `--base` and `--dirty` when either was passed.
+     *
+     * @return array{findings: FindingCollection, meta: array<string, bool|int|string>}|null
+     */
+    private function scopedFindings(FindingCollection $findings): ?array
+    {
+        $base = $this->option('base');
+        $dirty = (bool) $this->option('dirty');
+        $baseRef = is_string($base) ? trim($base) : null;
+
+        if ($baseRef === '') {
+            $this->components->error('Pass a commit, branch, or tag to --base, for example origin/main.');
+
+            return null;
+        }
+
+        if ($baseRef === null && ! $dirty) {
+            return ['findings' => $findings, 'meta' => []];
+        }
+
+        $scope = $this->dirty->resolve($findings, $baseRef, $dirty);
+
+        if ($scope['ok'] !== true) {
+            $this->components->error($scope['message']);
+            $this->components->info($scope['hint']);
+
+            return null;
+        }
+
+        $this->components->info($scope['summary']);
+
+        return ['findings' => $scope['findings'], 'meta' => $scope['meta']];
     }
 }

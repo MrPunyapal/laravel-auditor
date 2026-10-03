@@ -7,9 +7,9 @@ namespace LaravelAuditor\Support;
 /**
  * Reads the `changed_files` configuration in one place.
  *
- * The `changed_files` collector and the `--dirty` report scope must agree on
- * what counts as an uncommitted change, so both resolve their options here
- * rather than each interpreting the config themselves.
+ * The `changed_files` collector, `--dirty`, and `--base` must agree on which
+ * paths are ignored and how many files a scope may contain, so they read
+ * those options here rather than each interpreting the config themselves.
  */
 final class ChangedFilesOptions
 {

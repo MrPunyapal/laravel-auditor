@@ -52,6 +52,8 @@ List them with `php artisan auditor:context --list`. Prefer `php artisan auditor
 
 `changed_files` lists uncommitted paths so a review can be scoped to the work in progress. It needs git on the host: when git or the repository is unavailable it returns `available: false` with a `reason`, which means "scope unknown", not "nothing changed". A clean tree legitimately returns zero files.
 
+Gate a pull request with `php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high`. `--base` is the committed diff. `--dirty` is the working tree and gates nothing on a clean checkout. The base ref must exist locally.
+
 `dependencies.composer_audit` is **on by default**. `tests` case listing is **off by default**. Do not treat `composer_audit.available: false` or a file-count test total as proof there are no advisories or that every test case was listed. If `available` is false, read `reason` (or run `composer audit --format=json` yourself). Enable `laravel-auditor.context.test_listing` or run the test runner yourself for accurate case counts.
 
 Prefer these tools over raw file scraping for structured facts. Use file inspection for code-level detail and tracing.

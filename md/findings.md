@@ -139,11 +139,13 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high -
 
 CI fails when an open finding meets or exceeds the `--fail-on` threshold.
 
-## Scoping to uncommitted work
+## Scoping to a branch or to uncommitted work
 
-Both commands accept `--dirty`, which keeps only the findings that reference an uncommitted file:
+`--base` keeps findings that reference a file in the committed diff since a ref. That is the CI gate: a clean checkout still has the pull request's commits. `--dirty` keeps findings that reference an uncommitted file, which is useful locally and matches nothing on a clean checkout.
 
 ```bash
+php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
+php artisan auditor:report --findings=storage/auditor-findings.json --base=origin/main
 php artisan auditor:report --findings=storage/auditor-findings.json --dirty
 php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
 ```

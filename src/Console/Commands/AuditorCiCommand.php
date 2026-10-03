@@ -30,6 +30,7 @@ class AuditorCiCommand extends Command
         {--fail-on=high : Minimum severity that fails CI (critical, high, medium, low, info)}
         {--format=text : Output format (text, json, sarif)}
         {--output= : Write the report to a file}
+        {--base= : Only fail on findings that touch files changed since this ref, for example origin/main}
         {--dirty : Only fail on findings that touch uncommitted files}';
 
     /**
@@ -78,31 +79,14 @@ class AuditorCiCommand extends Command
             'fail_on' => $threshold->value,
         ];
 
-        if ((bool) $this->option('dirty')) {
-            $scope = $this->dirty->apply($findings);
+        $scoped = $this->scopedFindings($findings);
 
-            if ($scope['ok'] !== true) {
-                $this->components->error('Cannot resolve --dirty scope: '.$scope['reason']);
-                $this->components->info('Drop --dirty to gate on every finding, or run the audit outside a git repository.');
-
-                return self::FAILURE;
-            }
-
-            $total = $findings->count();
-            $findings = $scope['findings'];
-
-            $meta['scope'] = 'dirty';
-            $meta['scope_file_count'] = $scope['file_count'];
-            $meta['scope_truncated'] = $scope['truncated'];
-            $meta['scope_total_findings'] = $total;
-
-            $this->components->info(sprintf(
-                'Dirty scope: %d uncommitted file(s), %d of %d finding(s) in scope.',
-                $scope['file_count'],
-                $findings->count(),
-                $total,
-            ));
+        if ($scoped === null) {
+            return self::FAILURE;
         }
+
+        $findings = $scoped['findings'];
+        $meta = [...$meta, ...$scoped['meta']];
 
         $blocking = new FindingCollection(...array_values(array_filter(
             $findings->all(),
@@ -149,5 +133,40 @@ class AuditorCiCommand extends Command
         ));
 
         return self::FAILURE;
+    }
+
+    /**
+     * Applies `--base` and `--dirty` when either was passed.
+     *
+     * @return array{findings: FindingCollection, meta: array<string, bool|int|string>}|null
+     */
+    private function scopedFindings(FindingCollection $findings): ?array
+    {
+        $base = $this->option('base');
+        $dirty = (bool) $this->option('dirty');
+        $baseRef = is_string($base) ? trim($base) : null;
+
+        if ($baseRef === '') {
+            $this->components->error('Pass a commit, branch, or tag to --base, for example origin/main.');
+
+            return null;
+        }
+
+        if ($baseRef === null && ! $dirty) {
+            return ['findings' => $findings, 'meta' => []];
+        }
+
+        $scope = $this->dirty->resolve($findings, $baseRef, $dirty);
+
+        if ($scope['ok'] !== true) {
+            $this->components->error($scope['message']);
+            $this->components->info($scope['hint']);
+
+            return null;
+        }
+
+        $this->components->info($scope['summary']);
+
+        return ['findings' => $scope['findings'], 'meta' => $scope['meta']];
     }
 }

@@ -61,7 +61,9 @@ Select only the audit domains relevant to this application. Do not blindly run e
 
 Default domains: `security`, `performance`, `architecture`, `database`, `testing`, `conventions`. Skip domains that are clearly irrelevant (e.g. skip queue analysis when the app has no jobs or queue driver).
 
-When the user asks for a review of recent or in-progress work, call `changed_files` first and treat it as the scope boundary. It reports uncommitted paths only. If it returns `available: false`, git is unavailable and the scope is unknown — say so and fall back to a full application scope rather than assuming an empty change set. A clean working tree returning zero files is a valid result, not a collection failure.
+When the user asks for a review of uncommitted work, call `changed_files` first and treat it as the scope boundary. It reports uncommitted paths only. If it returns `available: false`, git is unavailable and the scope is unknown — say so and fall back to a full application scope rather than assuming an empty change set. A clean working tree returning zero files is a valid result, not a collection failure.
+
+When the user asks to gate a pull request or CI, do not use `changed_files` or `--dirty` as the scope. Those see the working tree, which a CI checkout leaves clean. Use `--base=origin/main` (or the pull request's base ref) on `auditor:ci`. The ref must exist locally.
 
 ### Phase C: Investigate
 
@@ -121,7 +123,15 @@ php artisan auditor:report --findings=storage/auditor-findings.json
 php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 ```
 
-To report or gate only on the work in progress, add `--dirty`. It keeps findings whose evidence or affected resources name an uncommitted file. Note that a clean working tree yields an empty scope, so in CI `--dirty` gates nothing.
+To gate a pull request, pass `--base` with the base ref. It keeps findings whose evidence or affected resources name a file in the committed diff since the merge base of that ref and `HEAD`. A clean checkout still has those commits, so this is the CI gate:
+
+```bash
+php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
+```
+
+If the ref is missing, the command fails and says why. Fetch it (in GitHub Actions, `fetch-depth: 0`). Do not drop `--base` and report the full-repo result as the pull request result. A finding with no file reference stays in scope.
+
+`--dirty` is only the uncommitted working tree. Use it for local edits. On a clean checkout it matches no files. Pass `--base` and `--dirty` together when both the branch commits and the uncommitted edits should count. `--base` alone ignores uncommitted files.
 
 The report includes project facts, domains audited, counts by severity/domain, priority synthesis, and the key risks.
 

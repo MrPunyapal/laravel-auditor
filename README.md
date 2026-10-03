@@ -313,16 +313,19 @@ Finding and report JSON schemas live in `resources/auditor/schema`. See the [fin
 
 `auditor:report` does not invent findings. The agent produces findings; the command renders them as Markdown, JSON, or CLI text with project facts, domain scope, counts, key risks, evidence, and recommendations.
 
-### Scoping to uncommitted work
+### Scoping a run to a branch or to uncommitted work
 
-`--dirty` narrows a report or a CI gate to findings that touch uncommitted files, so an old high-severity finding elsewhere in the codebase does not block work on something else.
+`--base` is the gate to use in CI. It keeps findings that touch files changed since the merge base of a ref and `HEAD`, so a pull request is judged on its own diff. A clean checkout still has that diff. `--dirty` is the local working tree only; on a clean CI checkout it matches nothing.
 
 ```bash
-php artisan auditor:report --findings=storage/auditor-findings.json --dirty
+php artisan auditor:ci --findings=storage/auditor-findings.json --base=origin/main --fail-on=high
+php artisan auditor:report --findings=storage/auditor-findings.json --base=origin/main
 php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-on=high
 ```
 
-A finding is in scope when its `evidence` or `affected_resources` reference a changed file. The scope resolves through the same `changed_files` configuration as the collector, and each run reports how many files and findings it considered. `--dirty` needs `git`: when the scope cannot be resolved the command fails with a reason instead of quietly reporting everything.
+The ref has to exist locally. In GitHub Actions, check out with `fetch-depth: 0` so `origin/main` is present. Pass `--dirty` together with `--base` when uncommitted edits should count as well. `--base` alone ignores them.
+
+A finding is in scope when its `evidence` or `affected_resources` reference a changed file. A finding with no file reference is kept. The scope uses the same `changed_files` ignore list and file cap as the collector, and each run reports how many files and findings it considered. If git cannot resolve the scope, or the change set exceeds `changed_files.max_files`, the command fails with a reason instead of reporting everything or gating on a partial list.
 
 There is no web dashboard. Reports are CLI, Markdown, JSON, or SARIF.
 

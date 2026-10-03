@@ -101,10 +101,6 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
      */
     public function touching(array $files): self
     {
-        if ($files === []) {
-            return new self;
-        }
-
         $normalized = [];
 
         foreach ($files as $file) {
@@ -115,10 +111,6 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
             if ($path !== '') {
                 $normalized[$path] = true;
             }
-        }
-
-        if ($normalized === []) {
-            return new self;
         }
 
         return new self(...array_values(array_filter(

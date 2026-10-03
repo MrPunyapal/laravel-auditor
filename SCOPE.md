@@ -18,7 +18,7 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Audit rules | 81 evidence-first rules across 6 core domains (security, performance, architecture, database, testing, conventions), including a deep performance catalog (AUD-PER-008–018) with context-gated, semantic-equivalence-verified optimization rules and an architecture code-smell catalog (AUD-ARC-006–011) |
 | Ecosystem rule packs | Livewire, Filament, Inertia, Sanctum, Pest — applied only when the target package is installed. Queue and DSA rules always apply. |
 | Findings | `Finding`, `FindingCollection`, `FindingLoader`, JSON schemas (`finding.schema.json`, `report.schema.json`), example findings file |
-| Reports | Markdown, JSON, CLI text, and SARIF renderers; `auditor:report` and `auditor:ci` commands, both with a `--dirty` uncommitted-files scope |
+| Reports | Markdown, JSON, CLI text, and SARIF renderers; `auditor:report` and `auditor:ci` commands, with `--base=<ref>` for the committed merge-base diff and `--dirty` for uncommitted files |
 | Artisan commands | `auditor:install`, `auditor:status`, `auditor:rules`, `auditor:report`, `auditor:context`, `auditor:ci`, `auditor:mcp` |
 | Installer | Idempotent standalone installer with `--dry-run`, `--force`, `--agents` options; wires only selected, configured, or detected agents; writes adapters only when missing |
 | Agent resources | 9 skills (8 audit + setup), 4 guidelines, 2 schemas, 1 example file — published via `vendor:publish` or `auditor:install` |
@@ -43,8 +43,7 @@ These items are intentionally deferred. They may appear in future releases.
 | Area | Reason |
 | --- | --- |
 | Automatic code fixes | The package is read-only by design; fixes remain the agent's responsibility |
-| Historical audit baselines | No diffing between audit runs; findings are point-in-time. `--dirty` scopes to uncommitted files, which is a working-tree filter, not a stored baseline |
-| Merge-base / branch diff scope | `--dirty` reads the uncommitted working tree only. A PR or branch diff scope is not implemented, so `--dirty` gates nothing in a clean CI checkout |
+| Historical audit baselines | No diffing between audit runs; findings are point-in-time. `--base` and `--dirty` filter one run by git paths. They do not store or compare previous audit results |
 | Web dashboard | No browser UI; all output is CLI, JSON, Markdown, or SARIF |
 | Legacy/standalone PHP runner | Requires a Laravel application context; cannot run outside a Laravel app |
 | Organization policy packs | No multi-tenant or organization-level rule configuration |
@@ -72,7 +71,7 @@ resources/
 
 - Audit knowledge stays agent-neutral. `AGENTS.md` / `CLAUDE.md` adapters only point at that source of truth.
 - Collectors return structured data, not raw source dumps.
-- `changed_files` is a scope signal, not a baseline. It reports uncommitted paths only and never diffs two audit runs.
+- `changed_files` is a scope signal, not a baseline. It reports uncommitted paths only and never diffs two audit runs. `--base` is the committed diff from `git merge-base <ref> HEAD` to `HEAD`. `--dirty` is the working tree. Neither stores a previous audit.
 - The MCP server is read-only; it cannot modify application code.
 - Rules reference evidence; they do not invent findings.
 
