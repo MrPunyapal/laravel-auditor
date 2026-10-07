@@ -279,6 +279,7 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
      */
     public function countsBySeverity(): array
     {
+        /** @var array{critical: int, high: int, medium: int, low: int, info: int} $counts */
         $counts = array_fill_keys(
             array_map(static fn (Severity $s): string => $s->value, Severity::cases()),
             0,
@@ -296,6 +297,7 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
      */
     public function countsByDomain(): array
     {
+        /** @var array{security: int, performance: int, architecture: int, database: int, testing: int, conventions: int} $counts */
         $counts = array_fill_keys(
             array_map(static fn (AuditDomain $d): string => $d->value, AuditDomain::cases()),
             0,
