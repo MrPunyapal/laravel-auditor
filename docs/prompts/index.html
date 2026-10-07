@@ -131,7 +131,7 @@
 </span></span><span class="line"><span class="token">4. For each problem you can prove with this evidence, write a finding with the rule ID, severity, confidence, and the exact query result you relied on.
 </span></span><span class="line"><span class="token">5. If the filtered result was empty, say so explicitly — an empty result is evidence too.
 </span></span></code></pre>
-<p>Filtered responses always include <code>total_count</code> (the size of the unfiltered inventory), so you know exactly how much was narrowed. See <a href="/mcp/">MCP tools</a> for the full filter reference.</p>
+<p>Filtered responses always include <code>total_count</code> (the size of the unfiltered inventory), so you know exactly how much was narrowed. See <a href="../mcp/">MCP tools</a> for the full filter reference.</p>
 <h2 id="re-audit-after-fixes">Re-audit after fixes</h2>
 <p>When findings were addressed and you want a delta check:</p>
 <pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Re-audit this application against storage/auditor-findings.json from the previous run.
@@ -146,7 +146,7 @@
 <p>For a bounded data-structure and ownership review:</p>
 <pre class="phiki github-light phiki-themes github-dark" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token">Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
 </span></span></code></pre>
-<p>See <a href="/dsa/">DSA audit</a> for how the coordinator splits the work.</p>
+<p>See <a href="../dsa/">DSA audit</a> for how the coordinator splits the work.</p>
 
                 </div>
                 <footer class="doc-meta">

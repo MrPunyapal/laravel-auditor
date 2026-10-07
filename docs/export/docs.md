@@ -93,9 +93,9 @@ The agent follows the skill workflow, uses the context tools to gather facts, ap
 
 ## Next
 
-- [Installation](/installation/) — install and wire the package
-- [Usage](/usage/) — commands, workflow, and reporting
-- [Agent setup](/agents/) — connect to your specific AI agent
+- [Installation](installation.md) — install and wire the package
+- [Usage](usage.md) — commands, workflow, and reporting
+- [Agent setup](agents.md) — connect to your specific AI agent
 
 
 ---
@@ -181,7 +181,7 @@ When run interactively, the installer asks which AI agents to configure (pre-sel
 
 When none of those resolve, no agents are wired. Re-run with `--agents` to attach skills and MCP for a specific tool. A `.github` or `.vscode` directory alone is not treated as Copilot.
 
-Unknown `--agents` values are skipped with a warning. To wire an agent that is not in the built-in list, add it under `laravel-auditor.custom_agents` and pass that key to `--agents`. See [Agent setup](/agents/).
+Unknown `--agents` values are skipped with a warning. To wire an agent that is not in the built-in list, add it under `laravel-auditor.custom_agents` and pass that key to `--agents`. See [Agent setup](agents.md).
 
 ### Options
 
@@ -223,9 +223,9 @@ php artisan auditor:rules --applicable
 
 ## Next
 
-- [Agent setup](/agents/) — connect to your specific AI agent
-- [Usage](/usage/) — audit workflow and commands
-- [MCP tools](/mcp/) — register context tools with your agent
+- [Agent setup](agents.md) — connect to your specific AI agent
+- [Usage](usage.md) — audit workflow and commands
+- [MCP tools](mcp.md) — register context tools with your agent
 
 
 ---
@@ -248,7 +248,7 @@ composer require --dev mrpunyapal/laravel-auditor
 
 ### 2. Connect the agent
 
-With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install --agents=claude_code`. See [Installation](/installation/).
+With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install --agents=claude_code`. See [Installation](installation.md).
 
 ### 3. Register context tools (optional)
 
@@ -264,7 +264,7 @@ For example, with Claude Code:
 claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp -q
 ```
 
-The agent can also gather the same facts without MCP via `auditor:context`. See [MCP tools](/mcp/).
+The agent can also gather the same facts without MCP via `auditor:context`. See [MCP tools](mcp.md).
 
 ### 4. Ask the agent to audit
 
@@ -342,7 +342,7 @@ php artisan auditor:report --findings=storage/auditor-findings.json --output=sto
 
 Formats: `markdown`, `json`, `text`, `sarif`.
 
-Reports include project facts, severity and domain counts, a **P0-P3 priority synthesis**, evidence, and recommendations. See [Findings and reports](/findings/).
+Reports include project facts, severity and domain counts, a **P0-P3 priority synthesis**, evidence, and recommendations. See [Findings and reports](findings.md).
 
 ## CI
 
@@ -495,7 +495,7 @@ Once the agent is wired, give it a clear instruction:
 
 That is enough to start a full audit. Ready-to-use prompts for common scenarios — full audit, quick discover pass, domain-focused audits, filtered verification of a single suspicion, re-audits after fixes, and DSA reviews — live in one place:
 
-See [Prompt examples](/prompts/).
+See [Prompt examples](prompts.md).
 
 ## Read-only boundary
 
@@ -621,7 +621,7 @@ Verify one suspicion end-to-end using filtered context queries, then report:
 5. If the filtered result was empty, say so explicitly — an empty result is evidence too.
 ```
 
-Filtered responses always include `total_count` (the size of the unfiltered inventory), so you know exactly how much was narrowed. See [MCP tools](/mcp/) for the full filter reference.
+Filtered responses always include `total_count` (the size of the unfiltered inventory), so you know exactly how much was narrowed. See [MCP tools](mcp.md) for the full filter reference.
 
 ## Re-audit after fixes
 
@@ -645,7 +645,7 @@ For a bounded data-structure and ownership review:
 Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
 ```
 
-See [DSA audit](/dsa/) for how the coordinator splits the work.
+See [DSA audit](dsa.md) for how the coordinator splits the work.
 
 
 ---
@@ -817,7 +817,7 @@ Most ecosystem packs apply only when the matching package is installed. Those pa
 | Pest | `pestphp/pest` | `AUD-PEST-*` |
 | Queues | — | `AUD-QUE-*` |
 
-DSA organizing-model rules (`AUD-DSA-*`) support the [DSA audit](/dsa/) skill.
+DSA organizing-model rules (`AUD-DSA-*`) support the [DSA audit](dsa.md) skill.
 
 ## Severity and confidence
 
@@ -1016,7 +1016,7 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --dirty --fail-o
 
 Typed evidence decides what counts as a file. `file`, `migration`, and `test` references are treated as paths; `route`, `config`, `symbol`, `query`, `dependency`, and `log` references never are. An unrecognized type falls back to matching on the file extension, so `type: file` with the reference `app/Services/UserService` still scopes correctly, and a route or config key is never mistaken for a file.
 
-A finding with no file reference at all is always kept, because it cannot be proven unrelated to the change. See [Usage](/usage/).
+A finding with no file reference at all is always kept, because it cannot be proven unrelated to the change. See [Usage](usage.md).
 
 
 ---
