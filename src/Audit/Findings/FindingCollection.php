@@ -285,7 +285,7 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
         );
 
         foreach ($this->items as $finding) {
-            $counts[$finding->severity->value]++;
+            $counts[$finding->severity->value] = ($counts[$finding->severity->value] ?? 0) + 1;
         }
 
         return $counts;
@@ -302,7 +302,7 @@ final class FindingCollection implements ArrayAccess, Countable, IteratorAggrega
         );
 
         foreach ($this->items as $finding) {
-            $counts[$finding->domain->value]++;
+            $counts[$finding->domain->value] = ($counts[$finding->domain->value] ?? 0) + 1;
         }
 
         return $counts;
