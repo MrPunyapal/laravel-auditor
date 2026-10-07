@@ -73,7 +73,7 @@ final class RuleRegistry
         );
 
         foreach ($this->load() as $rule) {
-            $counts[$rule->domain->value]++;
+            $counts[$rule->domain->value] = ($counts[$rule->domain->value] ?? 0) + 1;
         }
 
         return $counts;
