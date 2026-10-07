@@ -99,6 +99,6 @@ The agent follows the skill workflow, uses the context tools to gather facts, ap
 
 ## Next
 
-- [Installation](/installation/) — install and wire the package
-- [Usage](/usage/) — commands, workflow, and reporting
-- [Agent setup](/agents/) — connect to your specific AI agent
+- [Installation](installation.md) — install and wire the package
+- [Usage](usage.md) — commands, workflow, and reporting
+- [Agent setup](agents.md) — connect to your specific AI agent

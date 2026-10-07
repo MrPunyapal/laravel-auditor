@@ -94,7 +94,7 @@ Once the agent is wired, give it a clear instruction:
 
 That is enough to start a full audit. Ready-to-use prompts for common scenarios — full audit, quick discover pass, domain-focused audits, filtered verification of a single suspicion, re-audits after fixes, and DSA reviews — live in one place:
 
-See [Prompt examples](/prompts/).
+See [Prompt examples](prompts.md).
 
 ## Read-only boundary
 

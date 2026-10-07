@@ -66,7 +66,7 @@ Most ecosystem packs apply only when the matching package is installed. Those pa
 | Pest | `pestphp/pest` | `AUD-PEST-*` |
 | Queues | — | `AUD-QUE-*` |
 
-DSA organizing-model rules (`AUD-DSA-*`) support the [DSA audit](/dsa/) skill.
+DSA organizing-model rules (`AUD-DSA-*`) support the [DSA audit](dsa.md) skill.
 
 ## Severity and confidence
 

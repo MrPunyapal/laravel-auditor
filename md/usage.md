@@ -21,7 +21,7 @@ composer require --dev mrpunyapal/laravel-auditor
 
 ### 2. Connect the agent
 
-With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install --agents=claude_code`. See [Installation](/installation/).
+With Boost: `php artisan boost:install` (re-run `php artisan boost:update` after package updates, or `boost:update --discover` to pick up newly installed packages). Without Boost: `php artisan auditor:install --agents=claude_code`. See [Installation](installation.md).
 
 ### 3. Register context tools (optional)
 
@@ -37,7 +37,7 @@ For example, with Claude Code:
 claude mcp add -s local -t stdio laravel-auditor php artisan auditor:mcp -q
 ```
 
-The agent can also gather the same facts without MCP via `auditor:context`. See [MCP tools](/mcp/).
+The agent can also gather the same facts without MCP via `auditor:context`. See [MCP tools](mcp.md).
 
 ### 4. Ask the agent to audit
 
@@ -115,7 +115,7 @@ php artisan auditor:report --findings=storage/auditor-findings.json --output=sto
 
 Formats: `markdown`, `json`, `text`, `sarif`.
 
-Reports include project facts, severity and domain counts, a **P0-P3 priority synthesis**, evidence, and recommendations. See [Findings and reports](/findings/).
+Reports include project facts, severity and domain counts, a **P0-P3 priority synthesis**, evidence, and recommendations. See [Findings and reports](findings.md).
 
 ## CI
 
