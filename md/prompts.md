@@ -120,7 +120,7 @@ Verify one suspicion end-to-end using filtered context queries, then report:
 5. If the filtered result was empty, say so explicitly — an empty result is evidence too.
 ```
 
-Filtered responses always include `total_count` (the size of the unfiltered inventory), so you know exactly how much was narrowed. See [MCP tools](/mcp/) for the full filter reference.
+Filtered responses always include `total_count` (the size of the unfiltered inventory), so you know exactly how much was narrowed. See [MCP tools](mcp.md) for the full filter reference.
 
 ## Re-audit after fixes
 
@@ -144,4 +144,4 @@ For a bounded data-structure and ownership review:
 Use the laravel-audit-dsa skill. Inventory subsystems, review them in bounded read-only lanes, then rank P0–P3.
 ```
 
-See [DSA audit](/dsa/) for how the coordinator splits the work.
+See [DSA audit](dsa.md) for how the coordinator splits the work.
