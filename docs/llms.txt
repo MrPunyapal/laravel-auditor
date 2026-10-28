@@ -14,3 +14,4 @@
 - https://mrpunyapal.github.io/laravel-auditor/dsa: Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.
 - https://mrpunyapal.github.io/laravel-auditor/future: Features that may influence architecture but are not part of V1.
 - https://mrpunyapal.github.io/laravel-auditor/contributing: How to work on Laravel Auditor locally, including documentation.
+- https://mrpunyapal.github.io/laravel-auditor/security-monitoring: Check Composer lockfiles for new vulnerability disclosures even when application code has not changed.

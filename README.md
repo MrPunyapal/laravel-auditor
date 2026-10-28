@@ -441,6 +441,9 @@ For applications with `package-lock.json` or `npm-shrinkwrap.json`, enable an np
 ```
 
 The `dependencies` collector returns `npm_audit.available`, `count`, and `vulnerabilities`, or a reason why the scan could not run. The scan uses `npm audit --json --omit=dev --ignore-scripts`; no dependencies are installed or updated. Yarn and pnpm are not supported by this collector.
+### Scheduled dependency security checks
+
+New advisories can appear without code changes. Copy [the read-only Composer security audit workflow](resources/auditor/examples/composer-security-audit.yml) into your Laravel application's `.github/workflows/` directory to check the committed `composer.lock` daily with `composer audit --locked`. It fails the GitHub Actions job on dependency policy failures; no install or update is performed. See [security monitoring](md/security-monitoring.md) for setup, scope, and limitations.
 
 ## Trustworthiness
 

@@ -1,0 +1,32 @@
+# Copy to .github/workflows/composer-security-audit.yml in your Laravel application.
+# Requires a committed composer.lock. This does not install dependencies.
+name: Composer Security Audit
+
+on:
+  schedule:
+    - cron: '23 5 * * *' # Daily, UTC; GitHub may delay scheduled jobs.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: composer-security-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP and Composer
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Audit exact locked dependencies
+        run: composer audit --locked --no-interaction --no-plugins --format=table

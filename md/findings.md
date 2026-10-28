@@ -7,10 +7,17 @@ order: 8
 slug: findings
 ---
 
-Laravel Auditor does not invent findings. The agent produces them; the package stores, validates, and renders them.
+Application-code findings come from the agent; the package stores, validates, and renders them. The optional `auditor:dependency-findings` command also produces findings directly from Composer advisory data.
 
-This separation is deliberate. The agent reasons about the code and produces structured findings. Laravel Auditor validates those findings against its schema and renders them as reports. The package never decides what is a vulnerability — the agent does.
+This separation is deliberate. The agent reasons about the code and produces structured findings. Laravel Auditor validates those findings against its schema and renders them as reports. Composer findings confirm an affected dependency version against an advisory, not whether that vulnerability is exploitable in the application.
 
+## Composer dependency findings
+
+Run `php artisan auditor:dependency-findings --output=storage/dependency-findings.json` to export advisory matches without an AI agent, then pass that file to the existing report or CI commands. The export fails when the audit is unavailable or incomplete. It does not merge existing files or modify dependencies.
+
+`AUD-DEP-001` findings use stable IDs derived from package, advisory identity, and affected versions. Recognized Composer severities are retained; missing or unrecognized severity falls back to medium with an explicit verification note. Confirmed confidence applies to the dependency match, not application exploitability.
+
+Add `--include-abandoned` for low-severity `AUD-DEP-002` conventions findings about maintenance risk. Suggested replacements are informational and are never installed automatically. Ignored advisories, filter and cooldown entries, and npm context are not exported by this command. See [Usage](usage.md#dependency-security-checks) for configuration, production-only scope, and limitations.
 ## Finding lifecycle
 
 ```text

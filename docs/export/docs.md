@@ -234,7 +234,7 @@ php artisan auditor:rules --applicable
 
 > Run status, context, rules, reports, and CI with Laravel Auditor.
 
-You do not run a scan. You ask your AI agent to use the `laravel-audit` skill. The agent reasons and writes findings. These commands only inspect the app, list rules, or render what the agent produced.
+For application-code audits, ask your AI agent to use the `laravel-audit` skill. The agent reasons and writes findings. The dependency-only command below can also export Composer advisory findings without an AI agent.
 
 ## Audit workflow
 
@@ -379,6 +379,36 @@ How the scope is decided:
 
 Both flags need `git` on the host. If the scope cannot be resolved, the command fails with the reason. A missing `--base` ref fails the same way: the command does not fall back to reporting every finding. If the change set is larger than `changed_files.max_files`, the command fails rather than gating on a truncated list.
 
+## Dependency security checks
+
+The `dependencies` collector runs Composer audit by default. It needs Composer and `composer.lock`, uses the installed packages by default, and may contact advisory repositories. To audit the exact committed lockfile without installing dependencies, publish the configuration and set:
+
+```php
+'context' => [
+    'composer_audit' => true,
+    'composer_audit_locked' => true,
+    'composer_audit_no_dev' => false,
+    'npm_audit' => false,
+],
+```
+
+Set `composer_audit_no_dev` to `true` for production dependencies only. It composes with locked or installed mode and still includes transitive dependencies. Successful Composer results include `mode` (`installed` or `locked`) and `scope` (`all` or `production`).
+
+```bash
+php artisan auditor:context dependencies
+php artisan auditor:dependency-findings --output=storage/dependency-findings.json
+php artisan auditor:dependency-findings --include-abandoned --output=storage/dependency-findings.json
+php artisan auditor:report --findings=storage/dependency-findings.json
+php artisan auditor:ci --findings=storage/dependency-findings.json --fail-on=high
+```
+
+`auditor:dependency-findings` writes ordinary findings JSON to stdout unless `--output` is supplied. A successful export exits zero even when vulnerabilities were found; use `auditor:ci` for a severity gate. Unavailable or incomplete Composer audits fail the export. The output file is replaced, so use a separate file from agent-produced findings. Its parent directory must already exist.
+
+Advisories become `AUD-DEP-001` security findings with stable IDs. `--include-abandoned` adds low-severity `AUD-DEP-002` maintenance findings. This command does not export ignored advisories, policy filters, cooldown entries, or npm results; inspect those categories separately in dependency context. Confirmed affected dependency versions do not establish application exploitability. See [Findings and reports](findings.md).
+
+For optional npm 7+ production auditing, set `context.npm_audit` to `true`. It requires `package.json` and `package-lock.json` or `npm-shrinkwrap.json`. The collector runs `npm audit --json --omit=dev --ignore-scripts` and returns `npm_audit.available`, `count`, and `vulnerabilities`, or an unavailable reason. Yarn and pnpm lockfiles are not supported. Both scanners are read-only: they do not install, update, or fix dependencies.
+
+Composer context preserves `advisories`, `ignored_advisories`, `abandoned`, `filter`, `cooldown`, and `unreachable_repositories`. An unavailable audit or `complete: false` is not a clean security result. See [Scheduled dependency security checks](security-monitoring.md) for a consumer GitHub Actions example.
 ## Configuration
 
 Publish `config/laravel-auditor.php` to change the default domain list, extra rule directories, standalone resource target, and default report format.
@@ -395,6 +425,9 @@ Key settings:
 - `agents` — default agents for non-interactive installation (built-in keys or `custom_agents` keys)
 - `custom_agents` — additional installer targets for agents that are not in the built-in list
 - `context.composer_audit` — enable the `composer audit` call from the dependencies collector (on by default; it hits the network and waits up to 60 seconds per collection, so set `false` to skip the shell-out when context collection must stay fully offline or fast)
+- `context.composer_audit_locked` — audit exact lockfile versions instead of installed packages (off by default)
+- `context.composer_audit_no_dev` — exclude development dependencies from Composer auditing (off by default)
+- `context.npm_audit` — enable read-only npm production auditing (off by default)
 - `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
 - `changed_files.include_untracked` — include untracked paths in the `changed_files` collector and in `--dirty` (on by default). `--base` never includes untracked files
 - `changed_files.ignore` — repository-relative path prefixes excluded from `changed_files`, `--dirty`, and `--base`
@@ -793,11 +826,11 @@ The authoritative definitions live in `resources/auditor/rules/*.php`. The human
 
 ## Core domains
 
-0.1.x ships 81 rules across six core domains:
+0.1.x ships 85 rules across six core domains:
 
 | Domain | What it looks for |
 | --- | --- |
-| Security | Authorization, mass assignment, secrets, redirects, file handling, CSRF, XSS, SQL injection, debug exposure |
+| Security | Authorization, mass assignment, secrets, redirects, file handling, CSRF, XSS, SQL injection, SSRF, command injection, webhook verification, debug exposure |
 | Performance | N+1, materialized aggregates, PHP-vs-database work, queries in loops, unbounded retrieval, repeated I/O, job payloads, rendering-path queries — always verified for semantic equivalence |
 | Architecture | Boundaries, duplication, code smells, coupling, dead code — no cargo-cult repositories |
 | Database | Relationship/schema mismatch, destructive migrations, missing FKs |
@@ -871,10 +904,17 @@ Do not add a rule unless it can stay evidence-first.
 
 > Finding schema, example payloads, and how reports are rendered.
 
-Laravel Auditor does not invent findings. The agent produces them; the package stores, validates, and renders them.
+Application-code findings come from the agent; the package stores, validates, and renders them. The optional `auditor:dependency-findings` command also produces findings directly from Composer advisory data.
 
-This separation is deliberate. The agent reasons about the code and produces structured findings. Laravel Auditor validates those findings against its schema and renders them as reports. The package never decides what is a vulnerability — the agent does.
+This separation is deliberate. The agent reasons about the code and produces structured findings. Laravel Auditor validates those findings against its schema and renders them as reports. Composer findings confirm an affected dependency version against an advisory, not whether that vulnerability is exploitable in the application.
 
+## Composer dependency findings
+
+Run `php artisan auditor:dependency-findings --output=storage/dependency-findings.json` to export advisory matches without an AI agent, then pass that file to the existing report or CI commands. The export fails when the audit is unavailable or incomplete. It does not merge existing files or modify dependencies.
+
+`AUD-DEP-001` findings use stable IDs derived from package, advisory identity, and affected versions. Recognized Composer severities are retained; missing or unrecognized severity falls back to medium with an explicit verification note. Confirmed confidence applies to the dependency match, not application exploitability.
+
+Add `--include-abandoned` for low-severity `AUD-DEP-002` conventions findings about maintenance risk. Suggested replacements are informational and are never installed automatically. Ignored advisories, filter and cooldown entries, and npm context are not exported by this command. See [Usage](usage.md#dependency-security-checks) for configuration, production-only scope, and limitations.
 ## Finding lifecycle
 
 ```text
@@ -1224,4 +1264,33 @@ Page-specific social titles and descriptions use `og_title` and `og_description`
 ### Docsmith
 
 If Docsmith is missing a feature this package needs, contribute it upstream in [mrpunyapal/docsmith](https://github.com/MrPunyapal/docsmith) rather than forking the builder.
+
+
+---
+
+# Scheduled dependency security checks
+
+> Check Composer lockfiles for new vulnerability disclosures even when application code has not changed.
+
+Laravel Auditor collects dependency audit context on demand. A vulnerability can be disclosed after an application is deployed without any code or lockfile changes. A scheduled lockfile check detects that kind of drift.
+
+## GitHub Actions example
+
+Copy [the example workflow](https://github.com/MrPunyapal/laravel-auditor/blob/main/resources/auditor/examples/composer-security-audit.yml) to `.github/workflows/composer-security-audit.yml` in **your Laravel application repository**. The application must commit `composer.lock`.
+
+The workflow runs daily and on manual dispatch. It uses `composer audit --locked` with Composer 2 to check exact locked versions, including transitive dependencies. It does not need `vendor/`, run Composer plugins, install packages, or change files. GitHub Actions shows a failed job when Composer returns an audit failure; inspect the job logs and advisory links to triage it.
+
+The example runs daily at 05:23 UTC. Scheduled workflows run on the default branch and may start late. Repository Actions settings, plan limits, inactivity, and notification preferences determine whether a run takes place and who is notified.
+
+For production dependencies only, add `--no-dev` to the audit command. Keep development dependencies in scope for the widest supply-chain coverage. Do not add `--direct` unless intentionally excluding transitive packages.
+
+## Limitations
+
+- This is a copyable example. Installing Laravel Auditor does **not** add a GitHub workflow to your application.
+- Composer audits dependency policies and vulnerability advisories. It does not prove whether a vulnerable function is reachable in your application.
+- A network or advisory-source failure must be investigated; do not report it as a clean result.
+- Keep the workflow isolated from deployments. It deliberately has read-only repository permissions and does not run `composer update` or `composer audit fix`.
+- An application that uses npm, pnpm, or Yarn needs a separate lockfile-specific check for its JavaScript dependencies.
+
+See the [Composer audit reference](https://getcomposer.org/doc/03-cli.md#audit) and [GitHub Actions schedule documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows).
 

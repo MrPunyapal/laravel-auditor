@@ -7,7 +7,7 @@ order: 3
 slug: usage
 ---
 
-You do not run a scan. You ask your AI agent to use the `laravel-audit` skill. The agent reasons and writes findings. These commands only inspect the app, list rules, or render what the agent produced.
+For application-code audits, ask your AI agent to use the `laravel-audit` skill. The agent reasons and writes findings. The dependency-only command below can also export Composer advisory findings without an AI agent.
 
 ## Audit workflow
 
@@ -152,6 +152,36 @@ How the scope is decided:
 
 Both flags need `git` on the host. If the scope cannot be resolved, the command fails with the reason. A missing `--base` ref fails the same way: the command does not fall back to reporting every finding. If the change set is larger than `changed_files.max_files`, the command fails rather than gating on a truncated list.
 
+## Dependency security checks
+
+The `dependencies` collector runs Composer audit by default. It needs Composer and `composer.lock`, uses the installed packages by default, and may contact advisory repositories. To audit the exact committed lockfile without installing dependencies, publish the configuration and set:
+
+```php
+'context' => [
+    'composer_audit' => true,
+    'composer_audit_locked' => true,
+    'composer_audit_no_dev' => false,
+    'npm_audit' => false,
+],
+```
+
+Set `composer_audit_no_dev` to `true` for production dependencies only. It composes with locked or installed mode and still includes transitive dependencies. Successful Composer results include `mode` (`installed` or `locked`) and `scope` (`all` or `production`).
+
+```bash
+php artisan auditor:context dependencies
+php artisan auditor:dependency-findings --output=storage/dependency-findings.json
+php artisan auditor:dependency-findings --include-abandoned --output=storage/dependency-findings.json
+php artisan auditor:report --findings=storage/dependency-findings.json
+php artisan auditor:ci --findings=storage/dependency-findings.json --fail-on=high
+```
+
+`auditor:dependency-findings` writes ordinary findings JSON to stdout unless `--output` is supplied. A successful export exits zero even when vulnerabilities were found; use `auditor:ci` for a severity gate. Unavailable or incomplete Composer audits fail the export. The output file is replaced, so use a separate file from agent-produced findings. Its parent directory must already exist.
+
+Advisories become `AUD-DEP-001` security findings with stable IDs. `--include-abandoned` adds low-severity `AUD-DEP-002` maintenance findings. This command does not export ignored advisories, policy filters, cooldown entries, or npm results; inspect those categories separately in dependency context. Confirmed affected dependency versions do not establish application exploitability. See [Findings and reports](findings.md).
+
+For optional npm 7+ production auditing, set `context.npm_audit` to `true`. It requires `package.json` and `package-lock.json` or `npm-shrinkwrap.json`. The collector runs `npm audit --json --omit=dev --ignore-scripts` and returns `npm_audit.available`, `count`, and `vulnerabilities`, or an unavailable reason. Yarn and pnpm lockfiles are not supported. Both scanners are read-only: they do not install, update, or fix dependencies.
+
+Composer context preserves `advisories`, `ignored_advisories`, `abandoned`, `filter`, `cooldown`, and `unreachable_repositories`. An unavailable audit or `complete: false` is not a clean security result. See [Scheduled dependency security checks](security-monitoring.md) for a consumer GitHub Actions example.
 ## Configuration
 
 Publish `config/laravel-auditor.php` to change the default domain list, extra rule directories, standalone resource target, and default report format.
@@ -168,6 +198,9 @@ Key settings:
 - `agents` — default agents for non-interactive installation (built-in keys or `custom_agents` keys)
 - `custom_agents` — additional installer targets for agents that are not in the built-in list
 - `context.composer_audit` — enable the `composer audit` call from the dependencies collector (on by default; it hits the network and waits up to 60 seconds per collection, so set `false` to skip the shell-out when context collection must stay fully offline or fast)
+- `context.composer_audit_locked` — audit exact lockfile versions instead of installed packages (off by default)
+- `context.composer_audit_no_dev` — exclude development dependencies from Composer auditing (off by default)
+- `context.npm_audit` — enable read-only npm production auditing (off by default)
 - `context.test_listing` — enable accurate test case counting via `--list-tests` (off by default)
 - `changed_files.include_untracked` — include untracked paths in the `changed_files` collector and in `--dirty` (on by default). `--base` never includes untracked files
 - `changed_files.ignore` — repository-relative path prefixes excluded from `changed_files`, `--dirty`, and `--base`
