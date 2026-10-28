@@ -428,6 +428,19 @@ The new command emits ordinary `AUD-DEP-001` findings with stable IDs and adviso
 
 Use `--include-abandoned` to export Composer's abandoned-package notices as low-severity `AUD-DEP-002` findings as well. This is opt-in; the command fails rather than treating missing abandoned-package data as an empty report. A suggested replacement is not automatically installed.
 
+### Optional npm security auditing
+
+For applications with `package-lock.json` or `npm-shrinkwrap.json`, enable an npm production-dependency scan:
+
+```php
+// config/laravel-auditor.php
+'context' => [
+    'npm_audit' => true,
+],
+```
+
+The `dependencies` collector returns `npm_audit.available`, `count`, and `vulnerabilities`, or a reason why the scan could not run. The scan uses `npm audit --json --omit=dev --ignore-scripts`; no dependencies are installed or updated. Yarn and pnpm are not supported by this collector.
+
 ## Trustworthiness
 
 The agent is instructed to:
