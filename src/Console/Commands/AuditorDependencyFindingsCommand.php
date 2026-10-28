@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace LaravelAuditor\Console\Commands;
 
 use Illuminate\Console\Command;
-use LaravelAuditor\Audit\Findings\ComposerAdvisoryFindings;
 use LaravelAuditor\Audit\Findings\ComposerAbandonedFindings;
+use LaravelAuditor\Audit\Findings\ComposerAdvisoryFindings;
 use LaravelAuditor\Context\Collectors\DependenciesCollector;
 use Throwable;
 
@@ -64,6 +64,7 @@ final class AuditorDependencyFindingsCommand extends Command
                 $findings[] = $finding;
             }
         }
+
         $json = json_encode(['findings' => $findings], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR).PHP_EOL;
         $output = $this->option('output');
 
@@ -79,7 +80,7 @@ final class AuditorDependencyFindingsCommand extends Command
             return self::FAILURE;
         }
 
-        $this->components->info(sprintf('Wrote %d Composer advisory finding(s) to [%s].', count($findings), $output));
+        $this->components->info(sprintf('Wrote %d dependency finding(s) to [%s].', count($findings), $output));
 
         return self::SUCCESS;
     }
