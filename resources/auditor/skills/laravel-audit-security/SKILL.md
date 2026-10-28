@@ -30,6 +30,7 @@ php artisan auditor:rules --domain=security --applicable
 - Unsafe configuration usage: `APP_DEBUG` assumptions, hardcoded credentials, env values echoed.
 - Dangerous file handling: unvalidated uploads, paths from user input, unsafe file reads.
 - Unsafe URL/redirect handling: open redirects from user-controlled targets.
+- SSRF (AUD-SEC-014): trace untrusted URLs into Http/Guzzle/cURL, including DNS resolution and redirects; verify the effective destination restrictions before reporting.
 - Insecure authentication/authorization patterns: storing secrets in plaintext, weak session config, missing rate limits on auth.
 - Secrets accidentally committed or exposed where detectable (`.env` committed, keys in source).
 - Weak or missing CSRF protection: `VerifyCsrfToken::except` whitelists, removed/reordered CSRF middleware, forms or post endpoints missing the token.

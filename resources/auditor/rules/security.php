@@ -292,4 +292,29 @@ return [
         ],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-SEC-014',
+        'name' => 'Server-side request forgery via untrusted URL',
+        'domain' => 'security',
+        'severity' => 'high',
+        'confidence' => 'medium',
+        'description' => 'An attacker-controlled URL, hostname, or redirect target reaches a server-side HTTP client without an effective destination restriction, allowing requests to internal services or metadata endpoints.',
+        'why_it_matters' => 'Server-side request forgery can expose internal service responses, cloud credentials, or infrastructure reachable only from the server.',
+        'recommendation' => 'Use an explicit destination allow-list, reject non-HTTP schemes and private/reserved destinations, validate resolved addresses at connection time, and control redirects. Prefer fixed upstream endpoints over arbitrary user-provided URLs.',
+        'evidence' => [
+            'The HTTP request sink (Http facade, Guzzle, cURL, or equivalent) and the exact source of its URL.',
+            'The route or job boundary through which an untrusted actor controls that URL.',
+            'The destination and redirect validation performed before the outbound request, including DNS rebinding safeguards where relevant.',
+        ],
+        'false_positive_considerations' => [
+            'The destination may be an application-controlled constant or selected from a closed allow-list.',
+            'A validated service hostname can still be unsafe if redirects or DNS resolution bypass the restriction; verify the actual request path.',
+            'Http::preventStrayRequests() is primarily a test isolation feature and is not a production SSRF defense.',
+        ],
+        'references' => [
+            'https://owasp.org/www-community/attacks/Server_Side_Request_Forgery',
+            'https://laravel.com/docs/http-client',
+        ],
+        'applicability' => [],
+    ],
 ];
