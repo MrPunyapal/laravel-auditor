@@ -22,8 +22,11 @@ jobs:
         with:
           ref: main
 
+      - name: Test changelog updater
+        run: python3 -m unittest discover -s .github/scripts -p 'test_update_changelog.py'
+
       - name: Update changelog
-        run: python3 .github/scripts/update-changelog.py
+        run: python3 .github/scripts/update_changelog.py
 
       - name: Commit updated changelog
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7
