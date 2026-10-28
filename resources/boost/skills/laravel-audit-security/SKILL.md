@@ -44,6 +44,11 @@ php artisan auditor:rules --domain=security --applicable
 
 When these packages are installed, also apply their packs (`auditor:rules --applicable`): Livewire (`AUD-LW-*`), Filament (`AUD-FIL-*`), Inertia (`AUD-IN-*`), Sanctum (`AUD-API-*`).
 
+## Dependency-only export
+
+For Composer advisory findings without an AI agent, run `php artisan auditor:dependency-findings --output=storage/dependency-findings.json`, then use that file with `auditor:report` or `auditor:ci`. Add `--include-abandoned` for low-severity maintenance findings. Keep this output separate from agent-produced findings; the command replaces the output file and fails on unavailable or incomplete audits. Confirmed dependency matches do not prove application exploitability. Ignored advisories, filters, cooldown entries, and npm results still require separate investigation.
+
+Set `context.composer_audit_locked` for exact lockfile auditing and `context.composer_audit_no_dev` for production-only scope; both default to false. Optional `context.npm_audit` also defaults to false and requires npm 7+ with an npm lockfile. Never run an install, update, or audit fix as part of gathering audit evidence.
 ## Evidence requirements
 
 Every security finding needs at least:
