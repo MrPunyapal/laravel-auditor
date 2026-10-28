@@ -342,4 +342,29 @@ return [
         ],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-SEC-016',
+        'name' => 'Unverified externally triggered webhook',
+        'domain' => 'security',
+        'severity' => 'high',
+        'confidence' => 'medium',
+        'description' => 'An endpoint that accepts webhook deliveries from external services can trigger sensitive actions without verifying sender authenticity through a valid signature, secret, or equivalent authentication boundary.',
+        'why_it_matters' => 'Attackers may forge events to change application state, grant access, trigger transactions, or enqueue sensitive work.',
+        'recommendation' => 'Verify provider signatures against the raw request body with a server-held secret and constant-time comparison, enforce any provider timestamp/replay controls, and reject unauthenticated events before side effects. Equivalent token or mTLS authentication may be appropriate for some providers.',
+        'evidence' => [
+            'The public webhook route, its effective middleware, and any CSRF exemptions.',
+            'The handler or middleware that checks the signed payload, shared secret, or equivalent sender authentication before side effects.',
+            'The authenticity boundary and, where applicable, timestamp or replay handling, tracing the exact bytes used for signature validation.',
+        ],
+        'false_positive_considerations' => [
+            'Webhook routes are commonly CSRF-exempt by design; that exemption alone is not a vulnerability.',
+            'The application may validate the signature in an upstream proxy, package middleware, or SDK before the controller executes.',
+            'Authenticated internal callbacks may rely on a trusted channel rather than a public webhook HMAC.',
+        ],
+        'references' => [
+            'https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries',
+            'https://docs.stripe.com/webhooks/signature',
+        ],
+        'applicability' => [],
+    ],
 ];
