@@ -42,6 +42,17 @@ final class ComposerAuditResultParser
         $cooldown = $payload['cooldown'] ?? [];
         $unreachable = $payload['unreachable-repositories'] ?? [];
 
+        foreach ($abandoned as $package => $replacement) {
+            if (! is_string($package) || $package === '' || (! is_string($replacement) && $replacement !== null)) {
+                return null;
+            }
+        }
+
+        if (array_key_exists('error', $payload)
+            || ($exitCode !== 0 && $advisories === [] && $abandoned === [] && $filtered === [] && $cooldown === [] && $unreachable === [])) {
+            return null;
+        }
+
         return [
             'available' => true,
             'complete' => $unreachable === [],
