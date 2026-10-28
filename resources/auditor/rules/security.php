@@ -317,4 +317,29 @@ return [
         ],
         'applicability' => [],
     ],
+    [
+        'id' => 'AUD-SEC-015',
+        'name' => 'Command execution using untrusted input',
+        'domain' => 'security',
+        'severity' => 'high',
+        'confidence' => 'medium',
+        'description' => 'Untrusted request, file, or job data is interpolated into a shell command or passed through a shell execution API without an effective argument boundary.',
+        'why_it_matters' => 'Shell metacharacters and malformed command arguments can cause arbitrary command execution with the application\'s operating-system privileges.',
+        'recommendation' => 'Use argument-array process execution where supported, pass untrusted data as individual arguments, and allow-list external executables and sensitive options. Never assemble an executable command by concatenating input.',
+        'evidence' => [
+            'The execution sink (Process::run, Symfony Process, exec, shell_exec, system, proc_open, or equivalent) and the exact command passed to it.',
+            'Where the untrusted value enters the command and whether the execution API invokes a shell.',
+            'The effective input and argument validation, including flags and destination paths, before process execution.',
+        ],
+        'false_positive_considerations' => [
+            'A fixed command with separately passed arguments is not shell command injection simply because it uses Process::run.',
+            'A value used exclusively in a safe non-shell argument array may still need semantic option validation, but not necessarily command-injection reporting.',
+            'A command built entirely from trusted constants or a validated allow-list is not an attacker-controlled injection.',
+        ],
+        'references' => [
+            'https://laravel.com/docs/processes',
+            'https://owasp.org/www-community/attacks/Command_Injection',
+        ],
+        'applicability' => [],
+    ],
 ];
