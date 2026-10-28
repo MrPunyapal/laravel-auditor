@@ -125,6 +125,13 @@ return [
         'composer_audit_locked' => false,
 
         /*
+        | Limit Composer security advisories to production dependencies.
+        | Disabled by default to preserve existing full dependency coverage.
+        | Include development dependencies for local / general audits.
+        */
+        'composer_audit_no_dev' => false,
+
+        /*
         | Best-effort `pest --list-tests` / `phpunit --list-tests` call from
         | the tests collector to report accurate test case counts. Off by
         | default so context collection does not launch the test runner; the

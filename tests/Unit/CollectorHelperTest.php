@@ -40,4 +40,12 @@ it('builds the Composer command for installed and locked audits', function () {
     expect(DependenciesCollector::composerAuditCommand(locked: true))->toBe([
         'composer', 'audit', '--locked', '--format=json', '--no-interaction', '--no-plugins',
     ]);
+
+    expect(DependenciesCollector::composerAuditCommand(noDev: true))->toBe([
+        'composer', 'audit', '--no-dev', '--format=json', '--no-interaction', '--no-plugins',
+    ]);
+
+    expect(DependenciesCollector::composerAuditCommand(locked: true, noDev: true))->toBe([
+        'composer', 'audit', '--locked', '--no-dev', '--format=json', '--no-interaction', '--no-plugins',
+    ]);
 });

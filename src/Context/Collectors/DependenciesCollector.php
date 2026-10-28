@@ -123,7 +123,8 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
         }
 
         $locked = (bool) config('laravel-auditor.context.composer_audit_locked', false);
-        $process = new Process(self::composerAuditCommand($locked), base_path());
+        $noDev = (bool) config('laravel-auditor.context.composer_audit_no_dev', false);
+        $process = new Process(self::composerAuditCommand($locked, $noDev), base_path());
 
         try {
             $process->setTimeout(60);
@@ -168,6 +169,7 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
         return [
             'available' => true,
             'mode' => $locked ? 'locked' : 'installed',
+            'scope' => $noDev ? 'production' : 'all',
             'count' => count($advisories),
             'advisories' => $advisories,
         ];
@@ -178,12 +180,13 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
      *
      * @return list<string>
      */
-    public static function composerAuditCommand(bool $locked = false): array
+    public static function composerAuditCommand(bool $locked = false, bool $noDev = false): array
     {
         return [
             'composer',
             'audit',
             ...($locked ? ['--locked'] : []),
+            ...($noDev ? ['--no-dev'] : []),
             '--format=json',
             '--no-interaction',
             '--no-plugins',
