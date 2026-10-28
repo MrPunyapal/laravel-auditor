@@ -122,7 +122,8 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
             return ['available' => false, 'reason' => 'composer.lock is missing'];
         }
 
-        $process = new Process(['composer', 'audit', '--format=json', '--no-interaction', '--no-plugins'], base_path());
+        $locked = (bool) config('laravel-auditor.context.composer_audit_locked', false);
+        $process = new Process(self::composerAuditCommand($locked), base_path());
 
         try {
             $process->setTimeout(60);
@@ -166,8 +167,26 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
 
         return [
             'available' => true,
+            'mode' => $locked ? 'locked' : 'installed',
             'count' => count($advisories),
             'advisories' => $advisories,
+        ];
+    }
+
+    /**
+     * Build the read-only Composer command for the requested audit target.
+     *
+     * @return list<string>
+     */
+    public static function composerAuditCommand(bool $locked = false): array
+    {
+        return [
+            'composer',
+            'audit',
+            ...($locked ? ['--locked'] : []),
+            '--format=json',
+            '--no-interaction',
+            '--no-plugins',
         ];
     }
 

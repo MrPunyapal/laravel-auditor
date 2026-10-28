@@ -31,3 +31,13 @@ it('explains composer audit failures with the exit code and stderr', function ()
         ->and(strlen($reason))->toBeLessThan(400)
         ->and($reason)->toEndWith('...');
 });
+
+it('builds the Composer command for installed and locked audits', function () {
+    expect(DependenciesCollector::composerAuditCommand())->toBe([
+        'composer', 'audit', '--format=json', '--no-interaction', '--no-plugins',
+    ]);
+
+    expect(DependenciesCollector::composerAuditCommand(locked: true))->toBe([
+        'composer', 'audit', '--locked', '--format=json', '--no-interaction', '--no-plugins',
+    ]);
+});
