@@ -94,4 +94,4 @@ return [
         ],
         'applicability' => [],
     ],
-];\n
+];
