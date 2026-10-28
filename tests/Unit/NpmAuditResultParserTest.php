@@ -28,6 +28,11 @@ it('normalizes npm audit vulnerabilities and fix availability', function () {
 });
 
 it('rejects npm error JSON and malformed vulnerability data', function () {
+    expect(NpmAuditResultParser::parse(['error' => ['code' => 'EAI_AGAIN'], 'vulnerabilities' => []]))->toBeNull();
+    expect(NpmAuditResultParser::parse(['vulnerabilities' => []], 2))->toBeNull();
+    expect(NpmAuditResultParser::parse(['vulnerabilities' => []], 1))->toBeNull();
+    expect(NpmAuditResultParser::parse(['vulnerabilities' => []], null))->toBeNull();
+    expect(NpmAuditResultParser::parse(['vulnerabilities' => ['lib' => []]]))->toBeNull();
     expect(NpmAuditResultParser::parse(['error' => ['code' => 'ENOLOCK']]))->toBeNull();
     expect(NpmAuditResultParser::parse(['vulnerabilities' => 'invalid']))->toBeNull();
     expect(NpmAuditResultParser::parse(['vulnerabilities' => ['lib' => 'invalid']]))->toBeNull();

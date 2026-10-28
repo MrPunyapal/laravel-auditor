@@ -208,7 +208,7 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
         }
 
         $output = json_decode($process->getOutput(), true);
-        $parsed = is_array($output) ? NpmAuditResultParser::parse($output) : null;
+        $parsed = is_array($output) ? NpmAuditResultParser::parse($output, $process->getExitCode()) : null;
 
         if ($parsed === null) {
             return [
