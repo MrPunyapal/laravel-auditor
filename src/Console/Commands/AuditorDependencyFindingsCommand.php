@@ -54,13 +54,15 @@ final class AuditorDependencyFindingsCommand extends Command
         $findings = ComposerAdvisoryFindings::fromAudit($audit);
 
         if ((bool) $this->option('include-abandoned')) {
-            if (! isset($audit['abandoned']) || ! is_array($audit['abandoned'])) {
+            if (is_array($audit['abandoned'] ?? null) === false) {
                 $this->components->error('Composer audit did not provide abandoned-package data.');
 
                 return self::FAILURE;
             }
 
-            array_push($findings, ...ComposerAbandonedFindings::fromAudit($audit));
+            foreach (ComposerAbandonedFindings::fromAudit($audit) as $finding) {
+                $findings[] = $finding;
+            }
         }
         $json = json_encode(['findings' => $findings], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR).PHP_EOL;
         $output = $this->option('output');
