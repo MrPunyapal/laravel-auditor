@@ -104,7 +104,7 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
      * project; returns `available: false` when the binary, network, or a
      * working lock file is missing instead of throwing.
      *
-     * @return array{available: bool, reason?: string, count?: int, advisories?: list<array{package: string, advisory_id: string, title: string, severity: string, affected_versions: string, link: string, cve: string}>}
+     * @return array<string, mixed>
      */
     private function composerAudit(): array
     {
@@ -134,8 +134,9 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
         }
 
         $output = json_decode($process->getOutput(), true);
+        $parsed = is_array($output) ? ComposerAuditResultParser::parse($output, $process->getExitCode()) : null;
 
-        if (! is_array($output)) {
+        if ($parsed === null) {
             return [
                 'available' => false,
                 'reason' => self::composerAuditFailureReason(
@@ -146,33 +147,13 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
             ];
         }
 
-        $advisories = [];
-
-        foreach (($output['advisories'] ?? []) as $package => $list) {
-            foreach ((array) $list as $advisory) {
-                if (! is_array($advisory)) {
-                    continue;
-                }
-
-                $advisories[] = [
-                    'package' => is_string($package) ? $package : '',
-                    'advisory_id' => is_string($advisory['advisoryId'] ?? null) ? $advisory['advisoryId'] : '',
-                    'title' => is_string($advisory['title'] ?? null) ? $advisory['title'] : '',
-                    'severity' => is_string($advisory['severity'] ?? null) ? $advisory['severity'] : '',
-                    'affected_versions' => is_string($advisory['affectedVersions'] ?? null) ? $advisory['affectedVersions'] : '',
-                    'link' => is_string($advisory['link'] ?? null) ? $advisory['link'] : '',
-                    'cve' => is_string($advisory['cve'] ?? null) ? $advisory['cve'] : '',
-                ];
-            }
+        // Composer returns non-zero for security findings, not only failures.
+        // A JSON payload with missing repositories is usable but incomplete.
+        if (! $parsed['complete']) {
+            $parsed['reason'] = 'Some Composer advisory repositories were unreachable';
         }
 
-        return [
-            'available' => true,
-            'mode' => $locked ? 'locked' : 'installed',
-            'scope' => $noDev ? 'production' : 'all',
-            'count' => count($advisories),
-            'advisories' => $advisories,
-        ];
+        return [...$parsed, 'mode' => $locked ? 'locked' : 'installed', 'scope' => $noDev ? 'production' : 'all'];
     }
 
     /**

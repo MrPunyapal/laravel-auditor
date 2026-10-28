@@ -410,6 +410,11 @@ The advisory response includes `mode` (`installed` or `locked`) when the audit r
 
 To scan only production dependencies, set `'composer_audit_no_dev' => true` under the same `context` config block. This uses `composer audit --no-dev` and preserves `require` transitive dependencies. The successful payload includes `scope` (`all` or `production`) to make exclusions explicit. The default remains a full dependency audit.
 This does not install or update dependencies.
+### Composer audit result categories
+
+The `dependencies.composer_audit` result keeps the existing `available`, `count`, and `advisories` fields and also reports `complete`, `ignored_advisories`, `abandoned`, `filter`, `cooldown`, and `unreachable_repositories`. Composer may report policy-filter matches (including malware lists) separately from vulnerability advisories. These categories are preserved for the agent to investigate.
+
+An unreachable advisory repository makes `complete` false. Neither an unavailable audit nor an incomplete zero-finding result is proof that dependencies are safe.
 
 ## Trustworthiness
 
