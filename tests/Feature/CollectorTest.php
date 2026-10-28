@@ -120,6 +120,7 @@ it('keeps composer audit on and test listing off in the packaged defaults', func
 
     expect($defaults['context']['composer_audit'])->toBeTrue();
     expect($defaults['context']['composer_audit_locked'])->toBeFalse();
+    expect($defaults['context']['composer_audit_no_dev'])->toBeFalse();
     expect($defaults['context']['test_listing'])->toBeFalse();
     expect($defaults['custom_agents'])->toBe([]);
 });

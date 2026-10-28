@@ -407,6 +407,8 @@ For CI checkouts without a `vendor` directory, enable `composer audit --locked`:
 ```
 
 The advisory response includes `mode` (`installed` or `locked`) when the audit runs successfully.
+
+To scan only production dependencies, set `'composer_audit_no_dev' => true` under the same `context` config block. This uses `composer audit --no-dev` and preserves `require` transitive dependencies. The successful payload includes `scope` (`all` or `production`) to make exclusions explicit. The default remains a full dependency audit.
 This does not install or update dependencies.
 
 ## Trustworthiness
