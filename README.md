@@ -426,6 +426,8 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 
 The new command emits ordinary `AUD-DEP-001` findings with stable IDs and advisory evidence. It fails when Composer audit is unavailable or incomplete; it does not report an unsuccessful scan as clean. It does not evaluate application-specific exploitability or run updates. Use a separate findings file for this command; it does not merge with agent-produced findings.
 
+Use `--include-abandoned` to export Composer's abandoned-package notices as low-severity `AUD-DEP-002` findings as well. This is opt-in; the command fails rather than treating missing abandoned-package data as an empty report. A suggested replacement is not automatically installed.
+
 ## Trustworthiness
 
 The agent is instructed to:
