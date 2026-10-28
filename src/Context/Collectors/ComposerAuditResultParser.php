@@ -13,14 +13,19 @@ final class ComposerAuditResultParser
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>|null
      */
-    public static function parse(array $payload): ?array
+    public static function parse(array $payload, ?int $exitCode = 0): ?array
     {
+        // Composer 2.x reserves statuses 1-3 for advisory and abandoned findings.
+        if (! in_array($exitCode, [0, 1, 2, 3], true)) {
+            return null;
+        }
+
         if (! isset($payload['advisories']) || ! is_array($payload['advisories'])) {
             return null;
         }
 
         foreach (['ignored-advisories', 'abandoned', 'filter', 'cooldown', 'unreachable-repositories'] as $key) {
-            if (isset($payload[$key]) && ! is_array($payload[$key])) {
+            if (array_key_exists($key, $payload) && ! is_array($payload[$key])) {
                 return null;
             }
         }
@@ -63,7 +68,7 @@ final class ComposerAuditResultParser
         $result = [];
 
         foreach ($byPackage as $package => $list) {
-            if (! is_string($package) || ! is_array($list)) {
+            if (! is_string($package) || $package === '' || ! is_array($list)) {
                 return null;
             }
 

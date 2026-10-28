@@ -134,7 +134,7 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
         }
 
         $output = json_decode($process->getOutput(), true);
-        $parsed = is_array($output) ? ComposerAuditResultParser::parse($output) : null;
+        $parsed = is_array($output) ? ComposerAuditResultParser::parse($output, $process->getExitCode()) : null;
 
         if ($parsed === null) {
             return [

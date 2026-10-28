@@ -59,3 +59,15 @@ it('does not treat malformed or error JSON as a clean audit', function () {
     expect(ComposerAuditResultParser::parse(['advisories' => ['acme/package' => 'invalid']]))->toBeNull();
     expect(ComposerAuditResultParser::parse(['advisories' => [], 'abandoned' => 'invalid']))->toBeNull();
 });
+
+it('rejects execution failures with valid JSON', function (?int $exitCode) {
+    expect(ComposerAuditResultParser::parse(['advisories' => []], $exitCode))->toBeNull();
+})->with([null, -1, 100, 255]);
+
+it('accepts Composer finding statuses', function (int $exitCode) {
+    expect(ComposerAuditResultParser::parse(['advisories' => []], $exitCode))->not->toBeNull();
+})->with([0, 1, 2, 3]);
+
+it('rejects null optional result categories', function (string $key) {
+    expect(ComposerAuditResultParser::parse(['advisories' => [], $key => null]))->toBeNull();
+})->with(['ignored-advisories', 'abandoned', 'filter', 'cooldown', 'unreachable-repositories']);
