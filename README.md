@@ -392,6 +392,17 @@ return [
 ];
 ```
 
+### Automatic findings from Composer advisories
+
+For a dependency-only security scan that does not rely on an AI agent:
+
+```bash
+php artisan auditor:dependency-findings --output=storage/auditor-findings.json
+php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
+```
+
+The new command emits ordinary `AUD-DEP-001` findings with stable IDs and advisory evidence. It fails when Composer audit is unavailable or incomplete; it does not report an unsuccessful scan as clean. It does not evaluate application-specific exploitability or run updates. Use a separate findings file for this command; it does not merge with agent-produced findings.
+
 ## Trustworthiness
 
 The agent is instructed to:
