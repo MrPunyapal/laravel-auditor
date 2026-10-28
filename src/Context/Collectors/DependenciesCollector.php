@@ -27,7 +27,7 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
 
     public function description(): string
     {
-        return 'List installed composer packages with versions and dev status. Optional composer audit results when enabled. Optional filter: package (substring).';
+        return 'List installed composer packages with versions and dev status. Optional composer and npm audit results when enabled. Optional filter: package (substring).';
     }
 
     public function filters(): array
@@ -72,6 +72,7 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
             'requires_dev' => $requiresDev,
             'installed_count' => count(InstalledVersions::getInstalledPackages()),
             'composer_audit' => $this->composerAudit(),
+            'npm_audit' => $this->npmAudit(),
         ];
     }
 
@@ -169,6 +170,52 @@ final class DependenciesCollector implements ContextCollector, FilterableCollect
             'count' => count($advisories),
             'advisories' => $advisories,
         ];
+    }
+
+    /**
+     * Run an optional read-only npm audit on npm's supported lockfiles.
+     *
+     * @return array<string, mixed>
+     */
+    private function npmAudit(): array
+    {
+        if (! config('laravel-auditor.context.npm_audit', false)) {
+            return ['available' => false, 'reason' => 'npm audit is disabled by configuration'];
+        }
+
+        if (! class_exists(Process::class)) {
+            return ['available' => false, 'reason' => 'symfony/process is not installed'];
+        }
+
+        if (! $this->files->exists(base_path('package.json'))) {
+            return ['available' => false, 'reason' => 'package.json is missing'];
+        }
+
+        if (! $this->files->exists(base_path('package-lock.json')) && ! $this->files->exists(base_path('npm-shrinkwrap.json'))) {
+            return ['available' => false, 'reason' => 'npm lockfile is missing'];
+        }
+
+        $process = new Process(['npm', 'audit', '--json', '--omit=dev', '--ignore-scripts'], base_path());
+
+        try {
+            $process->setTimeout(60);
+            $process->run();
+        } catch (Throwable $e) {
+            return ['available' => false, 'reason' => 'npm audit could not run: '.$e->getMessage()];
+        }
+
+        $output = json_decode($process->getOutput(), true);
+        $parsed = is_array($output) ? NpmAuditResultParser::parse($output) : null;
+
+        if ($parsed === null) {
+            return [
+                'available' => false,
+                'reason' => 'npm audit produced no parseable vulnerability report (exit '.($process->getExitCode() ?? -1).'): '.
+                    self::truncateDiagnostic($process->getErrorOutput()),
+            ];
+        }
+
+        return $parsed;
     }
 
     /**

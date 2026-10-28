@@ -71,4 +71,27 @@ return [
         ],
         'applicability' => [],
     ],
-];
+
+    [
+        'id' => 'AUD-DEP-007',
+        'name' => 'Known vulnerable npm dependency',
+        'domain' => 'security',
+        'severity' => 'high',
+        'confidence' => 'high',
+        'description' => 'An npm dependency in the production lockfile is reported vulnerable by a completed npm audit.',
+        'why_it_matters' => 'Affected frontend or build packages can introduce exploitable behavior and supply-chain risks.',
+        'recommendation' => 'Check the npm advisory and update the affected dependency to a verified non-vulnerable release. Re-run npm audit after updating.',
+        'evidence' => [
+            'The npm audit result naming the package, vulnerability range, and advisory.',
+            'The matching version and dependency path from package-lock.json or npm-shrinkwrap.json.',
+        ],
+        'false_positive_considerations' => [
+            'A vulnerability reported in a transitive dependency may not be exploitable in this application.',
+            'The npm audit command is opt-in and production-only; an unavailable result is not a clean scan.',
+        ],
+        'references' => [
+            'https://docs.npmjs.com/cli/commands/npm-audit/',
+        ],
+        'applicability' => [],
+    ],
+];\n

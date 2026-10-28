@@ -119,6 +119,7 @@ it('keeps composer audit on and test listing off in the packaged defaults', func
     $defaults = require dirname(__DIR__, 2).'/config/laravel-auditor.php';
 
     expect($defaults['context']['composer_audit'])->toBeTrue();
+    expect($defaults['context']['npm_audit'])->toBeFalse();
     expect($defaults['context']['test_listing'])->toBeFalse();
     expect($defaults['custom_agents'])->toBe([]);
 });
@@ -129,6 +130,15 @@ it('reports the composer audit disabled by configuration', function () {
     $audit = app(DependenciesCollector::class)->collect()['composer_audit'];
 
     expect($audit['reason'])->toBe('composer audit is disabled by configuration');
+});
+
+it('skips the optional npm audit unless explicitly enabled', function () {
+    $data = app(DependenciesCollector::class)->collect();
+
+    expect($data['npm_audit'])->toBe([
+        'available' => false,
+        'reason' => 'npm audit is disabled by configuration',
+    ]);
 });
 
 it('collects configuration keys safely', function () {

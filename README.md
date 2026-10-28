@@ -138,7 +138,7 @@ php artisan auditor:rules --domain=security
 php artisan auditor:rules --json
 ```
 
-0.1.x ships **81** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, and Pest packs that only apply when those packages are installed. Queue and DSA rules always apply. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
+0.1.x ships **82** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, and Pest packs that only apply when those packages are installed. Queue and DSA rules always apply. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
 
 Performance rules verify before they report: `AUD-PER-008` (materialized aggregates) and every other optimization rule requires the agent to confirm semantic equivalence - for example, `User::query()->get()->count()` is only flagged when the materialized collection has no other consumer; a collection that is also rendered must not be rewritten into a second query. See the `laravel-audit-performance` skill for the methodology.
 
@@ -391,6 +391,19 @@ return [
     ],
 ];
 ```
+
+### Optional npm security auditing
+
+For applications with `package-lock.json` or `npm-shrinkwrap.json`, enable an npm production-dependency scan:
+
+```php
+// config/laravel-auditor.php
+'context' => [
+    'npm_audit' => true,
+],
+```
+
+The `dependencies` collector returns `npm_audit.available`, `count`, and `vulnerabilities`, or a reason why the scan could not run. The scan uses `npm audit --json --omit=dev --ignore-scripts`; no dependencies are installed or updated. Yarn and pnpm are not supported by this collector.
 
 ## Trustworthiness
 

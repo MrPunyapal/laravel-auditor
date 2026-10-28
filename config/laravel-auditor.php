@@ -118,6 +118,13 @@ return [
         'composer_audit' => true,
 
         /*
+        | Opt-in production npm vulnerability scan. Requires npm and an npm
+        | lockfile. Runs `npm audit --omit=dev` without installing or fixing
+        | packages. Does not apply to Yarn or pnpm lockfiles.
+        */
+        'npm_audit' => false,
+
+        /*
         | Best-effort `pest --list-tests` / `phpunit --list-tests` call from
         | the tests collector to report accurate test case counts. Off by
         | default so context collection does not launch the test runner; the
