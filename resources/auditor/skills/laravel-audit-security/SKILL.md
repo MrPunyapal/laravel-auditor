@@ -37,6 +37,7 @@ php artisan auditor:rules --domain=security --applicable
 - Unescaped output / XSS risk: Blade `{!! !!}`, `->get()`, `->toHtml()` rendering user-controlled or stored data.
 - Raw SQL with user-controlled input: `DB::raw`, `whereRaw`, `selectRaw`, `orderByRaw`, or `statement` interpolating request input.
 - Known vulnerable dependencies. Inspect `composer_audit.advisories`, `ignored_advisories`, `abandoned`, `filter` (which may include malware lists), and `cooldown` independently. A non-empty `unreachable_repositories` list means results are incomplete, even if no advisories were reported. `dependencies.composer_audit` is **on by default**. Use it for `AUD-DEP-001` when `available` is true. If `available` is false, read `reason` or run `composer audit --format=json` yourself — do not treat an empty payload as “no advisories”. Set `laravel-auditor.context.composer_audit` to `false` only when you need to skip the shell-out.
+- Command injection (AUD-SEC-015): trace request/job/file data into shell invocation sinks and establish whether it enters a shell command or a safely separated argument array.
 - Known vulnerable production npm dependencies when `context.npm_audit` is enabled. Use `dependencies.npm_audit` for `AUD-DEP-007`; an unavailable scan must not be reported as clean.
 - Queued jobs that serialize Eloquent models with hidden/sensitive attributes (`AUD-QUE-002`).
 
