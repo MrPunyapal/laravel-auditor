@@ -11,6 +11,7 @@ use LaravelAuditor\Audit\Domains\DomainRegistry;
 use LaravelAuditor\Audit\Rules\RuleRegistry;
 use LaravelAuditor\Console\Commands\AuditorCiCommand;
 use LaravelAuditor\Console\Commands\AuditorContextCommand;
+use LaravelAuditor\Console\Commands\AuditorDependencyFindingsCommand;
 use LaravelAuditor\Console\Commands\AuditorInstallCommand;
 use LaravelAuditor\Console\Commands\AuditorMcpCommand;
 use LaravelAuditor\Console\Commands\AuditorReportCommand;
@@ -90,6 +91,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
                 AuditorRulesCommand::class,
                 AuditorReportCommand::class,
                 AuditorContextCommand::class,
+                AuditorDependencyFindingsCommand::class,
                 AuditorCiCommand::class,
                 AuditorMcpCommand::class,
             ]);
