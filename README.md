@@ -392,6 +392,12 @@ return [
 ];
 ```
 
+### Composer audit result categories
+
+The `dependencies.composer_audit` result keeps the existing `available`, `count`, and `advisories` fields and also reports `complete`, `ignored_advisories`, `abandoned`, `filter`, `cooldown`, and `unreachable_repositories`. Composer may report policy-filter matches (including malware lists) separately from vulnerability advisories. These categories are preserved for the agent to investigate.
+
+An unreachable advisory repository makes `complete` false. Neither an unavailable audit nor an incomplete zero-finding result is proof that dependencies are safe.
+
 ## Trustworthiness
 
 The agent is instructed to:
