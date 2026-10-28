@@ -34,6 +34,7 @@ php artisan auditor:rules --domain=security --applicable
 - Insecure authentication/authorization patterns: storing secrets in plaintext, weak session config, missing rate limits on auth.
 - Secrets accidentally committed or exposed where detectable (`.env` committed, keys in source).
 - Weak or missing CSRF protection: `VerifyCsrfToken::except` whitelists, removed/reordered CSRF middleware, forms or post endpoints missing the token.
+- Webhook authenticity (AUD-SEC-016): a CSRF-exempt webhook is not inherently unsafe; follow provider signature, secret, or equivalent authentication checks through middleware before concluding that events can be forged.
 - Unescaped output / XSS risk: Blade `{!! !!}`, `->get()`, `->toHtml()` rendering user-controlled or stored data.
 - Raw SQL with user-controlled input: `DB::raw`, `whereRaw`, `selectRaw`, `orderByRaw`, or `statement` interpolating request input.
 - Known vulnerable dependencies. Inspect `composer_audit.advisories`, `ignored_advisories`, `abandoned`, `filter` (which may include malware lists), and `cooldown` independently. A non-empty `unreachable_repositories` list means results are incomplete, even if no advisories were reported. `dependencies.composer_audit` is **on by default**. Use it for `AUD-DEP-001` when `available` is true. If `available` is false, read `reason` or run `composer audit --format=json` yourself — do not treat an empty payload as “no advisories”. Set `laravel-auditor.context.composer_audit` to `false` only when you need to skip the shell-out.
