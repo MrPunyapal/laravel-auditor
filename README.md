@@ -392,6 +392,10 @@ return [
 ];
 ```
 
+### Scheduled dependency security checks
+
+New advisories can appear without code changes. Copy [the read-only Composer security audit workflow](resources/auditor/examples/composer-security-audit.yml) into your Laravel application's `.github/workflows/` directory to check the committed `composer.lock` daily with `composer audit --locked`. It fails the GitHub Actions job on dependency policy failures; no install or update is performed. See [security monitoring](md/security-monitoring.md) for setup, scope, and limitations.
+
 ## Trustworthiness
 
 The agent is instructed to:
