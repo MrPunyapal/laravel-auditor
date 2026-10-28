@@ -1,6 +1,28 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.2.0...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.0...HEAD)
+
+## [v0.3.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.2.0...v0.3.0) - 2026-10-28
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Other Changes
+
+* Fix PHPStan prefer-lowest count offsets by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/22
+* Fix internal documentation links by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/21
+* feat: support lockfile-based Composer security audits by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/23
+* feat: allow production-only Composer security scans by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/28
+* feat: preserve Composer audit policy findings and incomplete coverage by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/24
+* feat: export Composer advisory findings without an AI agent by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/25
+* feat: export abandoned Composer packages as Auditor findings by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/30
+* feat: add opt-in npm production dependency auditing by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/26
+* feat: add evidence-based SSRF audit rule by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/27
+* feat: add evidence-based command injection audit rule by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/29
+* feat: audit webhook authentication before side effects by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/31
+* docs: add a scheduled Composer security audit workflow example by @MrPunyapal in https://github.com/MrPunyapal/laravel-auditor/pull/32
+
+**Full Changelog**: https://github.com/MrPunyapal/laravel-auditor/compare/v0.2.0...v0.3.0
 
 ## [v0.2.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.7...v0.2.0) - 2026-10-03
 
