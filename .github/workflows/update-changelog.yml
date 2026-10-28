@@ -7,6 +7,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: update-changelog
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -19,10 +23,7 @@ jobs:
           ref: main
 
       - name: Update changelog
-        uses: stefanzweifel/changelog-updater-action@a938690fad7edf25368f37e43a1ed1b34303eb36 # v1
-        with:
-          latest-version: ${{ github.event.release.name }}
-          release-notes: ${{ github.event.release.body }}
+        run: python3 .github/scripts/update-changelog.py
 
       - name: Commit updated changelog
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7

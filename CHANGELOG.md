@@ -1,6 +1,23 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.2.0...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.0...HEAD)
+
+## [v0.3.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.2.0...v0.3.0) - 2026-10-28
+
+### Added
+
+- Opt-in lockfile and production-only Composer audits with explicit audit mode and scope. Existing installed-package and full-dependency defaults remain unchanged.
+- Complete Composer audit context, including ignored advisories, abandoned packages, policy filters, cooldown results, and unreachable advisory repositories.
+- `auditor:dependency-findings` exports deterministic Composer advisory findings for existing report and CI commands. Optional `--include-abandoned` exports low-severity maintenance findings. Dependency matches do not establish application exploitability.
+- Optional production npm auditing for `package-lock.json` and `npm-shrinkwrap.json`, disabled by default. Audits never install, update, or fix dependencies.
+- Evidence-first SSRF, command-injection, and webhook-authentication rules, bringing the catalog to 85 rules, with matching standalone and Laravel Boost skills.
+- Copyable read-only scheduled Composer audit workflow and expanded dependency auditing documentation.
+
+### Fixed
+
+- Failed, incomplete, and malformed dependency audit results cannot silently appear clean, including malformed abandoned-package data and npm error payloads.
+- Dependency findings retain compatibility with report rendering and CI severity thresholds.
+- PHPStan compatibility for prefer-lowest dependencies and internal documentation links.
 
 ## [v0.2.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.1.7...v0.2.0) - 2026-10-03
 
