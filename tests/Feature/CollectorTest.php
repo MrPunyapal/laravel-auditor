@@ -119,6 +119,7 @@ it('keeps composer audit on and test listing off in the packaged defaults', func
     $defaults = require dirname(__DIR__, 2).'/config/laravel-auditor.php';
 
     expect($defaults['context']['composer_audit'])->toBeTrue();
+    expect($defaults['context']['composer_audit_locked'])->toBeFalse();
     expect($defaults['context']['test_listing'])->toBeFalse();
     expect($defaults['custom_agents'])->toBe([]);
 });

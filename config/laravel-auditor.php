@@ -118,6 +118,13 @@ return [
         'composer_audit' => true,
 
         /*
+        | Audit exact composer.lock versions instead of installed vendor
+        | packages. Opt in for lockfile-only CI checkouts. The existing
+        | installed-package audit remains the default for compatibility.
+        */
+        'composer_audit_locked' => false,
+
+        /*
         | Best-effort `pest --list-tests` / `phpunit --list-tests` call from
         | the tests collector to report accurate test case counts. Off by
         | default so context collection does not launch the test runner; the
