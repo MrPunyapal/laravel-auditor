@@ -65,9 +65,19 @@ it('rejects execution failures with valid JSON', function (?int $exitCode) {
 })->with([null, -1, 100, 255]);
 
 it('accepts Composer finding statuses', function (int $exitCode) {
-    expect(ComposerAuditResultParser::parse(['advisories' => []], $exitCode))->not->toBeNull();
+    expect(ComposerAuditResultParser::parse(['advisories' => [], 'abandoned' => ['acme/old' => null]], $exitCode))->not->toBeNull();
 })->with([0, 1, 2, 3]);
 
 it('rejects null optional result categories', function (string $key) {
     expect(ComposerAuditResultParser::parse(['advisories' => [], $key => null]))->toBeNull();
 })->with(['ignored-advisories', 'abandoned', 'filter', 'cooldown', 'unreachable-repositories']);
+
+it('rejects unexplained failed statuses and malformed abandoned notices', function () {
+    foreach ([1, 2, 3] as $exitCode) {
+        expect(ComposerAuditResultParser::parse(['advisories' => []], $exitCode))->toBeNull();
+    }
+
+    expect(ComposerAuditResultParser::parse(['advisories' => [], 'error' => 'failed']))->toBeNull();
+    expect(ComposerAuditResultParser::parse(['advisories' => [], 'abandoned' => [null]]))->toBeNull();
+    expect(ComposerAuditResultParser::parse(['advisories' => [], 'abandoned' => ['acme/old' => false]]))->toBeNull();
+});
