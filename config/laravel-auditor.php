@@ -130,6 +130,12 @@ return [
         | Include development dependencies for local / general audits.
         */
         'composer_audit_no_dev' => false,
+        /*
+        | Opt-in production npm vulnerability scan. Requires npm and an npm
+        | lockfile. Runs `npm audit --omit=dev` without installing or fixing
+        | packages. Does not apply to Yarn or pnpm lockfiles.
+        */
+        'npm_audit' => false,
 
         /*
         | Best-effort `pest --list-tests` / `phpunit --list-tests` call from

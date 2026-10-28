@@ -22,6 +22,7 @@ The V1 rules intentionally favor a smaller, trustworthy set over volume. See the
 | AUD-SEC-012 | Unescaped output or XSS risk | high | medium |
 | AUD-SEC-013 | Raw SQL with user-controlled input | high | medium |
 | AUD-DEP-001 | Known vulnerable dependency | high | high |
+| AUD-DEP-007 | Known vulnerable npm dependency | high | high |
 
 ## Performance
 
