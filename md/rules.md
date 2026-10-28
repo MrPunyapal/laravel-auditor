@@ -42,11 +42,11 @@ The authoritative definitions live in `resources/auditor/rules/*.php`. The human
 
 ## Core domains
 
-0.1.x ships 84 rules across six core domains:
+0.1.x ships 85 rules across six core domains:
 
 | Domain | What it looks for |
 | --- | --- |
-| Security | Authorization, mass assignment, secrets, redirects, file handling, CSRF, XSS, SQL injection, SSRF, command injection, debug exposure |
+| Security | Authorization, mass assignment, secrets, redirects, file handling, CSRF, XSS, SQL injection, SSRF, command injection, webhook verification, debug exposure |
 | Performance | N+1, materialized aggregates, PHP-vs-database work, queries in loops, unbounded retrieval, repeated I/O, job payloads, rendering-path queries — always verified for semantic equivalence |
 | Architecture | Boundaries, duplication, code smells, coupling, dead code — no cargo-cult repositories |
 | Database | Relationship/schema mismatch, destructive migrations, missing FKs |

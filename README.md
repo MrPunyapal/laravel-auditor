@@ -138,7 +138,7 @@ php artisan auditor:rules --domain=security
 php artisan auditor:rules --json
 ```
 
-0.1.x ships **84** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, and Pest packs that only apply when those packages are installed. Queue and DSA rules always apply. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
+0.1.x ships **85** evidence-first rules, including optional Livewire, Filament, Inertia, Sanctum, and Pest packs that only apply when those packages are installed. Queue and DSA rules always apply. The full catalog is in [`resources/auditor/rules/RULES.md`](resources/auditor/rules/RULES.md).
 
 Performance rules verify before they report: `AUD-PER-008` (materialized aggregates) and every other optimization rule requires the agent to confirm semantic equivalence - for example, `User::query()->get()->count()` is only flagged when the materialized collection has no other consumer; a collection that is also rendered must not be rewritten into a second query. See the `laravel-audit-performance` skill for the methodology.
 

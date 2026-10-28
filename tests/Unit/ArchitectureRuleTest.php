@@ -30,6 +30,6 @@ it('ships the architecture code-smell catalog', function () {
         expect($rule->falsePositiveConsiderations)->not->toBeEmpty($id);
     }
 
-    expect($registry->count())->toBe(84);
+    expect($registry->count())->toBe(85);
     expect($registry->forDomain(AuditDomain::Architecture))->toHaveCount(14);
 });

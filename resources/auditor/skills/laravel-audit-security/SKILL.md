@@ -34,6 +34,7 @@ php artisan auditor:rules --domain=security --applicable
 - Insecure authentication/authorization patterns: storing secrets in plaintext, weak session config, missing rate limits on auth.
 - Secrets accidentally committed or exposed where detectable (`.env` committed, keys in source).
 - Weak or missing CSRF protection: `VerifyCsrfToken::except` whitelists, removed/reordered CSRF middleware, forms or post endpoints missing the token.
+- Webhook authenticity (AUD-SEC-016): a CSRF-exempt webhook is not inherently unsafe; follow provider signature, secret, or equivalent authentication checks through middleware before concluding that events can be forged.
 - Unescaped output / XSS risk: Blade `{!! !!}`, `->get()`, `->toHtml()` rendering user-controlled or stored data.
 - Raw SQL with user-controlled input: `DB::raw`, `whereRaw`, `selectRaw`, `orderByRaw`, or `statement` interpolating request input.
 - Command injection (AUD-SEC-015): trace request/job/file data into shell invocation sinks and establish whether it enters a shell command or a safely separated argument array.
