@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelAuditor\Console\Commands;
 
 use Illuminate\Console\Command;
+use LaravelAuditor\Audit\Findings\ComposerAbandonedFindings;
 use LaravelAuditor\Audit\Findings\ComposerAdvisoryFindings;
 use LaravelAuditor\Context\Collectors\DependenciesCollector;
 use Throwable;
@@ -15,6 +16,7 @@ use Throwable;
 final class AuditorDependencyFindingsCommand extends Command
 {
     protected $signature = 'auditor:dependency-findings
+        {--include-abandoned : Also export Composer abandoned-package notices}
         {--output= : Write findings JSON to a file instead of stdout}';
 
     protected $description = 'Export known Composer vulnerabilities as Auditor findings.';
@@ -50,6 +52,19 @@ final class AuditorDependencyFindingsCommand extends Command
         }
 
         $findings = ComposerAdvisoryFindings::fromAudit($audit);
+
+        if ((bool) $this->option('include-abandoned')) {
+            if (is_array($audit['abandoned'] ?? null) === false) {
+                $this->components->error('Composer audit did not provide abandoned-package data.');
+
+                return self::FAILURE;
+            }
+
+            foreach (ComposerAbandonedFindings::fromAudit($audit) as $finding) {
+                $findings[] = $finding;
+            }
+        }
+
         $json = json_encode(['findings' => $findings], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR).PHP_EOL;
         $output = $this->option('output');
 
@@ -65,7 +80,7 @@ final class AuditorDependencyFindingsCommand extends Command
             return self::FAILURE;
         }
 
-        $this->components->info(sprintf('Wrote %d Composer advisory finding(s) to [%s].', count($findings), $output));
+        $this->components->info(sprintf('Wrote %d dependency finding(s) to [%s].', count($findings), $output));
 
         return self::SUCCESS;
     }
