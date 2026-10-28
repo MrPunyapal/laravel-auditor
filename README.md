@@ -379,6 +379,7 @@ return [
     ],
     'context' => [
         'composer_audit' => true,
+        'composer_audit_locked' => false,
         'test_listing' => false,
     ],
     'changed_files' => [
@@ -391,6 +392,22 @@ return [
     ],
 ];
 ```
+
+### Lockfile dependency audits
+
+By default, the `dependencies` collector runs `composer audit` against installed packages.
+For CI checkouts without a `vendor` directory, enable `composer audit --locked`:
+
+```php
+// config/laravel-auditor.php
+'context' => [
+    'composer_audit' => true,
+    'composer_audit_locked' => true,
+],
+```
+
+The advisory response includes `mode` (`installed` or `locked`) when the audit runs successfully.
+This does not install or update dependencies.
 
 ## Trustworthiness
 
