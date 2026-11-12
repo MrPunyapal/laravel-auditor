@@ -7,6 +7,7 @@ namespace LaravelAuditor\MCP;
 use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\Context\ContextRegistry;
 use LaravelAuditor\Context\FilterableCollector;
+use stdClass;
 
 /**
  * Builds MCP tool definitions from the package's context collectors.
@@ -39,12 +40,12 @@ final class McpToolRegistry
     }
 
     /**
-     * @return array{type: string, properties: array<string, mixed>}
+     * @return array{type: string, properties: array<string, mixed>|stdClass}
      */
     private static function inputSchema(ContextCollector $collector): array
     {
         if (! $collector instanceof FilterableCollector) {
-            return ['type' => 'object', 'properties' => []];
+            return ['type' => 'object', 'properties' => new stdClass];
         }
 
         $properties = [];
@@ -56,6 +57,9 @@ final class McpToolRegistry
             ];
         }
 
-        return ['type' => 'object', 'properties' => $properties];
+        return [
+            'type' => 'object',
+            'properties' => $properties === [] ? new stdClass : $properties,
+        ];
     }
 }
