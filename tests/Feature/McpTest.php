@@ -59,6 +59,32 @@ it('serves initialize, ping, tools/list, and tools/call over stdio', function ()
     expect($responses[6]['error']['code'])->toBe(-32600);
 });
 
+it('encodes empty MCP tool properties as a JSON object', function () {
+    $input = fopen('php://temp', 'r+');
+    $output = fopen('php://temp', 'r+');
+
+    fwrite($input, json_encode([
+        'jsonrpc' => '2.0',
+        'id' => 1,
+        'method' => 'tools/list',
+    ], JSON_THROW_ON_ERROR)."\n");
+    rewind($input);
+
+    (new McpServer(app(McpToolRegistry::class), $input, $output))->run();
+
+    rewind($output);
+    $response = (string) stream_get_contents($output);
+    $decoded = json_decode($response);
+    $tools = $decoded->result->tools;
+
+    expect($response)->not->toContain('"properties":[]');
+    expect($tools)->toHaveCount(13);
+
+    $projectInfo = collect($tools)->first(fn (object $tool): bool => $tool->name === 'project_info');
+
+    expect($projectInfo->inputSchema->properties)->toBeInstanceOf(stdClass::class);
+});
+
 it('returns a structured error when a tool throws', function () {
     $collector = new class implements ContextCollector
     {
@@ -101,7 +127,7 @@ it('advertises filter properties for filterable collectors in tools/list', funct
 
     expect($byName['routes']->toJson()['inputSchema']['properties'])->toHaveKeys(['uri', 'name', 'action', 'method']);
     expect($byName['database_schema']->toJson()['inputSchema']['properties'])->toHaveKeys(['table']);
-    expect($byName['project_info']->toJson()['inputSchema']['properties'])->toBe([]);
+    expect($byName['project_info']->toJson()['inputSchema']['properties'])->toBeInstanceOf(stdClass::class);
 });
 
 it('applies filter arguments passed through tools/call', function () {

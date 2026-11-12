@@ -6,6 +6,7 @@ namespace LaravelAuditor\MCP;
 
 use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\Context\FilterableCollector;
+use stdClass;
 use Throwable;
 
 /**
@@ -20,7 +21,7 @@ final class McpTool
         /**
          * @var array<string, mixed>
          */
-        public readonly array $inputSchema = ['type' => 'object', 'properties' => []],
+        public readonly array $inputSchema = ['type' => 'object', 'properties' => new stdClass],
     ) {}
 
     /**
