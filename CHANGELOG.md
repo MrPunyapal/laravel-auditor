@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.0...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.1...HEAD)
+
+## [v0.3.1](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.0...v0.3.1) - 2026-11-13
+
+### Fixed
+
+- MCP tools with no arguments now advertise `inputSchema.properties` as an empty JSON object, so clients can load the complete tool list.
 
 ## [v0.3.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.2.0...v0.3.0) - 2026-10-28
 
