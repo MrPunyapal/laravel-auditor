@@ -92,7 +92,6 @@ it('reads and compares actual MySQL and PostgreSQL indexes, columns and foreign 
     }
 });
 
-
 it('keeps same-named PostgreSQL tables distinct across configured schemas', function () {
     if (in_array(getenv('AUDITOR_SCHEMA_DRIVER'), ['pgsql'], true) === false) {
         $this->markTestSkipped('PostgreSQL integration runner only.');
