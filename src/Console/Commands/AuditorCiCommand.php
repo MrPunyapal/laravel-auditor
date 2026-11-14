@@ -15,6 +15,7 @@ use LaravelAuditor\Audit\Reports\ReportRendererFactory;
 use LaravelAuditor\Context\ProjectContext;
 use LaravelAuditor\Support\DirtyScope;
 use RuntimeException;
+use Symfony\Component\Console\Output\OutputInterface;
 use ValueError;
 
 /**
@@ -117,7 +118,11 @@ class AuditorCiCommand extends Command
             file_put_contents($output, $content);
             $this->components->info("CI report written to [{$output}].");
         } else {
-            $this->line($content);
+            if ($format === 'github') {
+                $this->output->writeln($content, OutputInterface::OUTPUT_RAW);
+            } else {
+                $this->line($content);
+            }
         }
 
         if ($blocking->isEmpty()) {

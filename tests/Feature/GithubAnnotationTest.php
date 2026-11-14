@@ -70,6 +70,48 @@ it('omits unsafe file locations instead of writing command properties', function
         ->not->toContain('file=');
 });
 
+it('rejects absolute, traversal and control-character annotation paths', function (string $path) {
+    $finding = Finding::fromArray([
+        ...json_decode((string) file_get_contents(__DIR__.'/../../resources/auditor/examples/findings.json'), true)['findings'][0],
+        'evidence' => [['type' => 'file', 'reference' => $path, 'line' => 1]],
+    ]);
+
+    expect((new GithubAnnotationRenderer)->render(new AuditReport([], [], new FindingCollection($finding))))
+        ->not->toContain('file=');
+})->with([
+    '/tmp/source.php',
+    'C:\\source.php',
+    '\\\\server\\source.php',
+    'app/../source.php',
+    "app/source\0.php",
+    "app/source\t.php",
+    "app/source\r\n::error::injected.php",
+]);
+
+it('escapes workflow command delimiters and maps all severities', function (Severity $severity, string $level) {
+    $finding = Finding::fromArray([
+        ...json_decode((string) file_get_contents(__DIR__.'/../../resources/auditor/examples/findings.json'), true)['findings'][0],
+        'severity' => $severity->value,
+        'title' => "Title%,:\r\n::error::injected",
+        'summary' => "Message%0A\r\n::error::injected",
+        'recommendation' => '',
+        'evidence' => [['type' => 'file', 'reference' => 'app/file%,:.php', 'line' => -1]],
+    ]);
+    $result = (new GithubAnnotationRenderer)->render(new AuditReport([], [], new FindingCollection($finding)));
+
+    expect($result)->toStartWith('::'.$level.' ')
+        ->toContain('Title%25%2C%3A%0D%0A%3A%3Aerror%3A%3Ainjected')
+        ->toContain('file=app/file%25%2C%3A.php::Message%250A%0D%0A::error::injected')
+        ->not->toContain(',line=')
+        ->and(substr_count(trim($result), "\n"))->toBe(0);
+})->with([
+    [Severity::Critical, 'error'],
+    [Severity::High, 'error'],
+    [Severity::Medium, 'warning'],
+    [Severity::Low, 'notice'],
+    [Severity::Info, 'notice'],
+]);
+
 it('supports GitHub annotation output from existing report and CI commands', function () {
     expect(Artisan::call('auditor:report', ['--example' => true, '--format' => 'github']))->toBe(0);
 
@@ -87,6 +129,26 @@ it('supports GitHub annotation output from existing report and CI commands', fun
         ]))->toBe(0);
 
         expect(Artisan::output())->toContain('::error ');
+    } finally {
+        if (file_exists($path)) {
+            unlink($path);
+        }
+    }
+});
+
+it('preserves literal console markup in annotation messages from both commands', function () {
+    $path = sys_get_temp_dir().'/laravel-auditor-github-markup-'.uniqid().'.json';
+    $findings = json_decode((string) file_get_contents(__DIR__.'/../../resources/auditor/examples/findings.json'), true);
+    $findings['findings'][0]['summary'] = '<info>Untrusted HTML</info> and <error>literal markup</error>';
+
+    try {
+        file_put_contents($path, json_encode($findings, JSON_THROW_ON_ERROR));
+
+        foreach (['auditor:report', 'auditor:ci'] as $command) {
+            Artisan::call($command, ['--findings' => $path, '--format' => 'github']);
+
+            expect(Artisan::output())->toContain('<info>Untrusted HTML</info> and <error>literal markup</error>');
+        }
     } finally {
         if (file_exists($path)) {
             unlink($path);

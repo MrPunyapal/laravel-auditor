@@ -12,6 +12,7 @@ use LaravelAuditor\Audit\Reports\ReportRendererFactory;
 use LaravelAuditor\Context\ProjectContext;
 use LaravelAuditor\Support\DirtyScope;
 use RuntimeException;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Generates an audit report from provided findings or project context alone.
@@ -117,7 +118,11 @@ class AuditorReportCommand extends Command
             return self::SUCCESS;
         }
 
-        $this->line($content);
+        if ($format === 'github') {
+            $this->output->writeln($content, OutputInterface::OUTPUT_RAW);
+        } else {
+            $this->line($content);
+        }
 
         return self::SUCCESS;
     }

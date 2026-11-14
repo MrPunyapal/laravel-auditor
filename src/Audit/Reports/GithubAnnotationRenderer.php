@@ -73,7 +73,7 @@ final class GithubAnnotationRenderer
             && ! str_starts_with($path, '/')
             && preg_match('/^[A-Za-z]:/', $path) !== 1
             && ! in_array('..', explode('/', $path), true)
-            && preg_match('/[\r\n]/', $path) !== 1;
+            && preg_match('/[\x00-\x1F\x7F]/', $path) !== 1;
     }
 
     private function escapeData(string $value): string
