@@ -121,6 +121,7 @@
 </tr>
 </tbody>
 </table></div>
+<p>The <code>database_schema</code> response includes <code>snapshot_complete</code>. When it is <code>false</code>, the ordinary schema inventory remains available, but SQLite contains generated/hidden columns or partial/expression indexes that cannot be represented completely. Do not treat those details as absent; <code>auditor:snapshot --schema</code> fails closed for incomplete schema metadata.</p>
 <h2 id="optional-filters">Optional filters</h2>
 <p>Four tools accept optional read-only filter arguments so an agent can verify a focused slice instead of pulling the whole inventory. Calling a tool without arguments returns the complete payload exactly as before.</p>
 <div class="table-scroll"><table>
