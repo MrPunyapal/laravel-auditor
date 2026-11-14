@@ -162,7 +162,10 @@ class LaravelAuditorServiceProvider extends ServiceProvider
         $this->app->singleton(JobsEventsSchedulesCollector::class);
         $this->app->singleton(TestsCollector::class);
         $this->app->singleton(SubsystemsCollector::class);
-        $this->app->singleton(SnapshotBuilder::class);
+        $this->app->singleton(SnapshotBuilder::class, fn (Application $app): SnapshotBuilder => new SnapshotBuilder(
+            $app->make(ContextRegistry::class),
+            $app->make('router'),
+        ));
         $this->app->singleton(ChangedFilesOptions::class);
         $this->app->singleton(GitStatus::class, static fn (): GitStatus => new GitStatus(base_path()));
         $this->app->singleton(ChangedFilesCollector::class);

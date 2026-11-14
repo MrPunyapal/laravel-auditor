@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelAuditor\Context\Snapshots;
 
 use LaravelAuditor\Context\ContextRegistry;
+use Illuminate\Routing\Router;
 use RuntimeException;
 
 /**
@@ -18,6 +19,7 @@ final class SnapshotBuilder
 
     public function __construct(
         private readonly ContextRegistry $context,
+        private readonly Router $router,
     ) {}
 
     /**
@@ -79,6 +81,7 @@ final class SnapshotBuilder
             'version' => self::VERSION,
             'sections' => [
                 'routes' => $records,
+                'route_order' => $this->routeOrder(),
                 'authorization' => [
                     'gates' => $gates,
                     'policies' => $policies,
@@ -88,4 +91,28 @@ final class SnapshotBuilder
             ],
         ];
     }
+    /**
+     * Route registration order can influence matching when routes overlap.
+     * Keep it separate from the sorted route records to avoid noisy diffs.
+     *
+     * @return list<array{domain: string|null, uri: string, methods: list<string>}>
+     */
+    private function routeOrder(): array
+    {
+        $order = [];
+
+        foreach ($this->router->getRoutes()->getRoutes() as $route) {
+            $methods = array_values(array_unique(array_map('strtoupper', $route->methods())));
+            sort($methods, SORT_STRING);
+
+            $order[] = [
+                'domain' => $route->getDomain(),
+                'uri' => $route->uri(),
+                'methods' => $methods,
+            ];
+        }
+
+        return $order;
+    }
+
 }

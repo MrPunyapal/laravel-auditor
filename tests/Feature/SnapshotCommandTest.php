@@ -12,7 +12,7 @@ it('captures a versioned, deterministic snapshot without timestamps or database 
     expect($first)->toEqual($second)
         ->and($first['format'])->toBe(SnapshotBuilder::FORMAT)
         ->and($first['version'])->toBe(1)
-        ->and($first['sections'])->toHaveKeys(['routes', 'authorization'])
+        ->and($first['sections'])->toHaveKeys(['routes', 'route_order', 'authorization'])
         ->and($first['sections']['routes'])->not->toBeEmpty()
         ->and($first['sections']['authorization'])->toHaveKeys(['gates', 'policies', 'policy_files', 'middleware_aliases'])
         ->and($first)->not->toHaveKeys(['generated_at', 'database']);
@@ -37,4 +37,28 @@ it('exposes snapshot JSON via Artisan and writes it to a file', function () {
             unlink($path);
         }
     }
+});
+
+it('keeps the real route registration order separate from sorted route metadata', function () {
+    $router = app('router');
+    $router->get('/auditor-order-first/{slug}', static fn (): string => 'first')
+        ->name('auditor.order.first');
+    $router->middleware('auth')->get('/auditor-order-second/{slug}', static fn (): string => 'second')
+        ->name('auditor.order.second');
+
+    $snapshot = app(SnapshotBuilder::class)->capture();
+    $orderedUris = array_column($snapshot['sections']['route_order'], 'uri');
+
+    $first = array_search('auditor-order-first/{slug}', $orderedUris, true);
+    $second = array_search('auditor-order-second/{slug}', $orderedUris, true);
+
+    expect($first)->not->toBeFalse()
+        ->and($second)->not->toBeFalse()
+        ->and($first)->toBeLessThan($second);
+
+    $routes = collect($snapshot['sections']['routes']);
+    $secondRoute = $routes->firstWhere('uri', 'auditor-order-second/{slug}');
+
+    expect($secondRoute['middleware'])->toContain('auth')
+        ->and($secondRoute['methods'])->toContain('GET', 'HEAD');
 });
