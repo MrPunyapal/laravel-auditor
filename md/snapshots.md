@@ -1,20 +1,25 @@
 ---
 title: Context snapshots
-description: Capture reproducible Laravel route and authorization state before changing an application.
+description: Capture and compare reproducible Laravel route and authorization state.
 order: 11
 slug: snapshots
 ---
 
 # Context snapshots
 
-Use the versioned, deterministic snapshot to record an application's routes and authorization registry before a change:
+Capture an application's routes and authorization registry before and after a change:
 
 ~~~bash
 php artisan auditor:snapshot --output=before.json
+# Make changes, then:
+php artisan auditor:snapshot --output=after.json
+php artisan auditor:compare before.json after.json
 ~~~
 
-After the change, run the command again with a different output path. Snapshots have no generated timestamp and contain only route metadata, registered gates, policy mappings, policy file names, and middleware aliases. They do not collect environment variables, credentials, database records, or application source.
+Snapshots are versioned and deterministic: they contain route metadata, registered gates, policy mappings, policy filenames, and middleware aliases without a generated timestamp. They do not collect environment variables, credentials, database records, or application source.
 
-The snapshot format is version 1. It does not prove that a route is authorized: a missing middleware alias may have an equivalent authorization check inside a controller. Verification still requires reading the relevant Laravel code.
+The comparison identifies added/removed routes, route metadata modifications, gate/alias changes, and changed policy mappings. It rejects invalid or incompatible snapshots and ambiguous duplicate route identities rather than reporting a clean result.
 
-This feature only captures state. Comparison and risk assessment are separate follow-up features. Keep snapshots private if route names or policy classes reveal internal application structure.
+This is a structural comparison, **not** proof of an authorization vulnerability. A missing middleware may have equivalent protection inside a controller. An agent or reviewer must verify the actual authorization path before reporting security findings.
+
+Keep snapshots private if route names or policy classes reveal internal application structure.
