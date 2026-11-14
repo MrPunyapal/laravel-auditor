@@ -91,3 +91,59 @@ it('reads and compares actual MySQL and PostgreSQL indexes, columns and foreign 
         config(['database.default' => $previous]);
     }
 });
+
+
+it('keeps same-named PostgreSQL tables distinct across configured schemas', function () {
+    if (getenv('AUDITOR_SCHEMA_DRIVER') !== 'pgsql') {
+        $this->markTestSkipped('PostgreSQL integration runner only.');
+    }
+
+    $connection = 'auditor_multi_schema_integration';
+    $previous = config('database.default');
+
+    config([
+        'database.default' => $connection,
+        "database.connections.{$connection}" => [
+            'driver' => 'pgsql',
+            'host' => '127.0.0.1',
+            'port' => 5432,
+            'database' => 'auditor_ci',
+            'username' => 'auditor',
+            'password' => 'auditor',
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => 'public,auditor_snapshot_tenant',
+        ],
+    ]);
+
+    DB::purge($connection);
+    $db = DB::connection($connection);
+
+    try {
+        $db->statement('CREATE SCHEMA auditor_snapshot_tenant');
+        $db->statement('CREATE TABLE public.auditor_snapshot_duplicate (id BIGINT)');
+        $db->statement('CREATE TABLE auditor_snapshot_tenant.auditor_snapshot_duplicate (id BIGINT, extra TEXT)');
+
+        $snapshot = app(SnapshotBuilder::class)->capture(withSchema: true);
+        $matches = array_values(array_filter(
+            $snapshot['sections']['schema']['tables'],
+            static fn (array $table): bool => $table['name'] === 'auditor_snapshot_duplicate',
+        ));
+
+        expect($matches)->toHaveCount(2)
+            ->and(array_column($matches, 'schema'))->toBe(['public', 'auditor_snapshot_tenant'])
+            ->and($matches[0]['columns'])->toHaveCount(1)
+            ->and($matches[1]['columns'])->toHaveCount(2);
+
+        $diff = app(SnapshotComparator::class)->compare($snapshot, $snapshot);
+
+        expect($diff['has_changes'])->toBeFalse()
+            ->and($diff['summary']['tables_modified'])->toBe(0);
+    } finally {
+        $db->statement('DROP TABLE IF EXISTS auditor_snapshot_tenant.auditor_snapshot_duplicate');
+        $db->statement('DROP TABLE IF EXISTS public.auditor_snapshot_duplicate');
+        $db->statement('DROP SCHEMA IF EXISTS auditor_snapshot_tenant');
+        DB::purge($connection);
+        config(['database.default' => $previous]);
+    }
+});
