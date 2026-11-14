@@ -24,7 +24,7 @@ class AuditorReportCommand extends Command
     protected $signature = 'auditor:report
         {--findings= : Path to a JSON file containing findings}
         {--example : Render the packaged example findings}
-        {--format= : Output format (markdown, json, text, sarif)}
+        {--format= : Output format (markdown, json, text, sarif, github)}
         {--output= : Write the report to a file instead of stdout}
         {--base= : Limit the report to findings that touch files changed since this ref, for example origin/main}
         {--dirty : Limit the report to findings touching uncommitted files}';
@@ -100,8 +100,8 @@ class AuditorReportCommand extends Command
             ? $option
             : (string) config('laravel-auditor.report.format', 'markdown');
 
-        if (! in_array($format, ['markdown', 'json', 'text', 'sarif'], true)) {
-            $this->components->error("Unknown format [{$format}]. Use markdown, json, text, or sarif.");
+        if (! in_array($format, ['markdown', 'json', 'text', 'sarif', 'github'], true)) {
+            $this->components->error("Unknown format [{$format}]. Use markdown, json, text, sarif, or github.");
 
             return self::FAILURE;
         }

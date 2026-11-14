@@ -28,7 +28,7 @@ class AuditorCiCommand extends Command
     protected $signature = 'auditor:ci
         {--findings= : Path to a JSON file containing findings}
         {--fail-on=high : Minimum severity that fails CI (critical, high, medium, low, info)}
-        {--format=text : Output format (text, json, sarif)}
+        {--format=text : Output format (text, json, sarif, github)}
         {--output= : Write the report to a file}
         {--base= : Only fail on findings that touch files changed since this ref, for example origin/main}
         {--dirty : Only fail on findings that touch uncommitted files}';
@@ -103,8 +103,8 @@ class AuditorCiCommand extends Command
 
         $format = is_string($this->option('format')) ? $this->option('format') : 'text';
 
-        if (! in_array($format, ['text', 'json', 'sarif'], true)) {
-            $this->components->error("Unknown format [{$format}]. Use text, json, or sarif.");
+        if (! in_array($format, ['text', 'json', 'sarif', 'github'], true)) {
+            $this->components->error("Unknown format [{$format}]. Use text, json, sarif, or github.");
 
             return self::FAILURE;
         }
