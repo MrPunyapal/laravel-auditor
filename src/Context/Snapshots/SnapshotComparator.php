@@ -77,20 +77,41 @@ final class SnapshotComparator
             }
         }
 
+        $schemaChanges = [];
+        $schemaSummary = [];
+        $schemaChanged = false;
+
+        if (array_key_exists('schema', $before['sections']) || array_key_exists('schema', $after['sections'])) {
+            if (! is_array($before['sections']['schema'] ?? null) || ! is_array($after['sections']['schema'] ?? null)) {
+                throw new RuntimeException('Both snapshots must include database schema for a complete comparison.');
+            }
+
+            $schema = (new SchemaComparator)->compare($before['sections']['schema'], $after['sections']['schema']);
+            $schemaChanges = ['schema' => $schema];
+            $schemaSummary = [
+                'tables_added' => count($schema['added']),
+                'tables_removed' => count($schema['removed']),
+                'tables_modified' => count($schema['modified']),
+            ];
+            $schemaChanged = $schema['added'] !== [] || $schema['removed'] !== [] || $schema['modified'] !== [];
+        }
+
         return [
             'format' => 'laravel-auditor-snapshot-diff',
             'version' => SnapshotBuilder::VERSION,
             'complete' => true,
-            'has_changes' => $added !== [] || $removed !== [] || $modified !== [] || $authChanged || $orderChanged,
+            'has_changes' => $added !== [] || $removed !== [] || $modified !== [] || $authChanged || $orderChanged || $schemaChanged,
             'summary' => [
                 'routes_added' => count($added),
                 'routes_removed' => count($removed),
                 'routes_modified' => count($modified),
                 'route_order_changed' => $orderChanged,
+                ...$schemaSummary,
             ],
             'changes' => [
                 'routes' => ['added' => $added, 'removed' => $removed, 'modified' => $modified],
                 'authorization' => $authorization,
+                ...$schemaChanges,
                 'route_order' => [
                     'changed' => $orderChanged,
                     'before' => $orderChanged ? $this->routesInOrder($beforeShared, $oldRoutes) : [],

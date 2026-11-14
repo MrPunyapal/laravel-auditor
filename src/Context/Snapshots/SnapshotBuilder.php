@@ -25,7 +25,7 @@ final class SnapshotBuilder
     /**
      * @return array<string, mixed>
      */
-    public function capture(): array
+    public function capture(bool $withSchema = false): array
     {
         $routes = $this->context->get('routes')->collect();
         $authorization = $this->context->get('policies_authorization')->collect();
@@ -76,19 +76,25 @@ final class SnapshotBuilder
         sort($middleware, SORT_STRING);
         ksort($policies, SORT_STRING);
 
+        $sections = [
+            'routes' => $records,
+            'route_order' => $this->routeOrder(),
+            'authorization' => [
+                'gates' => $gates,
+                'policies' => $policies,
+                'policy_files' => $files,
+                'middleware_aliases' => $middleware,
+            ],
+        ];
+
+        if ($withSchema) {
+            $sections['schema'] = $this->schema();
+        }
+
         return [
             'format' => self::FORMAT,
             'version' => self::VERSION,
-            'sections' => [
-                'routes' => $records,
-                'route_order' => $this->routeOrder(),
-                'authorization' => [
-                    'gates' => $gates,
-                    'policies' => $policies,
-                    'policy_files' => $files,
-                    'middleware_aliases' => $middleware,
-                ],
-            ],
+            'sections' => $sections,
         ];
     }
 
@@ -114,5 +120,97 @@ final class SnapshotBuilder
         }
 
         return $order;
+    }
+
+    /**
+     * Collect schema shape only: never persist database names, data, or column defaults.
+     *
+     * @return array<string, mixed>
+     */
+    private function schema(): array
+    {
+        $payload = $this->context->get('database_schema')->collect();
+
+        if (($payload['available'] ?? null) !== true || ! is_array($payload['tables'] ?? null)) {
+            throw new RuntimeException('Database schema is unavailable; a complete schema snapshot cannot be captured.');
+        }
+
+        $tables = [];
+
+        foreach ($payload['tables'] as $table) {
+            if (! is_array($table) || ! is_string($table['name'] ?? null) ||
+                ! is_array($table['columns'] ?? null) || ! is_array($table['indexes'] ?? null) ||
+                ! is_array($table['foreign_keys'] ?? null)) {
+                throw new RuntimeException('Database schema collector returned invalid table metadata.');
+            }
+
+            $columns = [];
+
+            foreach ($table['columns'] as $column) {
+                if (! is_array($column)) {
+                    throw new RuntimeException('Database schema collector returned an invalid column.');
+                }
+
+                $columns[] = [
+                    'name' => (string) ($column['name'] ?? ''),
+                    'type' => (string) ($column['type'] ?? ''),
+                    'nullable' => (bool) ($column['nullable'] ?? false),
+                ];
+            }
+
+            $indexes = [];
+
+            foreach ($table['indexes'] as $index) {
+                if (! is_array($index)) {
+                    throw new RuntimeException('Database schema collector returned an invalid index.');
+                }
+
+                $indexes[] = [
+                    'name' => (string) ($index['name'] ?? ''),
+                    'columns' => array_values(array_map('strval', (array) ($index['columns'] ?? []))),
+                    'unique' => (bool) ($index['unique'] ?? false),
+                ];
+            }
+
+            $foreignKeys = [];
+
+            foreach ($table['foreign_keys'] as $key) {
+                if (! is_array($key)) {
+                    throw new RuntimeException('Database schema collector returned an invalid foreign key.');
+                }
+
+                $foreignKeys[] = [
+                    'name' => isset($key['name']) ? (string) $key['name'] : null,
+                    'columns' => array_values(array_map('strval', (array) ($key['columns'] ?? []))),
+                    'foreign_schema' => isset($key['foreign_schema']) ? (string) $key['foreign_schema'] : null,
+                    'foreign_table' => (string) ($key['foreign_table'] ?? ''),
+                    'foreign_columns' => array_values(array_map('strval', (array) ($key['foreign_columns'] ?? []))),
+                    'on_update' => isset($key['on_update']) ? (string) $key['on_update'] : null,
+                    'on_delete' => isset($key['on_delete']) ? (string) $key['on_delete'] : null,
+                ];
+            }
+
+            usort($columns, static fn (array $a, array $b): int => strcmp($a['name'], $b['name']));
+            usort($indexes, static fn (array $a, array $b): int => strcmp(json_encode($a, JSON_THROW_ON_ERROR), json_encode($b, JSON_THROW_ON_ERROR)));
+            usort($foreignKeys, static fn (array $a, array $b): int => strcmp(json_encode($a, JSON_THROW_ON_ERROR), json_encode($b, JSON_THROW_ON_ERROR)));
+
+            $tables[] = [
+                'name' => $table['name'],
+                'schema' => is_string($table['schema'] ?? null) ? $table['schema'] : null,
+                'columns' => $columns,
+                'indexes' => $indexes,
+                'foreign_keys' => $foreignKeys,
+            ];
+        }
+
+        usort($tables, static fn (array $a, array $b): int => strcmp(
+            json_encode([$a['schema'], $a['name']], JSON_THROW_ON_ERROR),
+            json_encode([$b['schema'], $b['name']], JSON_THROW_ON_ERROR),
+        ));
+
+        return [
+            'driver' => (string) ($payload['driver'] ?? ''),
+            'tables' => $tables,
+        ];
     }
 }
