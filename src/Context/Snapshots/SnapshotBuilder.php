@@ -35,6 +35,14 @@ final class SnapshotBuilder
         }
 
         $records = [];
+        $resolvedMiddleware = [];
+
+        foreach ($this->router->getRoutes()->getRoutes() as $registered) {
+            $methods = $registered->methods();
+            sort($methods, SORT_STRING);
+            $key = json_encode([$registered->getDomain(), $registered->uri(), $methods], JSON_THROW_ON_ERROR);
+            $resolvedMiddleware[$key] = $this->router->gatherRouteMiddleware($registered);
+        }
 
         foreach ($routes['routes'] as $route) {
             if (! is_array($route) || ! is_array($route['methods'] ?? null) || ! is_array($route['middleware'] ?? null)) {
@@ -43,6 +51,7 @@ final class SnapshotBuilder
 
             $methods = array_values(array_unique(array_map('strtoupper', $route['methods'])));
             sort($methods, SORT_STRING);
+            $key = json_encode([$route['domain'] ?? null, $route['uri'], $methods], JSON_THROW_ON_ERROR);
 
             $records[] = [
                 'methods' => $methods,
@@ -52,6 +61,7 @@ final class SnapshotBuilder
                 'action' => isset($route['action']) ? (string) $route['action'] : null,
                 // Middleware order can affect behavior, so do not sort it.
                 'middleware' => array_values(array_map('strval', $route['middleware'])),
+                'resolved_middleware' => array_values($resolvedMiddleware[$key]),
             ];
         }
 
