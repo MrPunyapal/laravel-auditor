@@ -17,6 +17,7 @@ final class ReportRendererFactory
             'json' => (new JsonReportRenderer)->render($report),
             'text' => (new TextReportRenderer)->render($report),
             'sarif' => (new SarifReportRenderer)->render($report),
+            'github' => (new GithubAnnotationRenderer)->render($report),
             default => (new MarkdownReportRenderer)->render($report),
         };
     }
