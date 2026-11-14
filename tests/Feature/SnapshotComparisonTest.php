@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Support\Facades\Artisan;
 use LaravelAuditor\Context\Snapshots\SnapshotBuilder;
 use LaravelAuditor\Context\Snapshots\SnapshotComparator;
@@ -30,6 +31,7 @@ it('recognizes added and removed routes', function () {
         'name' => null,
         'action' => 'closure',
         'middleware' => [],
+        'resolved_middleware' => [],
     ];
     $after['sections']['route_order'][] = [
         'domain' => null,
@@ -138,12 +140,29 @@ it('ignores route additions when comparing relative order of existing routes', f
 
     $new = ['domain' => null, 'uri' => 'auditor-order-added', 'methods' => ['GET', 'HEAD']];
     $after['sections']['route_order'][] = $new;
-    $after['sections']['routes'][] = [...$new, 'name' => null, 'action' => 'closure', 'middleware' => []];
+    $after['sections']['routes'][] = [...$new, 'name' => null, 'action' => 'closure', 'middleware' => [], 'resolved_middleware' => []];
 
     $result = app(SnapshotComparator::class)->compare($before, $after);
 
     expect($result['summary']['routes_added'])->toBe(1)
         ->and($result['summary']['route_order_changed'])->toBeFalse();
+});
+
+it('detects alias target changes without changing the declared route middleware', function () {
+    $router = app('router');
+    $router->aliasMiddleware('snapshot.auth', 'App\\Http\\Middleware\\Authenticate');
+    $router->middleware('snapshot.auth')->get('/snapshot-auth-change', static fn (): string => 'ok');
+    $before = app(SnapshotBuilder::class)->capture();
+
+    $router->aliasMiddleware('snapshot.auth', 'App\\Http\\Middleware\\Guest');
+    $after = app(SnapshotBuilder::class)->capture();
+    $result = app(SnapshotComparator::class)->compare($before, $after);
+
+    expect($result['summary']['routes_modified'])->toBe(1)
+        ->and($result['changes']['routes']['modified'][0]['after']['resolved_middleware'])->toBe(['App\\Http\\Middleware\\Guest']);
+
+    unset($after['sections']['routes'][0]['resolved_middleware']);
+    expect(fn () => app(SnapshotComparator::class)->compare($before, $after))->toThrow(RuntimeException::class);
 });
 
 it('rejects missing or mismatched registration-order information', function () {
@@ -159,4 +178,31 @@ it('rejects missing or mismatched registration-order information', function () {
 
     expect(fn () => app(SnapshotComparator::class)->compare($before, $after))
         ->toThrow(RuntimeException::class);
+});
+
+it('rejects duplicate route identities rather than discarding either record', function () {
+    $snapshot = app(SnapshotBuilder::class)->capture();
+    $invalid = $snapshot;
+    $invalid['sections']['routes'][] = $invalid['sections']['routes'][0];
+
+    expect(fn () => app(SnapshotComparator::class)->compare($snapshot, $invalid))
+        ->toThrow(RuntimeException::class, 'duplicate route identities');
+});
+
+it('compares registered gate and policy mapping changes as structural differences', function () {
+    $gate = app(Gate::class);
+    $gate->define('snapshot.old', static fn (): bool => true);
+    $gate->policy('App\\Models\\SnapshotPost', 'App\\Policies\\OldPolicy');
+    $before = app(SnapshotBuilder::class)->capture();
+
+    $gate->define('snapshot.new', static fn (): bool => false);
+    $gate->policy('App\\Models\\SnapshotPost', 'App\\Policies\\NewPolicy');
+    $after = app(SnapshotBuilder::class)->capture();
+    $result = app(SnapshotComparator::class)->compare($before, $after);
+
+    expect($result['has_changes'])->toBeTrue()
+        ->and($result['changes']['authorization']['gates']['added'])->toBe(['snapshot.new'])
+        ->and($result['changes']['authorization']['policies']['modified']['App\\Models\\SnapshotPost'])
+        ->toBe(['before' => 'App\\Policies\\OldPolicy', 'after' => 'App\\Policies\\NewPolicy'])
+        ->and($result)->not->toHaveKey('findings');
 });

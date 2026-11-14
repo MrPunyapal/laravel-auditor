@@ -157,7 +157,8 @@ final class SnapshotComparator
 
         foreach ($routes as $route) {
             if (! is_array($route) || ! is_string($route['uri'] ?? null) ||
-                ! is_array($route['methods'] ?? null) || ! is_array($route['middleware'] ?? null)) {
+                ! is_array($route['methods'] ?? null) || ! is_array($route['middleware'] ?? null) ||
+                ! is_array($route['resolved_middleware'] ?? null)) {
                 throw new RuntimeException('Snapshot contains invalid route metadata.');
             }
 
@@ -167,11 +168,12 @@ final class SnapshotComparator
                 }
             }
 
-            if (! array_is_list($route['methods']) || $route['methods'] === [] || ! array_is_list($route['middleware'])) {
+            if (! array_is_list($route['methods']) || $route['methods'] === [] ||
+                ! array_is_list($route['middleware']) || ! array_is_list($route['resolved_middleware'])) {
                 throw new RuntimeException('Snapshot route methods or middleware are not complete lists.');
             }
 
-            foreach ([...$route['methods'], ...$route['middleware']] as $value) {
+            foreach ([...$route['methods'], ...$route['middleware'], ...$route['resolved_middleware']] as $value) {
                 if (! is_string($value) || $value === '') {
                     throw new RuntimeException('Snapshot route contains an invalid method or middleware.');
                 }
