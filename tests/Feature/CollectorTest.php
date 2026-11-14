@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use LaravelAuditor\Audit\Rules\RuleRegistry;
 use LaravelAuditor\Context\Collectors\AuthorizationCollector;
@@ -319,12 +320,53 @@ it('collects the database schema read-only', function () {
     expect($data)->toHaveKey('available');
 
     if ($data['available']) {
-        expect($data)->toHaveKeys(['driver', 'connection', 'database', 'tables']);
+        expect($data)->toHaveKeys(['driver', 'connection', 'database', 'snapshot_complete', 'tables']);
         expect($data['tables'])->toBeArray();
         expect($data['database'])->toBe(app('db')->connection()->getDatabaseName());
         expect($data['tables'])->each->toHaveKeys(['name', 'columns', 'indexes', 'foreign_keys']);
     } else {
         expect($data)->toHaveKey('reason');
+    }
+});
+
+it('keeps ordinary SQLite schema context available when snapshot metadata is incomplete', function () {
+    if (DB::connection()->getDriverName() !== 'sqlite') {
+        $this->markTestSkipped('SQLite schema limitations can only be tested with SQLite.');
+    }
+
+    DB::statement('CREATE TABLE auditor_context_limited (value INTEGER, doubled INTEGER GENERATED ALWAYS AS (value * 2) STORED)');
+    DB::statement('CREATE INDEX auditor_context_limited_partial ON auditor_context_limited (value) WHERE value > 0');
+
+    try {
+        $collector = app(DatabaseSchemaCollector::class);
+        $data = $collector->collect();
+        $filtered = $collector->collectFiltered(['table' => 'auditor_context_limited']);
+
+        expect($data['available'])->toBeTrue()
+            ->and($data['snapshot_complete'])->toBeFalse()
+            ->and(collect($data['tables'])->firstWhere('name', 'auditor_context_limited'))->toBeArray()
+            ->and($filtered['available'])->toBeTrue()
+            ->and($filtered['snapshot_complete'])->toBeFalse()
+            ->and($filtered['tables'])->toHaveCount(1);
+
+        $path = sys_get_temp_dir().DIRECTORY_SEPARATOR.'auditor-context-schema-'.uniqid().'.json';
+
+        try {
+            $this->artisan('auditor:context', [
+                'collector' => 'database_schema',
+                '--output' => $path,
+            ])->assertSuccessful();
+
+            $payload = json_decode((string) file_get_contents($path), true);
+            expect($payload['available'])->toBeTrue()
+                ->and($payload['snapshot_complete'])->toBeFalse();
+        } finally {
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+    } finally {
+        Schema::dropIfExists('auditor_context_limited');
     }
 });
 

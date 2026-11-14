@@ -298,6 +298,8 @@ Tools:
 | `changed_files` | Uncommitted files (staged, unstaged, untracked) for scoping a review |
 | `review_scope` | Dirty files plus the view, test, or class they directly use. `scope` is the audit boundary |
 
+The `database_schema` response reports `snapshot_complete`. A `false` value means SQLite contains generated/hidden columns or partial/expression indexes that cannot be represented completely. The ordinary inventory stays available, while schema snapshots fail closed.
+
 These tools are read-only. They return structured facts, not unfiltered source dumps.
 
 ## Reporting and diagnostics

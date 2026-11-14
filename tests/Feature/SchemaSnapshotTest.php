@@ -141,7 +141,7 @@ it('refuses SQLite generated columns rather than silently omitting their definit
 
     try {
         expect(fn () => app(SnapshotBuilder::class)->capture(withSchema: true))
-            ->toThrow(RuntimeException::class, 'Database schema is unavailable');
+            ->toThrow(RuntimeException::class, 'cannot be captured completely');
     } finally {
         Schema::dropIfExists('auditor_generated_columns');
     }
@@ -155,7 +155,7 @@ it('refuses SQLite partial indexes rather than silently omitting their predicate
 
     try {
         expect(fn () => app(SnapshotBuilder::class)->capture(withSchema: true))
-            ->toThrow(RuntimeException::class, 'Database schema is unavailable');
+            ->toThrow(RuntimeException::class, 'cannot be captured completely');
     } finally {
         Schema::dropIfExists('auditor_partial_indexes');
     }

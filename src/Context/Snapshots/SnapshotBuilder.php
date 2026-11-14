@@ -145,6 +145,10 @@ final class SnapshotBuilder
             throw new RuntimeException('Database schema is unavailable; a complete schema snapshot cannot be captured.');
         }
 
+        if (($payload['snapshot_complete'] ?? null) !== true) {
+            throw new RuntimeException('Database schema contains metadata that cannot be captured completely.');
+        }
+
         $tables = [];
 
         foreach ($payload['tables'] as $table) {
