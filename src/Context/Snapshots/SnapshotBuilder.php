@@ -94,6 +94,7 @@ final class SnapshotBuilder
             'sections' => $sections,
         ];
     }
+
     /**
      * Collect schema shape only: never persist database names, data, or column defaults.
      *
@@ -180,5 +181,4 @@ final class SnapshotBuilder
             'tables' => $tables,
         ];
     }
-
 }
