@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace LaravelAuditor\Context\Snapshots;
 
-use LaravelAuditor\Context\ContextRegistry;
 use Illuminate\Routing\Router;
+use LaravelAuditor\Context\ContextRegistry;
 use RuntimeException;
 
 /**
@@ -91,6 +91,7 @@ final class SnapshotBuilder
             ],
         ];
     }
+
     /**
      * Route registration order can influence matching when routes overlap.
      * Keep it separate from the sorted route records to avoid noisy diffs.
@@ -114,5 +115,4 @@ final class SnapshotBuilder
 
         return $order;
     }
-
 }
