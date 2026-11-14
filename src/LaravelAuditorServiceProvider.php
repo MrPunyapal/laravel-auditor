@@ -16,6 +16,7 @@ use LaravelAuditor\Console\Commands\AuditorInstallCommand;
 use LaravelAuditor\Console\Commands\AuditorMcpCommand;
 use LaravelAuditor\Console\Commands\AuditorReportCommand;
 use LaravelAuditor\Console\Commands\AuditorRulesCommand;
+use LaravelAuditor\Console\Commands\AuditorSnapshotCommand;
 use LaravelAuditor\Console\Commands\AuditorStatusCommand;
 use LaravelAuditor\Context\Collectors\AuthorizationCollector;
 use LaravelAuditor\Context\Collectors\ChangedFilesCollector;
@@ -32,6 +33,7 @@ use LaravelAuditor\Context\Collectors\SubsystemsCollector;
 use LaravelAuditor\Context\Collectors\TestsCollector;
 use LaravelAuditor\Context\ContextRegistry;
 use LaravelAuditor\Context\ProjectContext;
+use LaravelAuditor\Context\Snapshots\SnapshotBuilder;
 use LaravelAuditor\MCP\Boost\BoostMcpRegistrar;
 use LaravelAuditor\MCP\McpToolRegistry;
 use LaravelAuditor\Support\BoostDetector;
@@ -90,6 +92,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
                 AuditorStatusCommand::class,
                 AuditorRulesCommand::class,
                 AuditorReportCommand::class,
+                AuditorSnapshotCommand::class,
                 AuditorContextCommand::class,
                 AuditorDependencyFindingsCommand::class,
                 AuditorCiCommand::class,
@@ -159,6 +162,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
         $this->app->singleton(JobsEventsSchedulesCollector::class);
         $this->app->singleton(TestsCollector::class);
         $this->app->singleton(SubsystemsCollector::class);
+        $this->app->singleton(SnapshotBuilder::class);
         $this->app->singleton(ChangedFilesOptions::class);
         $this->app->singleton(GitStatus::class, static fn (): GitStatus => new GitStatus(base_path()));
         $this->app->singleton(ChangedFilesCollector::class);
