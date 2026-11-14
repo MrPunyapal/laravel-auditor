@@ -38,7 +38,7 @@ it('renders escaped workflow annotations for open findings only', function () {
         summary: 'Resolved',
         whyItMatters: 'Why',
         evidence: new EvidenceCollection,
-        status: FindingStatus::Resolved,
+        status: FindingStatus::Fixed,
     );
 
     $report = new AuditReport([], [], new FindingCollection($open, $resolved));
