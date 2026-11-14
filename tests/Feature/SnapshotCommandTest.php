@@ -76,3 +76,15 @@ it('captures resolved middleware including groups and exclusions', function () {
     expect($route['middleware'])->toBe(['snapshot.group'])
         ->and($route['resolved_middleware'])->toBe(['App\\Http\\Middleware\\Authenticate']);
 });
+
+it('never copies serialized route closures or captured secrets into snapshots', function () {
+    $secret = 'snapshot-private-secret';
+    $route = app('router')->get('/snapshot-cached-closure', static fn (): string => $secret);
+    $route->prepareForSerialization();
+
+    $snapshot = app(SnapshotBuilder::class)->capture();
+    $record = collect($snapshot['sections']['routes'])->firstWhere('uri', 'snapshot-cached-closure');
+
+    expect($record['action'])->toBe('closure')
+        ->and(json_encode($snapshot, JSON_THROW_ON_ERROR))->not->toContain($secret, 'SerializableClosure', 'static fn');
+});
