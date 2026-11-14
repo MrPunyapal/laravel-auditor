@@ -66,7 +66,9 @@ jobs:
 
       - name: Test Suite
         if: runner.os != 'Windows'
-        run: vendor/bin/pest --parallel
+        # Pest 5.3.5 / Paratest currently crashes while discovering tests in parallel.
+        # Run the same full suite serially until the upstream runner is fixed.
+        run: vendor/bin/pest
 
       - name: Test Suite (Windows)
         if: runner.os == 'Windows'
