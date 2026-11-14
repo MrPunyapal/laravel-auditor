@@ -13,7 +13,9 @@ use Throwable;
  */
 class AuditorSnapshotCommand extends Command
 {
-    protected $signature = 'auditor:snapshot {--output= : Write snapshot JSON to a file instead of stdout}';
+    protected $signature = 'auditor:snapshot
+        {--output= : Write snapshot JSON to a file instead of stdout}
+        {--schema : Include read-only live database schema shape}';
 
     protected $description = 'Capture the current routes and authorization registry as versioned JSON.';
 
@@ -27,7 +29,7 @@ class AuditorSnapshotCommand extends Command
     {
         try {
             $content = json_encode(
-                $this->builder->capture(),
+                $this->builder->capture((bool) $this->option('schema')),
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
             ).PHP_EOL;
         } catch (Throwable $e) {
