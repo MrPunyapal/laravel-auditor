@@ -179,10 +179,20 @@ final class SnapshotBuilder
                     throw new RuntimeException('Database schema collector returned an invalid foreign key.');
                 }
 
+                $foreignSchema = isset($key['foreign_schema']) ? (string) $key['foreign_schema'] : null;
+
+                if (in_array($payload['driver'] ?? null, ['mysql', 'mariadb'], true)) {
+                    if ($foreignSchema !== null && $foreignSchema !== ($payload['database'] ?? null)) {
+                        throw new RuntimeException('Cross-database foreign keys cannot be captured without exposing database names.');
+                    }
+
+                    $foreignSchema = null;
+                }
+
                 $foreignKeys[] = [
                     'name' => isset($key['name']) ? (string) $key['name'] : null,
                     'columns' => array_values(array_map('strval', (array) ($key['columns'] ?? []))),
-                    'foreign_schema' => isset($key['foreign_schema']) ? (string) $key['foreign_schema'] : null,
+                    'foreign_schema' => $foreignSchema,
                     'foreign_table' => (string) ($key['foreign_table'] ?? ''),
                     'foreign_columns' => array_values(array_map('strval', (array) ($key['foreign_columns'] ?? []))),
                     'on_update' => isset($key['on_update']) ? (string) $key['on_update'] : null,

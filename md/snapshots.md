@@ -29,6 +29,10 @@ php artisan auditor:compare before.json after.json
 
 This option never runs migrations. It stores table, column, index and foreign-key shapes (including PostgreSQL schema names to distinguish same-named tables), omitting database names, data and default values. If the schema is unavailable, snapshot creation fails. Comparing one snapshot with a schema and one without fails rather than indicating a clean result.
 
+SQLite expression indexes, partial indexes, and generated or hidden columns cannot be represented completely by this snapshot format. Collection fails explicitly when these are present instead of producing a potentially misleading comparison. Their SQL expressions are not stored in snapshots.
+
+MySQL and MariaDB foreign keys within the current database omit the database qualifier. Cross-database foreign keys fail snapshot creation because preserving their target identity would expose database names.
+
 The comparison is **structural evidence only**. It cannot establish production deployment safety, prove that a migration executed, or prove an authorization bypass. Follow up by inspecting the affected code and deployment sequence.
 
 Route registration order is preserved independently of the sorted route list. A reorder is reported as a structural difference, not a verified vulnerability.

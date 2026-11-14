@@ -67,6 +67,10 @@ it('reads and compares actual MySQL and PostgreSQL indexes, columns and foreign 
             ->toBe('auditor_schema_parents')
             ->and(json_encode($before, JSON_THROW_ON_ERROR))->not->toContain('do-not-snapshot-secret');
 
+        if ($driver === 'mysql') {
+            expect(json_encode($before, JSON_THROW_ON_ERROR))->not->toContain('auditor_ci');
+        }
+
         if ($driver === 'pgsql') {
             expect($child['schema'])->toBe('public');
         } else {
