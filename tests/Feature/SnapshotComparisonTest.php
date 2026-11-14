@@ -31,6 +31,11 @@ it('recognizes added and removed routes', function () {
         'action' => 'closure',
         'middleware' => [],
     ];
+    $after['sections']['route_order'][] = [
+        'domain' => null,
+        'uri' => '__new_auditor_route__',
+        'methods' => ['POST'],
+    ];
 
     $comparator = app(SnapshotComparator::class);
 
