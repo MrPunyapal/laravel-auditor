@@ -1191,23 +1191,42 @@ These principles apply regardless of which features ship:
 
 # Context snapshots
 
-> Capture reproducible Laravel route and authorization state before changing an application.
+> Capture and compare reproducible Laravel route, authorization and optional database schema state.
 
 # Context snapshots
 
-Use the versioned, deterministic snapshot to record an application's routes and authorization registry before a change:
+Capture before and after application metadata:
 
 ~~~bash
 php artisan auditor:snapshot --output=before.json
+# Make code changes, then:
+php artisan auditor:snapshot --output=after.json
+php artisan auditor:compare before.json after.json
 ~~~
 
-After the change, run the command again with a different output path. Snapshots have no generated timestamp and contain only route metadata, route registration order, registered gates, policy mappings, policy file names, and middleware aliases. They do not collect environment variables, credentials, database records, or application source.
+Snapshots include route metadata, registered gates, policy mappings, policy filenames, and middleware aliases, without environment variables or application source.
 
-The snapshot format is version 1. It does not prove that a route is authorized: a missing middleware alias may have an equivalent authorization check inside a controller. Verification still requires reading the relevant Laravel code.
+To include **live database schema shape**, explicitly enable the read-only schema collector on both sides:
 
-This feature only captures state. Comparison and risk assessment are separate follow-up features. Keep snapshots private if route names or policy classes reveal internal application structure.
+~~~bash
+php artisan auditor:snapshot --schema --output=before.json
+# Apply migrations to a throwaway test database after backing it up
+php artisan auditor:snapshot --schema --output=after.json
+php artisan auditor:compare before.json after.json
+~~~
 
-Route registration order is captured independently of sorted route details. An order change is not itself a verified authorization problem, but may affect matching when patterns overlap.
+This option never runs migrations. It stores table, column, index and foreign-key shapes (including PostgreSQL schema names to distinguish same-named tables), omitting database names, data and default values. If the schema is unavailable, snapshot creation fails. Comparing one snapshot with a schema and one without fails rather than indicating a clean result.
+
+SQLite expression indexes, partial indexes, and generated or hidden columns cannot be represented completely by this snapshot format. Collection fails explicitly when these are present instead of producing a potentially misleading comparison. Their SQL expressions are not stored in snapshots.
+
+MySQL and MariaDB foreign keys within the current database omit the database qualifier. Cross-database foreign keys fail snapshot creation because preserving their target identity would expose database names.
+
+The comparison is **structural evidence only**. It cannot establish production deployment safety, prove that a migration executed, or prove an authorization bypass. Follow up by inspecting the affected code and deployment sequence.
+
+Route registration order is preserved independently of the sorted route list. A reorder is reported as a structural difference, not a verified vulnerability.
+
+Keep snapshots private if route names or policy classes reveal internal application structure.
+
 Routes include both declared middleware and the resolved route middleware stack, including group expansion and exclusions. Global HTTP middleware and changes inside middleware, gate, or policy implementations are outside this metadata snapshot. Policy mappings include explicitly registered mappings; automatic policy discovery is not enumerated.
 
 Capture both snapshots with the same route-cache state. Cached routes represent the cached application configuration; rebuild the route cache after changing routes. Laravel can generate names for unnamed routes during caching, so cached and uncached snapshots may differ even without a source change.
@@ -1290,6 +1309,26 @@ Page-specific social titles and descriptions use `og_title` and `og_description`
 ### Docsmith
 
 If Docsmith is missing a feature this package needs, contribute it upstream in [mrpunyapal/docsmith](https://github.com/MrPunyapal/docsmith) rather than forking the builder.
+
+
+---
+
+# GitHub Actions annotations
+
+> Surface structured audit findings in GitHub Actions without a hosted review bot.
+
+# GitHub Actions annotations
+
+Laravel Auditor can emit GitHub Actions workflow commands from **existing structured findings**, alongside Markdown, JSON, text, and SARIF output.
+
+~~~bash
+php artisan auditor:report --findings=storage/auditor-findings.json --format=github
+php artisan auditor:ci --findings=storage/auditor-findings.json --format=github --fail-on=high
+~~~
+
+When run inside GitHub Actions, annotations appear in the check output. The new format escapes special characters, omits unsafe file paths, and skips findings whose status is not `open`. It does **not** call GitHub APIs or generate findings itself.
+
+Use the existing base/dirty options to scope findings to changed files before emitting annotations. The reporter does not independently verify findings or their severity.
 
 
 ---
