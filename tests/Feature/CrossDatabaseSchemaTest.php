@@ -10,7 +10,7 @@ use LaravelAuditor\Context\Snapshots\SnapshotComparator;
 it('reads and compares actual MySQL and PostgreSQL indexes, columns and foreign keys', function () {
     $driver = getenv('AUDITOR_SCHEMA_DRIVER');
 
-    if (! in_array($driver, ['mysql', 'pgsql'], true)) {
+    if (in_array($driver, ['mysql', 'pgsql'], true) === false) {
         $this->markTestSkipped('Requires AUDITOR_SCHEMA_DRIVER=mysql or pgsql and a disposable database.');
     }
 
@@ -94,7 +94,7 @@ it('reads and compares actual MySQL and PostgreSQL indexes, columns and foreign 
 
 
 it('keeps same-named PostgreSQL tables distinct across configured schemas', function () {
-    if (getenv('AUDITOR_SCHEMA_DRIVER') !== 'pgsql') {
+    if (in_array(getenv('AUDITOR_SCHEMA_DRIVER'), ['pgsql'], true) === false) {
         $this->markTestSkipped('PostgreSQL integration runner only.');
     }
 
