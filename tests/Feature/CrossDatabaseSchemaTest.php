@@ -131,9 +131,9 @@ it('keeps same-named PostgreSQL tables distinct across configured schemas', func
         ));
 
         expect($matches)->toHaveCount(2)
-            ->and(array_column($matches, 'schema'))->toBe(['public', 'auditor_snapshot_tenant'])
-            ->and($matches[0]['columns'])->toHaveCount(1)
-            ->and($matches[1]['columns'])->toHaveCount(2);
+            ->and(array_column($matches, 'schema'))->toBe(['auditor_snapshot_tenant', 'public'])
+            ->and($matches[0]['columns'])->toHaveCount(2)
+            ->and($matches[1]['columns'])->toHaveCount(1);
 
         $diff = app(SnapshotComparator::class)->compare($snapshot, $snapshot);
 
