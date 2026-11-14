@@ -58,9 +58,10 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
         }
 
         $driver = $this->driver($connection);
+        $snapshotComplete = true;
 
         try {
-            $tables = $this->tables($connection, $driver);
+            $tables = $this->tables($connection, $driver, $snapshotComplete);
         } catch (Throwable $e) {
             return [
                 'available' => false,
@@ -73,6 +74,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
             'driver' => $driver,
             'connection' => $connection->getName(),
             'database' => $connection->getDatabaseName(),
+            'snapshot_complete' => $snapshotComplete,
             'tables' => $tables,
         ];
     }
@@ -120,7 +122,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
     /**
      * @return list<array<string, mixed>>
      */
-    private function tables(Connection $connection, string $driver): array
+    private function tables(Connection $connection, string $driver, bool &$snapshotComplete): array
     {
         $tables = [];
 
@@ -133,8 +135,8 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
             foreach ($rows as $table) {
                 $tables[] = [
                     'name' => (string) $table,
-                    'columns' => $this->columns($connection, (string) $table, $driver),
-                    'indexes' => $this->indexes($connection, (string) $table, $driver),
+                    'columns' => $this->columns($connection, (string) $table, $driver, $snapshotComplete),
+                    'indexes' => $this->indexes($connection, (string) $table, $driver, $snapshotComplete),
                     'foreign_keys' => $this->foreignKeys($connection, (string) $table),
                 ];
             }
@@ -161,8 +163,8 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
             $tables[] = [
                 'name' => $table,
                 'schema' => $driver === 'pgsql' ? $row['schema'] : null,
-                'columns' => $this->columns($connection, $qualified, $driver),
-                'indexes' => $this->indexes($connection, $qualified, $driver),
+                'columns' => $this->columns($connection, $qualified, $driver, $snapshotComplete),
+                'indexes' => $this->indexes($connection, $qualified, $driver, $snapshotComplete),
                 'foreign_keys' => $this->foreignKeys($connection, $qualified),
             ];
         }
@@ -175,7 +177,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
     /**
      * @return list<array<string, mixed>>
      */
-    private function columns(Connection $connection, string $table, string $driver): array
+    private function columns(Connection $connection, string $table, string $driver, bool &$snapshotComplete): array
     {
         $columns = [];
 
@@ -190,7 +192,9 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
             $row = (array) $row;
 
             if ($driver === 'sqlite' && (int) ($row['hidden'] ?? 0) !== 0) {
-                throw new RuntimeException('SQLite generated or hidden columns cannot be compared safely.');
+                $snapshotComplete = false;
+
+                continue;
             }
 
             $columns[] = [
@@ -209,7 +213,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
     /**
      * @return list<array<string, mixed>>
      */
-    private function indexes(Connection $connection, string $table, string $driver): array
+    private function indexes(Connection $connection, string $table, string $driver, bool &$snapshotComplete): array
     {
         if ($driver === 'sqlite') {
             $rows = $connection->select("PRAGMA index_list({$this->quoteIdentifier($table)})");
@@ -224,7 +228,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
                 }
 
                 if ((bool) ($row['partial'] ?? false)) {
-                    throw new RuntimeException('SQLite partial index predicates cannot be compared safely.');
+                    $snapshotComplete = false;
                 }
 
                 $details = $connection->select("PRAGMA index_info({$this->quoteIdentifier($name)})");
@@ -234,7 +238,9 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
                     $column = $detail->name ?? null;
 
                     if (! is_string($column) || $column === '') {
-                        throw new RuntimeException("SQLite index [{$name}] contains an expression that cannot be compared safely.");
+                        $snapshotComplete = false;
+
+                        continue;
                     }
 
                     $columns[] = $column;

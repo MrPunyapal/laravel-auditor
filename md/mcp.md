@@ -43,6 +43,8 @@ A client configuration example lives in `resources/auditor/mcp/mcp.json.example`
 | `changed_files` | Uncommitted files (staged, unstaged, untracked) for scoping a review |
 | `review_scope` | Dirty files plus the view, test, or class they directly use. `scope` is what an agent should read |
 
+The `database_schema` response includes `snapshot_complete`. When it is `false`, the ordinary schema inventory remains available, but SQLite contains generated/hidden columns or partial/expression indexes that cannot be represented completely. Do not treat those details as absent; `auditor:snapshot --schema` fails closed for incomplete schema metadata.
+
 ## Optional filters
 
 Four tools accept optional read-only filter arguments so an agent can verify a focused slice instead of pulling the whole inventory. Calling a tool without arguments returns the complete payload exactly as before.
