@@ -9,7 +9,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
 use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\Context\FilterableCollector;
-use stdClass;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -160,6 +160,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
 
             $tables[] = [
                 'name' => $table,
+                'schema' => $driver === 'pgsql' ? $row['schema'] : null,
                 'columns' => $this->columns($connection, $qualified, $driver),
                 'indexes' => $this->indexes($connection, $qualified, $driver),
                 'foreign_keys' => $this->foreignKeys($connection, $qualified),
@@ -179,7 +180,7 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
         $columns = [];
 
         if ($driver === 'sqlite') {
-            $rows = $connection->select("PRAGMA table_info({$this->quoteIdentifier($table)})");
+            $rows = $connection->select("PRAGMA table_xinfo({$this->quoteIdentifier($table)})");
         } else {
             $schema = $connection->getSchemaBuilder();
             $rows = $schema->getColumns($table);
@@ -187,6 +188,10 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
 
         foreach ($rows as $row) {
             $row = (array) $row;
+
+            if ($driver === 'sqlite' && (int) ($row['hidden'] ?? 0) !== 0) {
+                throw new RuntimeException('SQLite generated or hidden columns cannot be compared safely.');
+            }
 
             $columns[] = [
                 'name' => (string) ($row['name'] ?? $row['column_name'] ?? ''),
@@ -208,15 +213,41 @@ final class DatabaseSchemaCollector implements ContextCollector, FilterableColle
     {
         if ($driver === 'sqlite') {
             $rows = $connection->select("PRAGMA index_list({$this->quoteIdentifier($table)})");
+            $indexes = [];
 
-            return array_values(array_map(static function (stdClass $row): array {
+            foreach ($rows as $row) {
                 $row = (array) $row;
+                $name = (string) ($row['name'] ?? '');
 
-                return [
-                    'name' => (string) ($row['name'] ?? ''),
+                if ($name === '') {
+                    throw new RuntimeException('SQLite returned an index without a name.');
+                }
+
+                if ((bool) ($row['partial'] ?? false)) {
+                    throw new RuntimeException('SQLite partial index predicates cannot be compared safely.');
+                }
+
+                $details = $connection->select("PRAGMA index_info({$this->quoteIdentifier($name)})");
+                $columns = [];
+
+                foreach ($details as $detail) {
+                    $column = $detail->name ?? null;
+
+                    if (! is_string($column) || $column === '') {
+                        throw new RuntimeException("SQLite index [{$name}] contains an expression that cannot be compared safely.");
+                    }
+
+                    $columns[] = $column;
+                }
+
+                $indexes[] = [
+                    'name' => $name,
+                    'columns' => $columns,
                     'unique' => (bool) ($row['unique'] ?? false),
                 ];
-            }, $rows));
+            }
+
+            return $indexes;
         }
 
         $schema = $connection->getSchemaBuilder();

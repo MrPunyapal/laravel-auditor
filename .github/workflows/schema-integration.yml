@@ -1,0 +1,67 @@
+name: schema-integration
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/schema-integration.yml'
+      - 'src/Context/Snapshots/**'
+      - 'src/Context/Collectors/DatabaseSchemaCollector.php'
+      - 'tests/Feature/CrossDatabaseSchemaTest.php'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        driver: [mysql, pgsql]
+    name: Schema integration - ${{ matrix.driver }}
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: auditor_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: auditor_ci
+          POSTGRES_USER: auditor
+          POSTGRES_PASSWORD: auditor
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U auditor -d auditor_ci"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, pdo_sqlite, pdo_mysql, pdo_pgsql, bcmath, intl
+          tools: composer:v2
+          coverage: none
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:13.*" "orchestra/testbench:11.*" --no-interaction --no-update
+          composer update --prefer-stable --prefer-dist --no-interaction --no-progress --no-scripts
+          composer run prepare
+      - name: Run database integration test
+        env:
+          AUDITOR_SCHEMA_DRIVER: ${{ matrix.driver }}
+        run: vendor/bin/pest tests/Feature/CrossDatabaseSchemaTest.php
