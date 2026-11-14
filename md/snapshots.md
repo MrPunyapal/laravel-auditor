@@ -36,3 +36,9 @@ MySQL and MariaDB foreign keys within the current database omit the database qua
 The comparison is **structural evidence only**. It cannot establish production deployment safety, prove that a migration executed, or prove an authorization bypass. Follow up by inspecting the affected code and deployment sequence.
 
 Route registration order is preserved independently of the sorted route list. A reorder is reported as a structural difference, not a verified vulnerability.
+
+Keep snapshots private if route names or policy classes reveal internal application structure.
+
+Routes include both declared middleware and the resolved route middleware stack, including group expansion and exclusions. Global HTTP middleware and changes inside middleware, gate, or policy implementations are outside this metadata snapshot. Policy mappings include explicitly registered mappings; automatic policy discovery is not enumerated.
+
+Capture both snapshots with the same route-cache state. Cached routes represent the cached application configuration; rebuild the route cache after changing routes. Laravel can generate names for unnamed routes during caching, so cached and uncached snapshots may differ even without a source change.

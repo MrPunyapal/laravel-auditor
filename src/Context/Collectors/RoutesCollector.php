@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelAuditor\Context\Collectors;
 
 use Illuminate\Routing\Route;
+use Illuminate\Routing\RouteAction;
 use Illuminate\Routing\Router;
 use LaravelAuditor\Context\ContextCollector;
 use LaravelAuditor\Context\FilterableCollector;
@@ -134,6 +135,10 @@ final class RoutesCollector implements ContextCollector, FilterableCollector
 
     private function action(Route $route): ?string
     {
+        if (RouteAction::containsSerializedClosure($route->getAction())) {
+            return 'closure';
+        }
+
         $action = $route->getAction('uses');
 
         if (is_callable($action)) {
