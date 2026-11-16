@@ -33,7 +33,7 @@ php artisan auditor:rules --domain=database --applicable
 
 ## Structural migration risk review
 
-After capturing complete before-and-after snapshots with \`php artisan auditor:snapshot --schema\`, run:
+After capturing complete before-and-after snapshots with `php artisan auditor:snapshot --schema`, run:
 
 ~~~bash
 php artisan auditor:migration-risk before.json after.json
