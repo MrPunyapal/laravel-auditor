@@ -6,6 +6,7 @@ namespace LaravelAuditor\Console\Commands;
 
 use Illuminate\Console\Command;
 use LaravelAuditor\Context\Migrations\MigrationRiskAnalyzer;
+use LaravelAuditor\Context\Migrations\MigrationSourceReview;
 use RuntimeException;
 use Throwable;
 
@@ -17,12 +18,14 @@ final class AuditorMigrationRiskCommand extends Command
     protected $signature = 'auditor:migration-risk
         {before : Path to a schema-enabled snapshot before the change}
         {after : Path to a schema-enabled snapshot after the change}
+        {--migration=* : Analyze a registered migration PHP file (repeatable)}
         {--output= : Write structured indicators to JSON instead of stdout}';
 
     protected $description = 'Identify possible migration risks from two complete database schema snapshots.';
 
     public function __construct(
         private readonly MigrationRiskAnalyzer $analyzer,
+        private readonly MigrationSourceReview $sourceReview,
     ) {
         parent::__construct();
     }
@@ -34,8 +37,17 @@ final class AuditorMigrationRiskCommand extends Command
             $afterPath = (string) $this->argument('after');
             $before = $this->load($beforePath);
             $after = $this->load($afterPath);
+            $analysis = $this->analyzer->analyze($before, $after);
+            $migrations = array_values(array_map(static fn (?string $path): string => $path ?? '', $this->option('migration')));
+
+            if ($migrations !== []) {
+                $analysis['source_review'] = $this->sourceReview->review($migrations);
+                $analysis['coverage'] = 'snapshot_structure_plus_selected_php_source';
+                $analysis['limitations'][0] = 'Only recognized patterns in explicitly selected migration source files were inspected. Other migration code was not analyzed.';
+            }
+
             $content = json_encode(
-                $this->analyzer->analyze($before, $after),
+                $analysis,
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
             ).PHP_EOL;
         } catch (Throwable $e) {
@@ -47,7 +59,7 @@ final class AuditorMigrationRiskCommand extends Command
         $output = $this->option('output');
 
         if (is_string($output) && $output !== '') {
-            if ($this->outputResolvesToInput($output, $beforePath, $afterPath)) {
+            if ($this->outputResolvesToInput($output, $beforePath, $afterPath, ...$migrations)) {
                 $this->components->error('--output must not resolve to either input snapshot.');
 
                 return self::FAILURE;
@@ -69,7 +81,7 @@ final class AuditorMigrationRiskCommand extends Command
         return self::SUCCESS;
     }
 
-    private function outputResolvesToInput(string $output, string $before, string $after): bool
+    private function outputResolvesToInput(string $output, string ...$inputs): bool
     {
         $outputPath = realpath($output);
 
@@ -77,7 +89,7 @@ final class AuditorMigrationRiskCommand extends Command
             return false;
         }
 
-        foreach ([$before, $after] as $input) {
+        foreach ($inputs as $input) {
             $inputPath = realpath($input);
             $outputStat = @stat($output);
             $inputStat = @stat($input);
