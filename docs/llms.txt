@@ -17,3 +17,4 @@
 - https://mrpunyapal.github.io/laravel-auditor/contributing: How to work on Laravel Auditor locally, including documentation.
 - https://mrpunyapal.github.io/laravel-auditor/github-annotations: Surface structured audit findings in GitHub Actions without a hosted review bot.
 - https://mrpunyapal.github.io/laravel-auditor/security-monitoring: Check Composer lockfiles for new vulnerability disclosures even when application code has not changed.
+- https://mrpunyapal.github.io/laravel-auditor/migration-risk: Review structural migration risk indicators using complete before-and-after database schema snapshots.

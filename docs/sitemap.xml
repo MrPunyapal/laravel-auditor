@@ -42,4 +42,7 @@
   <url>
     <loc>https://mrpunyapal.github.io/laravel-auditor/security-monitoring</loc>
   </url>
+  <url>
+    <loc>https://mrpunyapal.github.io/laravel-auditor/migration-risk</loc>
+  </url>
 </urlset>
