@@ -1,6 +1,19 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.1...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.4.0...HEAD)
+
+## [v0.4.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.1...v0.4.0) - 2026-11-16
+
+### Added
+
+- Deterministic route and authorization snapshots, snapshot comparison, and opt-in database schema snapshots.
+- GitHub Actions annotations for audit findings.
+
+### Fixed
+
+- Snapshot comparisons now account for resolved middleware; cached route closures no longer expose serialized source.
+- Incomplete schema metadata cannot produce clean snapshots, while ordinary SQLite schema context remains available.
+- Schema snapshots omit database names, and GitHub annotations preserve finding text while rejecting unsafe file paths.
 
 ## [v0.3.1](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.0...v0.3.1) - 2026-11-12
 
