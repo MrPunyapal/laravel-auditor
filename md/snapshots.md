@@ -42,3 +42,7 @@ Keep snapshots private if route names or policy classes reveal internal applicat
 Routes include both declared middleware and the resolved route middleware stack, including group expansion and exclusions. Global HTTP middleware and changes inside middleware, gate, or policy implementations are outside this metadata snapshot. Policy mappings include explicitly registered mappings; automatic policy discovery is not enumerated.
 
 Capture both snapshots with the same route-cache state. Cached routes represent the cached application configuration; rebuild the route cache after changing routes. Laravel can generate names for unnamed routes during caching, so cached and uncached snapshots may differ even without a source change.
+
+## Migration risk indicators
+
+Run `php artisan auditor:migration-risk before.json after.json` to review potential schema-change risks when both snapshots include `--schema`. See [Migration risk indicators](/migration-risk) for coverage and limitations. This does not execute or analyze migration PHP and does not determine deployment safety.

@@ -42,9 +42,11 @@ it('flags removed tables and columns without claiming data was lost', function (
 it('flags non-null additions, type conversions and tightened nullability', function () {
     $old = migrationRiskTable();
     $old['columns'][] = ['name' => 'status', 'type' => 'varchar(10)', 'nullable' => true];
+    $old['columns'][] = ['name' => 'visibility', 'type' => 'boolean', 'nullable' => false];
 
     $after = $old;
     $after['columns'][1] = ['name' => 'status', 'type' => 'varchar(5)', 'nullable' => false];
+    $after['columns'][2] = ['name' => 'visibility', 'type' => 'boolean', 'nullable' => true];
     $after['columns'][] = ['name' => 'required', 'type' => 'integer', 'nullable' => false];
 
     $result = app(MigrationRiskAnalyzer::class)->analyze(migrationRiskSnapshot([$old]), migrationRiskSnapshot([$after]));

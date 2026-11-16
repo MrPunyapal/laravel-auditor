@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration risk indicators | Laravel Auditor</title>
+    <meta name="description" content="Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Migration risk indicators | Laravel Auditor">
+    <meta property="og:description" content="Review structural migration risk indicators using complete before-and-after database schema snapshots.">
+    <meta property="og:url" content="https://mrpunyapal.github.io/laravel-auditor/migration-risk">
+    <meta property="og:image" content="https://mrpunyapal.github.io/laravel-auditor/og/cover.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Migration risk indicators | Laravel Auditor">
+    <meta name="twitter:description" content="Review structural migration risk indicators using complete before-and-after database schema snapshots.">
+    <meta name="twitter:image" content="https://mrpunyapal.github.io/laravel-auditor/og/cover.png">
+    <link rel="stylesheet" href="../assets/app.css">
+    <script src="../assets/app.js" defer></script>
+</head>
+<body data-docsmith-root="../">
+    <div class="shell has-right-rail">
+        <aside class="sidebar" data-docsmith-sidebar>
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <h1 class="brand">Laravel Auditor</h1>
+                    <p class="tagline">Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.</p>
+                </div>
+                <button type="button" class="mobile-menu-toggle" data-docsmith-menu-toggle aria-expanded="false" aria-controls="docsmith-sidebar-panel" aria-label="Open menu"><svg class="mobile-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="mobile-menu-bars" d="M3.75 8.25h16.5M3.75 15.75h11"></path><path class="mobile-menu-close" d="M6 6l12 12M18 6L6 18"></path></svg><span class="sr-only">Toggle menu</span></button>
+            </div>
+            <div class="sidebar-panel" id="docsmith-sidebar-panel" data-docsmith-sidebar-panel>
+                
+                <div class="sidebar-actions"><a class="sidebar-action-link" href="https://github.com/mrpunyapal/laravel-auditor">Repository</a><button type="button" class="theme-toggle" data-docsmith-theme-toggle>Theme</button></div>
+                <div class="search">
+                    <input type="search" placeholder="Search pages  (⌘K)" aria-label="Search pages" data-docsmith-search>
+                    <div class="search-results" data-docsmith-search-results hidden></div>
+                    <div class="search-empty" data-docsmith-empty>No pages match your search.</div>
+                </div>
+                <nav class="nav" data-docsmith-nav><a class="" href="../" data-nav-item data-title="Overview" data-search="Laravel Auditor Overview Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">Overview</a><a class="" href="../installation/" data-nav-item data-title="Installation" data-search="Installation Installation Install Laravel Auditor in a Laravel application with or without Laravel Boost.">Installation</a><a class="" href="../usage/" data-nav-item data-title="Usage" data-search="Usage Usage Run status, context, rules, reports, and CI with Laravel Auditor.">Usage</a><a class="" href="../agents/" data-nav-item data-title="Agent setup" data-search="Agent setup Agent setup Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.">Agent setup</a><a class="" href="../prompts/" data-nav-item data-title="Prompt examples" data-search="Prompt examples Prompt examples Ready-to-use prompts for running Laravel Auditor audits, from a quick discover pass to focused verification and DSA reviews.">Prompt examples</a><a class="" href="../mcp/" data-nav-item data-title="MCP tools" data-search="MCP tools MCP tools Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.">MCP tools</a><a class="" href="../rules/" data-nav-item data-title="Rules" data-search="Rules Rules The evidence-first audit catalog and how applicability works.">Rules</a><a class="" href="../findings/" data-nav-item data-title="Findings and reports" data-search="Findings and reports Findings and reports Finding schema, example payloads, and how reports are rendered.">Findings and reports</a><a class="" href="../dsa/" data-nav-item data-title="DSA audit" data-search="DSA audit DSA audit Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.">DSA audit</a><a class="" href="../future/" data-nav-item data-title="Future scope" data-search="Future scope Future scope Features that may influence architecture but are not part of V1.">Future scope</a><a class="" href="../snapshots/" data-nav-item data-title="Context snapshots" data-search="Context snapshots Context snapshots Capture and compare reproducible Laravel route, authorization and optional database schema state.">Context snapshots</a><a class="" href="../contributing/" data-nav-item data-title="Contributing" data-search="Contributing Contributing How to work on Laravel Auditor locally, including documentation.">Contributing</a><a class="" href="../github-annotations/" data-nav-item data-title="GitHub Actions annotations" data-search="GitHub Actions annotations GitHub Actions annotations Surface structured audit findings in GitHub Actions without a hosted review bot.">GitHub Actions annotations</a><a class="" href="../security-monitoring/" data-nav-item data-title="Scheduled dependency security checks" data-search="Scheduled dependency security checks Scheduled dependency security checks Check Composer lockfiles for new vulnerability disclosures even when application code has not changed.">Scheduled dependency security checks</a><a class="active" href="./" data-nav-item data-title="Migration risk indicators" data-search="Migration risk indicators Migration risk indicators Review structural migration risk indicators using complete before-and-after database schema snapshots.">Migration risk indicators</a></nav>
+                <a class="docsmith-badge" href="https://github.com/MrPunyapal/docsmith" target="_blank" rel="noopener noreferrer" data-docsmith-badge aria-label="Built with DocSmith"><svg class="docsmith-badge-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-6.716-4.35-9.428-7.052C.4 11.692-.21 8.9 1.38 6.87 2.736 5.14 5.09 4.583 6.86 5.686 8 6.41 8.86 7.55 9.6 8.7c.74-1.15 1.6-2.29 2.74-3.014 1.77-1.103 4.124-.546 5.48 1.184 1.59 2.03.98 4.822-1.192 7.078C18.716 16.65 12 21 12 21z"/></svg><span class="docsmith-badge-text">Built with</span><span class="docsmith-badge-brand">DocSmith</span></a>
+            </div>
+        </aside>
+        <button type="button" class="sidebar-backdrop" data-docsmith-sidebar-backdrop aria-label="Close menu"></button>
+        <main class="content">
+            <article>
+                <header class="doc-head">
+                    
+                    <h1>Migration risk indicators</h1>
+                    <p class="doc-description">Review structural migration risk indicators using complete before-and-after database schema snapshots.</p>
+                </header>
+                <div class="doc-body">
+                    <p>Laravel Auditor can identify <strong>potential</strong> migration risks from two complete database schema snapshots. This is a read-only review of differences already present in the captured schemas, not execution or prediction of migration PHP.</p>
+<h2 id="capture-and-compare">Capture and compare</h2>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Capture the starting state of a disposable or representative database
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:snapshot</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-schema</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-output=before.json</span><span class="token">
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> Apply and test your proposed migration on that disposable database
+</span></span><span class="line"><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;">#</span><span class="token" style="color: #6a737d;--phiki-dark-color: #6a737d;"> (Laravel Auditor never runs migrations itself)
+</span></span><span class="line"><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:snapshot</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-schema</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-output=after.json</span><span class="token">
+</span></span><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:migration-risk</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">before.json</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">after.json</span><span class="token">
+</span></span></code></pre>
+<p>Export the results to a file with <code>--output=risks.json</code>. Both snapshots <strong>must</strong> include the schema section, be complete, and use the same database driver. The command fails when evidence is missing or malformed.</p>
+<h2 id="structural-indicators">Structural indicators</h2>
+<p>The result identifies:</p>
+<ul>
+<li>Removed tables and columns: potential data loss or references that must be migrated elsewhere</li>
+<li>Added NOT NULL columns or tightened nullability: existing-row/backfill questions</li>
+<li>Column type changes: conversion, truncation or table rewrite questions</li>
+<li>Added, removed and modified indexes: query-plan, uniqueness and index-build questions</li>
+<li>Added and removed foreign keys: data-integrity, orphan-row and constraint-validation questions</li>
+</ul>
+<p>Each indicator includes a code, review level, schema/table/column location, explanation and recommended verification. The <code>coverage</code> field is <code>snapshot_structure_only</code> and <code>deployment_safety_verified</code> is always <code>false</code>.</p>
+<p><strong>No indicators does not mean safe.</strong> This feature cannot determine whether a migration file ran, whether it is reversible, whether production has compatible data, whether traffic will be blocked, or how long DDL will take. It does not pair renamed objects: because a new table alone produces no risk indicator, a table rename appears as a removal indicator for the old table only. Check the snapshot comparison and migration source to identify the corresponding addition. Before/after snapshots do not capture column defaults or data.</p>
+<h2 id="database-specific-cautions">Database-specific cautions</h2>
+<ul>
+<li><strong>MySQL / MariaDB:</strong> DDL performance depends on server version, storage engine and <code>ALGORITHM</code>/<code>LOCK</code> support. A metadata-only change may still encounter metadata-lock waits.</li>
+<li><strong>PostgreSQL:</strong> Many <code>ALTER TABLE</code> operations require strong locks. Index creation without <code>CONCURRENTLY</code> may block writes; concurrent index creation has its own restrictions.</li>
+<li><strong>SQLite:</strong> Some schema changes rebuild tables. The snapshot collector rejects incomplete SQLite schema metadata, including advanced expression/partial indexes and generated columns.</li>
+</ul>
+<p>Treat indicators as <strong>review prompts</strong>, not verified vulnerability findings and not automatic CI deployment gates. Review the actual migration source, plan/backfill and deployment sequence, and test on a realistic disposable database.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://laravel.com/docs/13.x/migrations">Laravel migrations</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html">MySQL 8.4 online DDL</a></li>
+<li><a href="https://www.postgresql.org/docs/current/sql-altertable.html">PostgreSQL ALTER TABLE</a></li>
+<li><a href="https://www.postgresql.org/docs/current/sql-createindex.html">PostgreSQL CREATE INDEX</a></li>
+<li><a href="https://sqlite.org/lang_altertable.html">SQLite ALTER TABLE</a></li>
+</ul>
+
+                </div>
+                <footer class="doc-meta">
+                    <a class="edit-link" href="https://github.com/mrpunyapal/laravel-auditor/edit/main/md/migration-risk.md">Edit this page</a>
+                </footer>
+            </article>
+            <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../security-monitoring/"><span>Previous</span><strong>Scheduled dependency security checks</strong></a></nav>
+        </main>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#capture-and-compare" data-docsmith-toc-link="capture-and-compare">Capture and compare</a><a class="toc-link toc-link-level-2" href="#structural-indicators" data-docsmith-toc-link="structural-indicators">Structural indicators</a><a class="toc-link toc-link-level-2" href="#database-specific-cautions" data-docsmith-toc-link="database-specific-cautions">Database-specific cautions</a><a class="toc-link toc-link-level-2" href="#references" data-docsmith-toc-link="references">References</a></nav></aside>
+    </div>
+    <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
+    <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>
+    <div class="search-overlay-panel">
+        <div class="search-overlay-input-wrap">
+            <svg class="search-overlay-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="search" class="search-overlay-input" placeholder="Search documentation..." aria-label="Search documentation" data-docsmith-search-overlay-input autocomplete="off">
+            <kbd class="search-overlay-hint">ESC</kbd>
+        </div>
+        <div class="search-overlay-results" data-docsmith-search-overlay-results></div>
+        <div class="search-overlay-empty" data-docsmith-search-overlay-empty hidden>No results found.</div>
+    </div>
+</div>
+</body>
+</html>

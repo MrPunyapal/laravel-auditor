@@ -30,6 +30,17 @@ php artisan auditor:rules --domain=database --applicable
 - Query inefficiencies: full-table scans on large tables, missing index coverage for common filters.
 - Relationship definitions inconsistent with schema or usage: `foreignId` that does not match the relationship, missing pivot table indexes, etc.
 
+
+## Structural migration risk review
+
+After capturing complete before-and-after snapshots with `php artisan auditor:snapshot --schema`, run:
+
+~~~bash
+php artisan auditor:migration-risk before.json after.json
+~~~
+
+Treat output as structural risk indicators only. Validate any table/column removals, nullability or type changes, new unique constraints, index builds and foreign key changes against migration code, actual data, and deployment order. New tables alone produce no risk indicator; a renamed table can therefore appear as a removal of the old table only. Check the snapshot comparison for the added table. A clean indicator list does **not** prove that deployment is safe. Snapshot comparisons cannot tell whether migrations executed or what locks and downtime will occur. Use a disposable database for before/after changes and do not run migrations against production for analysis.
+
 ## Evidence requirements
 
 Every database finding needs at least:
