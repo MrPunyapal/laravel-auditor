@@ -71,7 +71,7 @@
 <li>Added and removed foreign keys: data-integrity, orphan-row and constraint-validation questions</li>
 </ul>
 <p>Each indicator includes a code, review level, schema/table/column location, explanation and recommended verification. The <code>coverage</code> field is <code>snapshot_structure_only</code> and <code>deployment_safety_verified</code> is always <code>false</code>.</p>
-<p><strong>No indicators does not mean safe.</strong> This feature cannot determine whether a migration file ran, whether it is reversible, whether production has compatible data, whether traffic will be blocked, or how long DDL will take. Renames can resemble removals and additions. Before/after snapshots do not capture column defaults or data.</p>
+<p><strong>No indicators does not mean safe.</strong> This feature cannot determine whether a migration file ran, whether it is reversible, whether production has compatible data, whether traffic will be blocked, or how long DDL will take. It does not pair renamed objects: because a new table alone produces no risk indicator, a table rename appears as a removal indicator for the old table only. Check the snapshot comparison and migration source to identify the corresponding addition. Before/after snapshots do not capture column defaults or data.</p>
 <h2 id="database-specific-cautions">Database-specific cautions</h2>
 <ul>
 <li><strong>MySQL / MariaDB:</strong> DDL performance depends on server version, storage engine and <code>ALGORITHM</code>/<code>LOCK</code> support. A metadata-only change may still encounter metadata-lock waits.</li>
