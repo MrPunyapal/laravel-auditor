@@ -300,6 +300,13 @@ final class MigrationSourceInspector
             return null;
         }
 
+        $after = $this->next($tokens, $first + 1);
+
+        if ($after < $close && $tokens[$after]['text'] !== ',') {
+            // A string concatenation or other expression is not a literal identifier.
+            return null;
+        }
+
         $quote = $tokens[$first]['text'][0];
         $value = substr($tokens[$first]['text'], 1, -1);
 
