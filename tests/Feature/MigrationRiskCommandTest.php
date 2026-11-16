@@ -25,6 +25,7 @@ it('reports migration risk indicators from saved schema snapshots', function () 
     try {
         file_put_contents($beforePath, json_encode($before, JSON_THROW_ON_ERROR));
         file_put_contents($afterPath, json_encode($after, JSON_THROW_ON_ERROR));
+        file_put_contents($outputPath, 'existing output');
 
         expect(Artisan::call('auditor:migration-risk', ['before' => $beforePath, 'after' => $afterPath]))->toBe(0);
 
@@ -71,6 +72,26 @@ it('refuses missing input without creating an output', function () {
         'before' => $missing, 'after' => $missing, '--output' => $output,
     ]))->toBe(1)
         ->and(is_file($output))->toBeFalse();
+});
+
+it('rejects malformed JSON without creating an output file', function () {
+    $malformed = sys_get_temp_dir().'/auditor-risk-malformed-'.uniqid().'.json';
+    $output = sys_get_temp_dir().'/auditor-risk-malformed-output-'.uniqid().'.json';
+
+    try {
+        file_put_contents($malformed, '{"sections":');
+
+        expect(Artisan::call('auditor:migration-risk', [
+            'before' => $malformed,
+            'after' => $malformed,
+            '--output' => $output,
+        ]))->toBe(1)
+            ->and(is_file($output))->toBeFalse();
+    } finally {
+        if (is_file($malformed)) {
+            unlink($malformed);
+        }
+    }
 });
 
 it('refuses an output path that resolves to either input snapshot', function () {
