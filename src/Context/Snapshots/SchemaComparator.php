@@ -133,6 +133,8 @@ final class SchemaComparator
             $names[$index['name']] = true;
         }
 
+        $foreignKeys = [];
+
         foreach ($table['foreign_keys'] as $key) {
             if (! is_array($key) || ! $this->columnList($key['columns'] ?? null) ||
                 ! $this->columnList($key['foreign_columns'] ?? null) ||
@@ -146,6 +148,22 @@ final class SchemaComparator
                     throw new RuntimeException('Invalid foreign key metadata in schema snapshot.');
                 }
             }
+
+            $identity = json_encode([
+                $key['name'],
+                $key['columns'],
+                $key['foreign_schema'],
+                $key['foreign_table'],
+                $key['foreign_columns'],
+                $key['on_update'],
+                $key['on_delete'],
+            ], JSON_THROW_ON_ERROR);
+
+            if (isset($foreignKeys[$identity])) {
+                throw new RuntimeException('Duplicate foreign key in schema snapshot.');
+            }
+
+            $foreignKeys[$identity] = true;
         }
     }
 
