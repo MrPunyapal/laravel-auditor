@@ -36,7 +36,7 @@ The result identifies:
 
 Each indicator includes a code, review level, schema/table/column location, explanation and recommended verification. The `coverage` field is `snapshot_structure_only` and `deployment_safety_verified` is always `false`.
 
-**No indicators does not mean safe.** This feature cannot determine whether a migration file ran, whether it is reversible, whether production has compatible data, whether traffic will be blocked, or how long DDL will take. Renames can resemble removals and additions. Before/after snapshots do not capture column defaults or data.
+**No indicators does not mean safe.** This feature cannot determine whether a migration file ran, whether it is reversible, whether production has compatible data, whether traffic will be blocked, or how long DDL will take. It does not pair renamed objects: because a new table alone produces no risk indicator, a table rename appears as a removal indicator for the old table only. Check the snapshot comparison and migration source to identify the corresponding addition. Before/after snapshots do not capture column defaults or data.
 
 ## Database-specific cautions
 

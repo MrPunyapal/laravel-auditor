@@ -14,5 +14,6 @@ it('documents the read-only schema comparison limitations', function () {
     $documentation = file_get_contents(__DIR__.'/../../md/migration-risk.md');
 
     expect($documentation)->toContain('deployment_safety_verified', 'snapshot_structure_only', 'disposable database')
+        ->and($documentation)->toContain('table rename appears as a removal indicator')
         ->and($documentation)->not->toBeEmpty();
 });

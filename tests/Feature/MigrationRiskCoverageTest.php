@@ -26,7 +26,7 @@ it('flags removed indexes and foreign keys without reporting a safe migration', 
         ->and($result['deployment_safety_verified'])->toBeFalse();
 });
 
-it('does not claim dropped columns inside a newly created table', function () {
+it('does not treat a new table alone as a risk indicator', function () {
     $before = app(SnapshotBuilder::class)->capture();
     $before['sections']['schema'] = ['driver' => 'sqlite', 'tables' => []];
     $after = $before;
@@ -39,6 +39,23 @@ it('does not claim dropped columns inside a newly created table', function () {
 
     expect($result['has_indicators'])->toBeFalse()
         ->and($result['deployment_safety_verified'])->toBeFalse();
+});
+
+it('reports a table rename as removal of the old table only', function () {
+    $before = app(SnapshotBuilder::class)->capture();
+    $before['sections']['schema'] = ['driver' => 'sqlite', 'tables' => [[
+        'name' => 'legacy_orders', 'schema' => null,
+        'columns' => [['name' => 'id', 'type' => 'integer', 'nullable' => false]],
+        'indexes' => [], 'foreign_keys' => [],
+    ]]];
+    $after = $before;
+    $after['sections']['schema']['tables'][0]['name'] = 'orders';
+
+    $result = app(MigrationRiskAnalyzer::class)->analyze($before, $after);
+
+    expect($result['indicators'])->toHaveCount(1)
+        ->and($result['indicators'][0]['code'])->toBe('table_removed')
+        ->and($result['indicators'][0]['table'])->toBe('legacy_orders');
 });
 
 it('distinguishes modified, renamed and composite indexes', function () {
