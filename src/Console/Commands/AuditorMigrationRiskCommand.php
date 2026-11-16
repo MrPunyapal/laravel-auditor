@@ -30,8 +30,10 @@ final class AuditorMigrationRiskCommand extends Command
     public function handle(): int
     {
         try {
-            $before = $this->load((string) $this->argument('before'));
-            $after = $this->load((string) $this->argument('after'));
+            $beforePath = (string) $this->argument('before');
+            $afterPath = (string) $this->argument('after');
+            $before = $this->load($beforePath);
+            $after = $this->load($afterPath);
             $content = json_encode(
                 $this->analyzer->analyze($before, $after),
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
@@ -45,6 +47,12 @@ final class AuditorMigrationRiskCommand extends Command
         $output = $this->option('output');
 
         if (is_string($output) && $output !== '') {
+            if ($this->outputResolvesToInput($output, $beforePath, $afterPath)) {
+                $this->components->error('--output must not resolve to either input snapshot.');
+
+                return self::FAILURE;
+            }
+
             if (@file_put_contents($output, $content) === false) {
                 $this->components->error("Risk analysis could not be written to [{$output}].");
 
@@ -59,6 +67,34 @@ final class AuditorMigrationRiskCommand extends Command
         $this->line(rtrim($content));
 
         return self::SUCCESS;
+    }
+
+    private function outputResolvesToInput(string $output, string $before, string $after): bool
+    {
+        $outputPath = realpath($output);
+
+        if ($outputPath === false) {
+            return false;
+        }
+
+        foreach ([$before, $after] as $input) {
+            $inputPath = realpath($input);
+            $outputStat = @stat($output);
+            $inputStat = @stat($input);
+            $sameFile = $inputPath !== false && (DIRECTORY_SEPARATOR === '\\'
+                ? strcasecmp($outputPath, $inputPath) === 0
+                : $outputPath === $inputPath);
+            $sameFileIdentity = $outputStat !== false && $inputStat !== false
+                && $outputStat['dev'] === $inputStat['dev']
+                && $outputStat['ino'] !== 0
+                && $outputStat['ino'] === $inputStat['ino'];
+
+            if ($sameFile || $sameFileIdentity) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -105,18 +105,18 @@ final class MigrationRiskAnalyzer
 
             foreach (array_diff_key($beforeKeys, $afterKeys) as $key) {
                 $this->add($indicators, 'foreign_key_removed', 'review', $table, null,
-                    'Foreign key constraint removed.', 'Verify that referential integrity is preserved.');
+                    'Foreign key constraint removed.', 'Verify that referential integrity is preserved.', $this->foreignKeyEvidence($key));
             }
 
             foreach (array_diff_key($afterKeys, $beforeKeys) as $key) {
                 $this->add($indicators, 'foreign_key_added', 'review', $table, null,
-                    'Foreign key constraint added or changed.', 'Check existing orphaned rows, cascading actions and validation locks.');
+                    'Foreign key constraint added or changed.', 'Check existing orphaned rows, cascading actions and validation locks.', $this->foreignKeyEvidence($key));
             }
         }
 
         usort($indicators, static fn (array $a, array $b): int => strcmp(
-            json_encode([$a['schema'], $a['table'], $a['column'], $a['code'], $a['message']], JSON_THROW_ON_ERROR),
-            json_encode([$b['schema'], $b['table'], $b['column'], $b['code'], $b['message']], JSON_THROW_ON_ERROR),
+            json_encode([$a['schema'], $a['table'], $a['column'], $a['code'], $a['message'], $a['constraint'] ?? null], JSON_THROW_ON_ERROR),
+            json_encode([$b['schema'], $b['table'], $b['column'], $b['code'], $b['message'], $b['constraint'] ?? null], JSON_THROW_ON_ERROR),
         ));
 
         return [
@@ -171,12 +171,30 @@ final class MigrationRiskAnalyzer
     }
 
     /**
+     * @param  array<string, mixed>  $key
+     * @return array<string, mixed>
+     */
+    private function foreignKeyEvidence(array $key): array
+    {
+        return [
+            'name' => $key['name'],
+            'columns' => array_values($key['columns']),
+            'foreign_schema' => $key['foreign_schema'],
+            'foreign_table' => $key['foreign_table'],
+            'foreign_columns' => array_values($key['foreign_columns']),
+            'on_update' => $key['on_update'],
+            'on_delete' => $key['on_delete'],
+        ];
+    }
+
+    /**
      * @param  list<array<string, mixed>>  $indicators
      * @param  array<string, mixed>  $table
+     * @param  array<string, mixed>|null  $constraint
      */
-    private function add(array &$indicators, string $code, string $level, array $table, ?string $column, string $message, string $verification): void
+    private function add(array &$indicators, string $code, string $level, array $table, ?string $column, string $message, string $verification, ?array $constraint = null): void
     {
-        $indicators[] = [
+        $indicator = [
             'code' => $code,
             'level' => $level,
             'schema' => $table['schema'] ?? null,
@@ -185,5 +203,11 @@ final class MigrationRiskAnalyzer
             'message' => $message,
             'verify' => $verification,
         ];
+
+        if ($constraint !== null) {
+            $indicator['constraint'] = $constraint;
+        }
+
+        $indicators[] = $indicator;
     }
 }

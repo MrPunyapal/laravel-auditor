@@ -72,3 +72,66 @@ it('refuses missing input without creating an output', function () {
     ]))->toBe(1)
         ->and(is_file($output))->toBeFalse();
 });
+
+it('refuses an output path that resolves to either input snapshot', function () {
+    $beforePath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'auditor-risk-before-'.uniqid().'.json';
+    $afterPath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'auditor-risk-after-'.uniqid().'.json';
+    $before = app(SnapshotBuilder::class)->capture();
+    $before['sections']['schema'] = ['driver' => 'sqlite', 'tables' => []];
+    $after = $before;
+    $beforeContent = json_encode($before, JSON_THROW_ON_ERROR);
+    $afterContent = json_encode($after, JSON_THROW_ON_ERROR);
+
+    try {
+        file_put_contents($beforePath, $beforeContent);
+        file_put_contents($afterPath, $afterContent);
+
+        foreach ([
+            [$beforePath, $beforePath, $beforeContent],
+            [$afterPath, dirname($afterPath).DIRECTORY_SEPARATOR.'.'.DIRECTORY_SEPARATOR.basename($afterPath), $afterContent],
+        ] as [$inputPath, $outputPath, $expectedContent]) {
+            expect(Artisan::call('auditor:migration-risk', [
+                'before' => $beforePath,
+                'after' => $afterPath,
+                '--output' => $outputPath,
+            ]))->toBe(1)
+                ->and(file_get_contents($inputPath))->toBe($expectedContent);
+        }
+
+        $symlinkPath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'auditor-risk-before-link-'.uniqid().'.json';
+
+        if (function_exists('symlink') && @symlink($beforePath, $symlinkPath)) {
+            try {
+                expect(Artisan::call('auditor:migration-risk', [
+                    'before' => $beforePath,
+                    'after' => $afterPath,
+                    '--output' => $symlinkPath,
+                ]))->toBe(1)
+                    ->and(file_get_contents($beforePath))->toBe($beforeContent);
+            } finally {
+                unlink($symlinkPath);
+            }
+        }
+
+        $hardLinkPath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'auditor-risk-before-hard-link-'.uniqid().'.json';
+
+        if (function_exists('link') && @link($beforePath, $hardLinkPath)) {
+            try {
+                expect(Artisan::call('auditor:migration-risk', [
+                    'before' => $beforePath,
+                    'after' => $afterPath,
+                    '--output' => $hardLinkPath,
+                ]))->toBe(1)
+                    ->and(file_get_contents($beforePath))->toBe($beforeContent);
+            } finally {
+                unlink($hardLinkPath);
+            }
+        }
+    } finally {
+        foreach ([$beforePath, $afterPath] as $path) {
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+    }
+});
