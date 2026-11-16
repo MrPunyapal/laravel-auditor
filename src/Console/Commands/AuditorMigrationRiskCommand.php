@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelAuditor\Console\Commands;
 
 use Illuminate\Console\Command;
+use LaravelAuditor\Context\Migrations\MigrationDriverAdvisor;
 use LaravelAuditor\Context\Migrations\MigrationRiskAnalyzer;
 use LaravelAuditor\Context\Migrations\MigrationSourceReview;
 use RuntimeException;
@@ -19,12 +20,14 @@ final class AuditorMigrationRiskCommand extends Command
         {before : Path to a schema-enabled snapshot before the change}
         {after : Path to a schema-enabled snapshot after the change}
         {--migration=* : Analyze a registered migration PHP file (repeatable)}
+        {--driver-guidance : Include conditional database-specific review questions}
         {--output= : Write structured indicators to JSON instead of stdout}';
 
     protected $description = 'Identify possible migration risks from two complete database schema snapshots.';
 
     public function __construct(
         private readonly MigrationRiskAnalyzer $analyzer,
+        private readonly MigrationDriverAdvisor $advisor,
         private readonly MigrationSourceReview $sourceReview,
     ) {
         parent::__construct();
@@ -44,6 +47,10 @@ final class AuditorMigrationRiskCommand extends Command
                 $analysis['source_review'] = $this->sourceReview->review($migrations);
                 $analysis['coverage'] = 'snapshot_structure_plus_selected_php_source';
                 $analysis['limitations'][0] = 'Only recognized patterns in explicitly selected migration source files were inspected. Other migration code was not analyzed.';
+            }
+
+            if ((bool) $this->option('driver-guidance')) {
+                $analysis['driver_review'] = $this->advisor->review($analysis);
             }
 
             $content = json_encode(
