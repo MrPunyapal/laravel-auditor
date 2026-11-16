@@ -40,3 +40,66 @@ it('does not claim dropped columns inside a newly created table', function () {
     expect($result['has_indicators'])->toBeFalse()
         ->and($result['deployment_safety_verified'])->toBeFalse();
 });
+
+it('distinguishes modified, renamed and composite indexes', function () {
+    $before = app(SnapshotBuilder::class)->capture();
+    $table = [
+        'name' => 'orders', 'schema' => null,
+        'columns' => [
+            ['name' => 'account_id', 'type' => 'integer', 'nullable' => false],
+            ['name' => 'team_id', 'type' => 'integer', 'nullable' => false],
+            ['name' => 'slug', 'type' => 'varchar', 'nullable' => false],
+            ['name' => 'label', 'type' => 'varchar', 'nullable' => false],
+        ],
+        'indexes' => [
+            ['name' => 'orders_legacy_lookup', 'columns' => ['account_id', 'slug'], 'unique' => false],
+            ['name' => 'orders_team_lookup', 'columns' => ['team_id', 'slug'], 'unique' => false],
+        ],
+        'foreign_keys' => [],
+    ];
+    $before['sections']['schema'] = ['driver' => 'pgsql', 'tables' => [$table]];
+    $after = $before;
+    $after['sections']['schema']['tables'][0]['indexes'] = [
+        ['name' => 'orders_account_lookup', 'columns' => ['account_id', 'slug'], 'unique' => false],
+        ['name' => 'orders_team_lookup', 'columns' => ['team_id', 'label'], 'unique' => false],
+        ['name' => 'orders_team_slug_unique', 'columns' => ['team_id', 'slug'], 'unique' => true],
+    ];
+
+    $result = app(MigrationRiskAnalyzer::class)->analyze($before, $after);
+    $messages = array_column($result['indicators'], 'message');
+
+    expect(array_column($result['indicators'], 'code'))->toContain('index_removed', 'index_added', 'index_changed', 'unique_index_added')
+        ->and($messages)->toContain(
+            'Index removed: orders_legacy_lookup.',
+            'Index added: orders_account_lookup.',
+            'Index definition changed: orders_team_lookup.',
+            'Unique index added: orders_team_slug_unique.',
+        );
+});
+
+it('retains composite foreign-key evidence when a target definition changes', function () {
+    $before = app(SnapshotBuilder::class)->capture();
+    $table = [
+        'name' => 'order_items', 'schema' => 'tenant_one',
+        'columns' => [
+            ['name' => 'tenant_id', 'type' => 'integer', 'nullable' => false],
+            ['name' => 'order_id', 'type' => 'integer', 'nullable' => false],
+        ],
+        'indexes' => [],
+        'foreign_keys' => [[
+            'name' => 'order_items_order_fk', 'columns' => ['tenant_id', 'order_id'],
+            'foreign_schema' => 'tenant_one', 'foreign_table' => 'orders',
+            'foreign_columns' => ['tenant_id', 'id'], 'on_update' => 'cascade', 'on_delete' => 'restrict',
+        ]],
+    ];
+    $before['sections']['schema'] = ['driver' => 'pgsql', 'tables' => [$table]];
+    $after = $before;
+    $after['sections']['schema']['tables'][0]['foreign_keys'][0]['on_delete'] = 'cascade';
+
+    $result = app(MigrationRiskAnalyzer::class)->analyze($before, $after);
+    $constraints = array_column($result['indicators'], 'constraint');
+
+    expect(array_column($result['indicators'], 'code'))->toContain('foreign_key_removed', 'foreign_key_added')
+        ->and($constraints)->toContain($table['foreign_keys'][0])
+        ->and($constraints)->toContain($after['sections']['schema']['tables'][0]['foreign_keys'][0]);
+});
