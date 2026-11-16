@@ -15,6 +15,7 @@ use LaravelAuditor\Console\Commands\AuditorContextCommand;
 use LaravelAuditor\Console\Commands\AuditorDependencyFindingsCommand;
 use LaravelAuditor\Console\Commands\AuditorInstallCommand;
 use LaravelAuditor\Console\Commands\AuditorMcpCommand;
+use LaravelAuditor\Console\Commands\AuditorMigrationRiskCommand;
 use LaravelAuditor\Console\Commands\AuditorReportCommand;
 use LaravelAuditor\Console\Commands\AuditorRulesCommand;
 use LaravelAuditor\Console\Commands\AuditorSnapshotCommand;
@@ -98,6 +99,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
                 AuditorSnapshotCommand::class,
                 AuditorContextCommand::class,
                 AuditorCompareCommand::class,
+                AuditorMigrationRiskCommand::class,
                 AuditorDependencyFindingsCommand::class,
                 AuditorCiCommand::class,
                 AuditorMcpCommand::class,
