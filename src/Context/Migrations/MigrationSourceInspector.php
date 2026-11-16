@@ -22,7 +22,7 @@ final class MigrationSourceInspector
         try {
             $tokens = $this->tokens($source);
         } catch (ParseError $e) {
-            return $this->result([], false, 'The migration source is not valid PHP: '.$e->getMessage());
+            return $this->result([], false, 'The migration source is not valid PHP.');
         }
 
         $up = $this->methodBody($tokens, 'up');
@@ -94,8 +94,9 @@ final class MigrationSourceInspector
             // Do not jump past nested Schema calls: closures can contain them.
         }
 
-        usort($indicators, static fn (array $a, array $b): int =>
-            [$a['line'], $a['code'], $a['table'], $a['column']] <=> [$b['line'], $b['code'], $b['table'], $b['column']]);
+        usort($indicators, static function (array $a, array $b): int {
+            return [$a['line'], $a['code'], $a['table'], $a['column']] <=> [$b['line'], $b['code'], $b['table'], $b['column']];
+        });
 
         return $this->result($indicators, true, null);
     }
