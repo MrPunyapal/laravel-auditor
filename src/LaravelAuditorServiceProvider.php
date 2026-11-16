@@ -33,6 +33,7 @@ use LaravelAuditor\Context\Collectors\RoutesCollector;
 use LaravelAuditor\Context\Collectors\SubsystemsCollector;
 use LaravelAuditor\Context\Collectors\TestsCollector;
 use LaravelAuditor\Context\ContextRegistry;
+use LaravelAuditor\Context\Migrations\MigrationRiskAnalyzer;
 use LaravelAuditor\Context\ProjectContext;
 use LaravelAuditor\Context\Snapshots\SnapshotBuilder;
 use LaravelAuditor\Context\Snapshots\SnapshotComparator;
@@ -170,6 +171,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
             $app->make('router'),
         ));
         $this->app->singleton(SnapshotComparator::class);
+        $this->app->singleton(MigrationRiskAnalyzer::class);
         $this->app->singleton(ChangedFilesOptions::class);
         $this->app->singleton(GitStatus::class, static fn (): GitStatus => new GitStatus(base_path()));
         $this->app->singleton(ChangedFilesCollector::class);
