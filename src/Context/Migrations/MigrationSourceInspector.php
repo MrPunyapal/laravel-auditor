@@ -21,7 +21,7 @@ final class MigrationSourceInspector
     {
         try {
             $tokens = $this->tokens($source);
-        } catch (ParseError $e) {
+        } catch (ParseError) {
             return $this->result([], false, 'The migration source is not valid PHP.');
         }
 
@@ -303,8 +303,8 @@ final class MigrationSourceInspector
         $quote = $tokens[$first]['text'][0];
         $value = substr($tokens[$first]['text'], 1, -1);
 
-        if ($quote === "'") {
-            $value = str_replace(["\\\\", "\\'"], ["\\", "'"], $value);
+        if ($quote === chr(39)) {
+            $value = str_replace([chr(92).chr(92), chr(92).chr(39)], [chr(92), chr(39)], $value);
         } else {
             $value = stripcslashes($value);
         }
@@ -322,8 +322,12 @@ final class MigrationSourceInspector
         for ($i = $open, $count = count($tokens); $i < $count; $i++) {
             if ($tokens[$i]['text'] === $left) {
                 $depth++;
-            } elseif ($tokens[$i]['text'] === $right && --$depth === 0) {
-                return $i;
+            } elseif ($tokens[$i]['text'] === $right) {
+                $depth--;
+
+                if ($depth === 0) {
+                    return $i;
+                }
             }
         }
 
