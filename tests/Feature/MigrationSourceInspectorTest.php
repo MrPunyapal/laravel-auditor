@@ -71,7 +71,6 @@ it('flags unknown blueprint callbacks instead of interpreting them as safe', fun
     expect(array_column($result['indicators'], 'code'))->toBe(['unresolved_schema_callback']);
 });
 
-
 it('does not infer concrete table names from concatenated expressions', function () {
     $php = <<<'PHP'
 <?php
