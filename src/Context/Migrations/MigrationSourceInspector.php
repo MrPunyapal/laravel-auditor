@@ -226,6 +226,22 @@ final class MigrationSourceInspector
 
             $body = $this->next($tokens, $paramsEnd + 1);
 
+            if (($tokens[$body]['id'] ?? null) === T_USE) {
+                $usesOpen = $this->next($tokens, $body + 1);
+
+                if (($tokens[$usesOpen]['text'] ?? null) !== '(') {
+                    return null;
+                }
+
+                $usesEnd = $this->matching($tokens, $usesOpen, '(', ')');
+
+                if ($usesEnd === null || $usesEnd >= $close) {
+                    return null;
+                }
+
+                $body = $this->next($tokens, $usesEnd + 1);
+            }
+
             if (($tokens[$body]['text'] ?? null) === ':') {
                 while ($body < $close && $tokens[$body]['text'] !== '{') {
                     $body++;

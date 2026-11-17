@@ -86,6 +86,26 @@ it('fails closed on invalid PHP instead of silently returning no risks', functio
         ->and($result['reason'])->toContain('not valid PHP');
 });
 
+it('inspects blueprint closures with captured variables', function () {
+    $php = <<<'PHP'
+<?php
+return new class {
+    public function up(): void {
+        Schema::table('users', function (Blueprint $table) use ($context): void {
+            $table->dropColumn('legacy_code');
+        });
+    }
+};
+PHP;
+
+    $result = (new MigrationSourceInspector)->inspect($php);
+
+    expect($result['up_found'])->toBeTrue()
+        ->and(array_column($result['indicators'], 'code'))->toBe(['source_blueprint_dropcolumn'])
+        ->and($result['indicators'][0]['table'])->toBe('users')
+        ->and($result['indicators'][0]['column'])->toBe('legacy_code');
+});
+
 it('flags unknown blueprint callbacks instead of interpreting them as safe', function () {
     $php = '<?php class M { public function up() { Schema::table("users", $this->callback()); } }';
     $result = (new MigrationSourceInspector)->inspect($php);
