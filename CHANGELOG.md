@@ -2,6 +2,14 @@
 
 ## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.4.0...HEAD)
 
+### Added
+
+- Structural migration risk indicators from complete before-and-after schema snapshots, plus opt-in static review of selected registered migrations and conditional database-driver guidance.
+
+### Fixed
+
+- Static migration review detects constrained foreign-id columns, fails closed on ambiguous `up()` methods, and prevents output files from overwriting selected migration sources.
+
 ## [v0.4.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.1...v0.4.0) - 2026-11-16
 
 ### Added
