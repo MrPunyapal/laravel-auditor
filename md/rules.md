@@ -42,7 +42,7 @@ The authoritative definitions live in `resources/auditor/rules/*.php`. The human
 
 ## Core domains
 
-0.1.x ships 85 rules across six core domains:
+The current catalog has 85 rules across six core domains:
 
 | Domain | What it looks for |
 | --- | --- |

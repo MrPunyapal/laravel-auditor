@@ -7,7 +7,7 @@ order: 2
 slug: installation
 ---
 
-Laravel Auditor is an **early 0.1.x** development dependency. It is an engineering tool used during auditing, not a runtime requirement and not a scanner that runs on its own.
+Laravel Auditor is an **early 0.x** development dependency. It is an engineering tool used during auditing, not a runtime requirement and not a scanner that runs on its own.
 
 ```bash
 composer require --dev mrpunyapal/laravel-auditor

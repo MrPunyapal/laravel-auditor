@@ -16,9 +16,9 @@ Laravel Auditor equips an existing AI coding agent with a specialized, evidence-
 
 **Docs:** [mrpunyapal.github.io/laravel-auditor](https://mrpunyapal.github.io/laravel-auditor)
 
-This is **early 0.1.x**. Install it as a development dependency, wire it into Claude / Codex / Cursor / Boost (or another agent), and ask that agent to audit. It is **not** a one-click scanner or an autonomous product. Finding quality depends on the agent following the skill.
+This is an **early 0.x development tool**. Install it as a development dependency, wire it into Claude / Codex / Cursor / Boost (or another agent), and ask that agent to audit. It is **not** a one-click scanner or an autonomous product. Finding quality depends on the agent following the skill.
 
-Requirements: **PHP 8.3+**, **Laravel 12 or 13**. Command names, config keys, MCP tool names, finding fields, and rule IDs stay compatible across 0.1.x.
+Requirements: **PHP 8.3+**, **Laravel 12 or 13**. Documented command, config, MCP, finding, and rule interfaces are maintained for backward compatibility across 0.x releases.
 
 ## Why it exists
 

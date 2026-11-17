@@ -8,7 +8,7 @@
 
 ### Fixed
 
-- Static migration review detects constrained foreign-id columns, fails closed on ambiguous `up()` methods, and prevents output files from overwriting selected migration sources.
+- Static migration review detects constrained foreign-id columns, supports blueprint callbacks with captured variables, fails closed on ambiguous `up()` methods, and prevents output files from overwriting selected migration sources.
 
 ## [v0.4.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.1...v0.4.0) - 2026-11-16
 

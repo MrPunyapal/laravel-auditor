@@ -10,9 +10,9 @@ sidebar_label: Overview
 
 Laravel Auditor gives an existing AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.
 
-It is an **early 0.1.x** development tool. It is **not** an autonomous scanner, a generic code-review prompt, or a replacement for Laravel Boost. You install it, open Claude / Codex / Cursor / Boost (or another agent), and ask it to audit. The agent remains the reasoning engine. Finding quality depends on that agent following the skill. Laravel Auditor provides the workflow, rules, finding schema, and read-only Laravel context tools.
+It is an **early 0.x development tool**. It is **not** an autonomous scanner, a generic code-review prompt, or a replacement for Laravel Boost. You install it, open Claude / Codex / Cursor / Boost (or another agent), and ask it to audit. The agent remains the reasoning engine. Finding quality depends on that agent following the skill. Laravel Auditor provides the workflow, rules, finding schema, and read-only Laravel context tools.
 
-Requirements: **PHP 8.3+** and **Laravel 12 or 13**. Public command names, config keys, MCP tool names, finding fields, and rule IDs are kept compatible across 0.1.x.
+Requirements: **PHP 8.3+** and **Laravel 12 or 13**. Documented command, config, MCP, finding, and rule interfaces are maintained for backward compatibility across 0.x releases.
 
 ## Why it exists
 
@@ -51,11 +51,11 @@ Laravel Auditor contributes seven things to the audit:
 | --- | --- |
 | **Skills** | Step-by-step audit workflows the agent follows |
 | **Guidelines** | Principles that govern every finding (evidence-first, read-only, no severity inflation) |
-| **Rules** | 75 audit criteria across 6 core domains, describing what to look for and what evidence is required |
-| **Context collectors** | 11 read-only tools that provide deterministic Laravel facts (routes, models, schema, etc.) |
+| **Rules** | 85 audit criteria across 6 core domains, describing what to look for and what evidence is required |
+| **Context collectors** | 13 read-only collectors that provide deterministic Laravel facts (routes, models, schema, etc.) |
 | **MCP server** | A bridge that lets a supported AI agent call the context tools directly |
 | **Finding schema** | A structured format for findings with severity, confidence, evidence, and recommendations |
-| **Report and CI tooling** | Commands that render findings as Markdown, JSON, text, or SARIF, and gate CI on severity |
+| **Report and CI tooling** | Commands that render findings as Markdown, JSON, text, or SARIF, and gate CI on severity, with optional GitHub Actions annotations |
 
 ## What the AI agent provides
 

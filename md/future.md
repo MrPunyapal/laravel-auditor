@@ -7,7 +7,7 @@ order: 10
 slug: future
 ---
 
-These features may influence later versions. They are **not** in 0.1.x and are not promises.
+These features may influence later versions. They are **not** included in the current release and are not promises.
 
 ## Legacy and standalone support
 
@@ -33,7 +33,7 @@ These features may influence later versions. They are **not** in 0.1.x and are n
 
 ## Reporting
 
-- **F7: Richer reporting** — HTML output, GitHub annotations, PR comments, TUI, IDE integration. SARIF is already available.
+- **F7: Richer reporting** — HTML output, PR comments, TUI, IDE integration. SARIF and GitHub Actions annotations are already available.
 
 ## Broader scope
 
