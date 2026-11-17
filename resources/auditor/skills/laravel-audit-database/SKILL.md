@@ -61,3 +61,9 @@ Every database finding needs at least:
 - `medium`: clear inefficiency or inconsistency with real impact.
 - `low`: minor schema hygiene.
 - `info`: observations.
+
+## Optional deeper migration review
+
+For complete before/after database schema snapshots, use `auditor:migration-risk before.json after.json`. Add repeatable `--migration=path/to/registered/migration.php` to inspect recognized source patterns in `up()` without executing PHP. Add `--driver-guidance` for conditional database-specific review questions.
+
+Review dynamic SQL, helper methods, conditional execution, backfill, transaction behavior and rollback/deployment order manually. The inspector does not prove which migration ran and never certifies deployment safety. Source coverage is limited to explicitly selected registered migrations.

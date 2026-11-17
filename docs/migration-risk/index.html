@@ -83,10 +83,31 @@
 <ul>
 <li><a href="https://laravel.com/docs/13.x/migrations">Laravel migrations</a></li>
 <li><a href="https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html">MySQL 8.4 online DDL</a></li>
+<li><a href="https://mariadb.com/docs/server/reference/sql-statements/data-definition/alter/alter-table">MariaDB ALTER TABLE</a></li>
 <li><a href="https://www.postgresql.org/docs/current/sql-altertable.html">PostgreSQL ALTER TABLE</a></li>
 <li><a href="https://www.postgresql.org/docs/current/sql-createindex.html">PostgreSQL CREATE INDEX</a></li>
 <li><a href="https://sqlite.org/lang_altertable.html">SQLite ALTER TABLE</a></li>
 </ul>
+<h2 id="optional-migration-source-and-database-driver-review">Optional migration source and database-driver review</h2>
+<p>The structural comparison cannot tell which migration ran. To inspect recognized PHP calls in <strong>explicitly selected</strong> migration files, add one or more <code>--migration</code> options. Only files from Laravel's registered migration paths are accepted.</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:migration-risk</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">before.json</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">after.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-migration=database/migrations/2026_11_17_000000_change_users.php</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-driver-guidance</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-output=migration-review.json</span><span class="token">
+</span></span></code></pre>
+<p>The scanner tokenizes migration PHP in <code>up()</code> without <code>require</code>, <code>include</code>, or executing the code. It recognizes common <code>Schema::drop</code>, <code>Schema::rename</code>, <code>Schema::table</code> blueprint changes, and direct <code>DB::statement</code> / <code>DB::unprepared</code> calls. It flags unresolved callbacks for manual review. It does <strong>not</strong> interpret conditions, aliases, custom helpers, macros, computed targets, arbitrary SQL, <code>down()</code>, or the full application call graph. It reports source occurrences, not executed operations.</p>
+<p>The option is restricted to registered migration PHP files (at most 50 files, each at most 1 MiB). An invalid/unreadable migration or missing <code>up()</code> fails the command rather than returning a misleading empty report. Source code and SQL strings are not copied into the report.</p>
+<p><code>--driver-guidance</code> adds conditional review questions for MySQL, MariaDB, PostgreSQL and SQLite using the driver captured in the snapshots. It makes <strong>no</strong> claims about actual server version, lock duration, concurrent traffic, table sizes, rebuild cost, or deployment safety. Unsupported database drivers receive no inferred driver-specific advice.</p>
+<p>All new flags are opt-in. Without them, the existing snapshot-risk JSON output remains unchanged.</p>
+<h3 id="reviewing-actual-deployment-risk">Reviewing actual deployment risk</h3>
+<p>A complete production review still needs migration source, data checks, schema constraints, transaction and locking policy, deployment/rollback plan, and realistic workload tests. In particular:</p>
+<ul>
+<li><strong>MySQL:</strong> <code>INSTANT</code>, <code>INPLACE</code> and <code>COPY</code> eligibility varies by operation and storage engine; metadata locks can wait for active transactions.</li>
+<li><strong>MariaDB:</strong> <code>ALGORITHM</code> and <code>LOCK</code> behavior is version-dependent; support for online table copies varies.</li>
+<li><strong>PostgreSQL:</strong> many <code>ALTER TABLE</code> subcommands require strong locks; ordinary index builds may block writes, while <code>CONCURRENTLY</code> has additional restrictions. Constraint validation can sometimes be separated.</li>
+<li><strong>SQLite:</strong> dropping a column rewrites data and may fail when triggers, indexes, views or constraints reference the column.</li>
+</ul>
+<p>No indicators means <strong>only</strong> that this limited analysis found no recognized indicator. It is not a declaration that migrations or a deployment are safe.</p>
 
                 </div>
                 <footer class="doc-meta">
@@ -95,7 +116,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../security-monitoring/"><span>Previous</span><strong>Scheduled dependency security checks</strong></a></nav>
         </main>
-        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#capture-and-compare" data-docsmith-toc-link="capture-and-compare">Capture and compare</a><a class="toc-link toc-link-level-2" href="#structural-indicators" data-docsmith-toc-link="structural-indicators">Structural indicators</a><a class="toc-link toc-link-level-2" href="#database-specific-cautions" data-docsmith-toc-link="database-specific-cautions">Database-specific cautions</a><a class="toc-link toc-link-level-2" href="#references" data-docsmith-toc-link="references">References</a></nav></aside>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#capture-and-compare" data-docsmith-toc-link="capture-and-compare">Capture and compare</a><a class="toc-link toc-link-level-2" href="#structural-indicators" data-docsmith-toc-link="structural-indicators">Structural indicators</a><a class="toc-link toc-link-level-2" href="#database-specific-cautions" data-docsmith-toc-link="database-specific-cautions">Database-specific cautions</a><a class="toc-link toc-link-level-2" href="#references" data-docsmith-toc-link="references">References</a><a class="toc-link toc-link-level-2" href="#optional-migration-source-and-database-driver-review" data-docsmith-toc-link="optional-migration-source-and-database-driver-review">Optional migration source and database-driver review</a><a class="toc-link toc-link-level-3" href="#reviewing-actual-deployment-risk" data-docsmith-toc-link="reviewing-actual-deployment-risk">Reviewing actual deployment risk</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>
