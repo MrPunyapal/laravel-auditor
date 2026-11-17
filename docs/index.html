@@ -50,8 +50,8 @@
                 </header>
                 <div class="doc-body">
                     <p>Laravel Auditor gives an existing AI coding agent the specialized knowledge, structured context, and repeatable methodology it needs to audit a Laravel application well.</p>
-<p>It is an <strong>early 0.1.x</strong> development tool. It is <strong>not</strong> an autonomous scanner, a generic code-review prompt, or a replacement for Laravel Boost. You install it, open Claude / Codex / Cursor / Boost (or another agent), and ask it to audit. The agent remains the reasoning engine. Finding quality depends on that agent following the skill. Laravel Auditor provides the workflow, rules, finding schema, and read-only Laravel context tools.</p>
-<p>Requirements: <strong>PHP 8.3+</strong> and <strong>Laravel 12 or 13</strong>. Public command names, config keys, MCP tool names, finding fields, and rule IDs are kept compatible across 0.1.x.</p>
+<p>It is an <strong>early 0.x development tool</strong>. It is <strong>not</strong> an autonomous scanner, a generic code-review prompt, or a replacement for Laravel Boost. You install it, open Claude / Codex / Cursor / Boost (or another agent), and ask it to audit. The agent remains the reasoning engine. Finding quality depends on that agent following the skill. Laravel Auditor provides the workflow, rules, finding schema, and read-only Laravel context tools.</p>
+<p>Requirements: <strong>PHP 8.3+</strong> and <strong>Laravel 12 or 13</strong>. Documented command, config, MCP, finding, and rule interfaces are maintained for backward compatibility across 0.x releases.</p>
 <h2 id="why-it-exists">Why it exists</h2>
 <p>AI agents can already read a Laravel codebase. Ask one to "audit my app" without specialized methodology and you will likely get:</p>
 <ul>
@@ -90,11 +90,11 @@
 </tr>
 <tr>
 <td><strong>Rules</strong></td>
-<td>75 audit criteria across 6 core domains, describing what to look for and what evidence is required</td>
+<td>85 audit criteria across 6 core domains, describing what to look for and what evidence is required</td>
 </tr>
 <tr>
 <td><strong>Context collectors</strong></td>
-<td>11 read-only tools that provide deterministic Laravel facts (routes, models, schema, etc.)</td>
+<td>13 read-only collectors that provide deterministic Laravel facts (routes, models, schema, etc.)</td>
 </tr>
 <tr>
 <td><strong>MCP server</strong></td>
@@ -106,7 +106,7 @@
 </tr>
 <tr>
 <td><strong>Report and CI tooling</strong></td>
-<td>Commands that render findings as Markdown, JSON, text, or SARIF, and gate CI on severity</td>
+<td>Commands that render findings as Markdown, JSON, text, or SARIF, and gate CI on severity, with optional GitHub Actions annotations</td>
 </tr>
 </tbody>
 </table></div>
