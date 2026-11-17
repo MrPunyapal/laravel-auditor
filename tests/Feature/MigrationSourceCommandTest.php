@@ -70,3 +70,37 @@ it('rejects unregistered source files and does not create the output', function 
         }
     }
 });
+
+it('does not allow output to overwrite a relative migration path from another working directory', function () {
+    $directory = database_path('migrations');
+    $file = $directory.DIRECTORY_SEPARATOR.'2030_01_01_000002_auditor_relative_source.php';
+    $snapshotPath = sys_get_temp_dir().'/auditor-source-relative-'.uniqid().'.json';
+    $originalCwd = getcwd();
+    $php = '<?php return new class { public function up() { Schema::drop("archived_data"); } };';
+    $snapshot = app(SnapshotBuilder::class)->capture();
+    $snapshot['sections']['schema'] = ['driver' => 'sqlite', 'tables' => []];
+
+    try {
+        file_put_contents($file, $php);
+        file_put_contents($snapshotPath, json_encode($snapshot, JSON_THROW_ON_ERROR));
+        chdir(sys_get_temp_dir());
+
+        expect(Artisan::call('auditor:migration-risk', [
+            'before' => $snapshotPath,
+            'after' => $snapshotPath,
+            '--migration' => ['database/migrations/'.basename($file)],
+            '--output' => $file,
+        ]))->toBe(1)
+            ->and(file_get_contents($file))->toBe($php);
+    } finally {
+        if (is_string($originalCwd)) {
+            chdir($originalCwd);
+        }
+
+        foreach ([$file, $snapshotPath] as $path) {
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+    }
+});

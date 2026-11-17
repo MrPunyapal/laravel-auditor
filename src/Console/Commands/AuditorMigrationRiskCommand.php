@@ -66,8 +66,10 @@ final class AuditorMigrationRiskCommand extends Command
         $output = $this->option('output');
 
         if (is_string($output) && $output !== '') {
-            if ($this->outputResolvesToInput($output, $beforePath, $afterPath, ...$migrations)) {
-                $this->components->error('--output must not resolve to either input snapshot.');
+            $migrationPaths = array_map(fn (string $path): string => $this->migrationPath($path), $migrations);
+
+            if ($this->outputResolvesToInput($output, $beforePath, $afterPath, ...$migrationPaths)) {
+                $this->components->error('--output must not resolve to an input snapshot or migration file.');
 
                 return self::FAILURE;
             }
@@ -114,6 +116,15 @@ final class AuditorMigrationRiskCommand extends Command
         }
 
         return false;
+    }
+
+    private function migrationPath(string $path): string
+    {
+        if (str_starts_with($path, '/') || preg_match('/^[a-zA-Z]:[\\\\\\/]/', $path) === 1) {
+            return $path;
+        }
+
+        return base_path($path);
     }
 
     /**

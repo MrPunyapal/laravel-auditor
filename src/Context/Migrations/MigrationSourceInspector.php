@@ -25,13 +25,17 @@ final class MigrationSourceInspector
             return $this->result([], false, 'The migration source is not valid PHP.');
         }
 
-        $up = $this->methodBody($tokens, 'up');
+        $upMethods = $this->methodBodies($tokens, 'up');
 
-        if ($up === null) {
+        if ($upMethods === []) {
             return $this->result([], false, 'No named up() method was found; migration behavior could not be inspected.');
         }
 
-        [$begin, $end] = $up;
+        if (count($upMethods) !== 1) {
+            return $this->result([], false, 'Multiple named up() methods were found; migration behavior could not be selected unambiguously.');
+        }
+
+        [$begin, $end] = $upMethods[0];
         $indicators = [];
 
         for ($i = $begin; $i < $end; $i++) {
@@ -148,7 +152,11 @@ final class MigrationSourceInspector
             } elseif (in_array($method, ['unique', 'foreign', 'index', 'primary'], true)) {
                 $indicators[] = $this->indicator('source_constraint_or_index', 'review', $line, $table, $column,
                     'Blueprint index or constraint operation appears in up().', 'Review duplicates, affected records and index build/validation costs.');
-            } elseif ($this->hasChainedChange($tokens, $close + 1, $end)) {
+            } elseif (in_array($method, ['foreignid', 'foreignuuid', 'foreignulid', 'foreignidfor'], true)
+                && $this->hasChainedCall($tokens, $close + 1, $end, 'constrained')) {
+                $indicators[] = $this->indicator('source_foreign_key_added', 'review', $line, $table, $column,
+                    'A constrained foreign-id column appears in up().', 'Check existing orphaned rows, referenced keys and constraint-validation behavior.');
+            } elseif ($this->hasChainedCall($tokens, $close + 1, $end, 'change')) {
                 $indicators[] = $this->indicator('source_column_change', 'review', $line, $table, $column,
                     'Blueprint column change appears in up().', 'Verify retained modifiers, conversion and database-specific rewrite behavior.');
             }
@@ -160,7 +168,7 @@ final class MigrationSourceInspector
     /**
      * @param  list<array{text: string, id: int|null, line: int}>  $tokens
      */
-    private function hasChainedChange(array $tokens, int $start, int $end): bool
+    private function hasChainedCall(array $tokens, int $start, int $end, string $method): bool
     {
         for ($i = $start; $i < $end; $i++) {
             if (in_array($tokens[$i]['text'], [';', '}', ','], true)) {
@@ -170,7 +178,7 @@ final class MigrationSourceInspector
             if ($tokens[$i]['text'] === '->') {
                 $next = $this->next($tokens, $i + 1);
 
-                if (strtolower($tokens[$next]['text'] ?? '') === 'change') {
+                if (strtolower($tokens[$next]['text'] ?? '') === $method) {
                     return true;
                 }
             }
@@ -238,10 +246,12 @@ final class MigrationSourceInspector
 
     /**
      * @param  list<array{text: string, id: int|null, line: int}>  $tokens
-     * @return array{int, int}|null
+     * @return list<array{int, int}>
      */
-    private function methodBody(array $tokens, string $method): ?array
+    private function methodBodies(array $tokens, string $method): array
     {
+        $bodies = [];
+
         foreach ($tokens as $i => $token) {
             if ($token['id'] !== T_FUNCTION) {
                 continue;
@@ -282,11 +292,11 @@ final class MigrationSourceInspector
             $end = $this->matching($tokens, $body, '{', '}');
 
             if ($end !== null) {
-                return [$body + 1, $end];
+                $bodies[] = [$body + 1, $end];
             }
         }
 
-        return null;
+        return $bodies;
     }
 
     /**
