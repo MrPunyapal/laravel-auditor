@@ -57,6 +57,28 @@ it('does not claim safety when up is absent', function () {
         ->and($result['reason'])->toContain('No named up() method');
 });
 
+it('fails closed when a file contains multiple up methods', function () {
+    $php = <<<'PHP'
+<?php
+class MigrationHelper {
+    public function up() {
+        Schema::table('helper_data', fn () => null);
+    }
+}
+return new class {
+    public function up() {
+        Schema::drop('sensitive_data');
+    }
+};
+PHP;
+
+    $result = (new MigrationSourceInspector)->inspect($php);
+
+    expect($result['up_found'])->toBeFalse()
+        ->and($result['indicators'])->toBe([])
+        ->and($result['reason'])->toContain('Multiple named up() methods');
+});
+
 it('fails closed on invalid PHP instead of silently returning no risks', function () {
     $result = (new MigrationSourceInspector)->inspect('<?php function up( {');
 
@@ -69,6 +91,25 @@ it('flags unknown blueprint callbacks instead of interpreting them as safe', fun
     $result = (new MigrationSourceInspector)->inspect($php);
 
     expect(array_column($result['indicators'], 'code'))->toBe(['unresolved_schema_callback']);
+});
+
+it('flags Laravel constrained foreignId blueprint calls', function () {
+    $php = <<<'PHP'
+<?php
+return new class {
+    public function up() {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->foreignId('account_id')->constrained();
+            $table->foreignId('legacy_reference');
+        });
+    }
+};
+PHP;
+
+    $result = (new MigrationSourceInspector)->inspect($php);
+
+    expect(array_column($result['indicators'], 'code'))->toBe(['source_foreign_key_added'])
+        ->and($result['indicators'][0]['column'])->toBe('account_id');
 });
 
 it('does not infer concrete table names from concatenated expressions', function () {
