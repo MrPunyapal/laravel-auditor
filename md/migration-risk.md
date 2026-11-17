@@ -50,6 +50,7 @@ Treat indicators as **review prompts**, not verified vulnerability findings and 
 
 - [Laravel migrations](https://laravel.com/docs/13.x/migrations)
 - [MySQL 8.4 online DDL](https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html)
+- [MariaDB ALTER TABLE](https://mariadb.com/docs/server/reference/sql-statements/data-definition/alter/alter-table)
 - [PostgreSQL ALTER TABLE](https://www.postgresql.org/docs/current/sql-altertable.html)
 - [PostgreSQL CREATE INDEX](https://www.postgresql.org/docs/current/sql-createindex.html)
 - [SQLite ALTER TABLE](https://sqlite.org/lang_altertable.html)
