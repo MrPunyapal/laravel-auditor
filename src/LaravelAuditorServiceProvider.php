@@ -34,6 +34,7 @@ use LaravelAuditor\Context\Collectors\RoutesCollector;
 use LaravelAuditor\Context\Collectors\SubsystemsCollector;
 use LaravelAuditor\Context\Collectors\TestsCollector;
 use LaravelAuditor\Context\ContextRegistry;
+use LaravelAuditor\Context\Migrations\MigrationDriverAdvisor;
 use LaravelAuditor\Context\Migrations\MigrationRiskAnalyzer;
 use LaravelAuditor\Context\Migrations\MigrationSourceInspector;
 use LaravelAuditor\Context\Migrations\MigrationSourceReview;
@@ -176,6 +177,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
         ));
         $this->app->singleton(SnapshotComparator::class);
         $this->app->singleton(MigrationRiskAnalyzer::class);
+        $this->app->singleton(MigrationDriverAdvisor::class);
         $this->app->singleton(MigrationSourceInspector::class);
         $this->app->singleton(MigrationSourceReview::class);
         $this->app->singleton(ChangedFilesOptions::class);
