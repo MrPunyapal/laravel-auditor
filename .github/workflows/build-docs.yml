@@ -15,9 +15,7 @@ on:
       - '.github/workflows/build-docs.yml'
 
 permissions:
-  contents: write
-  id-token: write
-  pages: write
+  contents: read
 
 concurrency:
   group: docs-${{ github.ref }}
@@ -26,6 +24,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: read
     env:
       DOCS_EDIT_BRANCH: main
       DOCS_SITE_URL: ${{ vars.DOCS_SITE_URL || 'https://mrpunyapal.github.io/laravel-auditor' }}
@@ -86,12 +87,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A docs
-          git commit -m "wip"
+          git commit -m "docs: regenerate built site"
           git push
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
