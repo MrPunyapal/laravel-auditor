@@ -18,6 +18,7 @@ use LaravelAuditor\Console\Commands\AuditorInstallCommand;
 use LaravelAuditor\Console\Commands\AuditorMcpCommand;
 use LaravelAuditor\Console\Commands\AuditorMigrationRiskCommand;
 use LaravelAuditor\Console\Commands\AuditorReportCommand;
+use LaravelAuditor\Console\Commands\AuditorReviewCommand;
 use LaravelAuditor\Console\Commands\AuditorRulesCommand;
 use LaravelAuditor\Console\Commands\AuditorSnapshotCommand;
 use LaravelAuditor\Console\Commands\AuditorStatusCommand;
@@ -40,6 +41,7 @@ use LaravelAuditor\Context\Migrations\MigrationRiskAnalyzer;
 use LaravelAuditor\Context\Migrations\MigrationSourceInspector;
 use LaravelAuditor\Context\Migrations\MigrationSourceReview;
 use LaravelAuditor\Context\ProjectContext;
+use LaravelAuditor\Context\Reviews\ChangeReviewBuilder;
 use LaravelAuditor\Context\Snapshots\SnapshotBuilder;
 use LaravelAuditor\Context\Snapshots\SnapshotComparator;
 use LaravelAuditor\MCP\Boost\BoostMcpRegistrar;
@@ -104,6 +106,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
                 AuditorSnapshotCommand::class,
                 AuditorContextCommand::class,
                 AuditorCompareCommand::class,
+                AuditorReviewCommand::class,
                 AuditorMigrationRiskCommand::class,
                 AuditorDependencyFindingsCommand::class,
                 AuditorCiCommand::class,
@@ -178,6 +181,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
             $app->make('router'),
         ));
         $this->app->singleton(SnapshotComparator::class);
+        $this->app->singleton(ChangeReviewBuilder::class);
         $this->app->singleton(MigrationRiskAnalyzer::class);
         $this->app->singleton(MigrationDriverAdvisor::class);
         $this->app->singleton(MigrationSourceInspector::class);

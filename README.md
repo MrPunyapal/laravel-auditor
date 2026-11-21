@@ -302,6 +302,16 @@ The `database_schema` response reports `snapshot_complete`. A `false` value mean
 
 These tools are read-only. They return structured facts, not unfiltered source dumps.
 
+## Change review
+
+Combine existing route and authorization snapshots, optional schema risk indicators, and supplied findings/baselines in one read-only report:
+
+```bash
+php artisan auditor:review before.json after.json --output=review.json
+```
+
+See [Change review](https://mrpunyapal.github.io/laravel-auditor/change-review/) for evidence requirements and limitations. This command does not execute migrations or run an AI audit.
+
 ## Reporting and diagnostics
 
 ```bash
