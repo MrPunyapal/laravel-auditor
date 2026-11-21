@@ -18,11 +18,18 @@ jobs:
         with:
           ref: main
 
-      - name: Update changelog
-        uses: stefanzweifel/changelog-updater-action@a938690fad7edf25368f37e43a1ed1b34303eb36 # v1
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
-          latest-version: ${{ github.event.release.name }}
-          release-notes: ${{ github.event.release.body }}
+          php-version: '8.3'
+          coverage: none
+
+      - name: Update changelog
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_DATE: ${{ github.event.release.published_at }}
+          RELEASE_NOTES: ${{ github.event.release.body }}
+        run: php .github/scripts/update_changelog.php CHANGELOG.md
 
       - name: Commit updated changelog
         uses: stefanzweifel/git-auto-commit-action@d0b01107b5db882071f96de5dd4b54961ea93f4c # v7

@@ -1,15 +1,21 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.4.0...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.5.0...HEAD)
 
 ### Added
 
-- Deterministic findings baselines with report comparisons and CI gates for new findings.
-- Structural migration risk indicators from complete before-and-after schema snapshots, plus opt-in static review of selected registered migrations and conditional database-driver guidance.
+### Fixed
+
+## [v0.5.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.4.0...v0.5.0) - 2026-11-21
+
+### Added
+
+- Structural migration safety indicators from schema snapshots, with opt-in static review of migration source and database-driver guidance.
+- Deterministic findings baselines with baseline-aware reports and CI gates for new findings.
 
 ### Fixed
 
-- Static migration review detects constrained foreign-id columns, supports blueprint callbacks with captured variables, fails closed on ambiguous `up()` methods, and prevents output files from overwriting selected migration sources.
+- Migration source review handles constrained foreign IDs and blueprint callbacks, fails closed on ambiguous `up()` methods, and protects selected migration files from output overwrites.
 
 ## [v0.4.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.3.1...v0.4.0) - 2026-11-16
 
