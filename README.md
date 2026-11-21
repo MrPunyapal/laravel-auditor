@@ -313,9 +313,11 @@ php artisan auditor:report --format=text
 php artisan auditor:report --findings=storage/auditor-findings.json --output=storage/auditor-report.md
 php artisan auditor:report --findings=storage/auditor-findings.json --format=sarif
 php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
+php artisan auditor:baseline --findings=storage/auditor-findings.json --output=storage/auditor-baseline.json
+php artisan auditor:ci --findings=storage/auditor-findings.json --baseline=storage/auditor-baseline.json --fail-on=high
 ```
 
-Finding and report JSON schemas live in `resources/auditor/schema`. See the [findings docs](https://mrpunyapal.github.io/laravel-auditor/findings/).
+Finding, report, and baseline JSON schemas live in `resources/auditor/schema`. See the [findings docs](https://mrpunyapal.github.io/laravel-auditor/findings/).
 
 `auditor:report` does not invent findings. The agent produces findings; the command renders them as Markdown, JSON, or CLI text with project facts, domain scope, counts, key risks, evidence, and recommendations.
 

@@ -8,6 +8,7 @@ use JsonSerializable;
 use LaravelAuditor\Audit\Enums\Priority;
 use LaravelAuditor\Audit\Enums\Severity;
 use LaravelAuditor\Audit\Findings\Finding;
+use LaravelAuditor\Audit\Findings\FindingBaselineComparison;
 use LaravelAuditor\Audit\Findings\FindingCollection;
 
 /**
@@ -23,12 +24,14 @@ final class AuditReport implements JsonSerializable
      * @param  list<string>  $domainsRun  Audit domain keys that were actually scoped and run.
      * @param  FindingCollection  $findings  The findings produced by the audit.
      * @param  array<string, mixed>  $meta  Audit metadata such as generator, timestamp, or config.
+     * @param  FindingBaselineComparison|null  $baseline  Optional comparison with a saved findings baseline.
      */
     public function __construct(
         public readonly array $project,
         public readonly array $domainsRun,
         public readonly FindingCollection $findings,
         public readonly array $meta = [],
+        public readonly ?FindingBaselineComparison $baseline = null,
     ) {}
 
     public function totalFindings(): int
@@ -87,7 +90,7 @@ final class AuditReport implements JsonSerializable
      */
     public function toArray(): array
     {
-        return [
+        $report = [
             'meta' => $this->meta,
             'project' => $this->project,
             'domains_run' => $this->domainsRun,
@@ -100,6 +103,12 @@ final class AuditReport implements JsonSerializable
             'key_risks' => $this->keyRisks(),
             'findings' => $this->findings->sorted()->toArray(),
         ];
+
+        if ($this->baseline !== null) {
+            $report['baseline'] = $this->baseline->toArray();
+        }
+
+        return $report;
     }
 
     /**

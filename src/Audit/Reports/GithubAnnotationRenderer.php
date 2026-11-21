@@ -17,20 +17,26 @@ final class GithubAnnotationRenderer
     {
         $lines = [];
 
+        if ($report->baseline !== null) {
+            $summary = $report->baseline->summary();
+            $lines[] = sprintf('::notice title=Laravel Auditor baseline::%d new, %d persistent, %d absent from current findings file.', $summary['new'], $summary['persistent'], $summary['absent']);
+        }
+
         foreach ($report->findings->sorted()->all() as $finding) {
             if ($finding->status !== FindingStatus::Open) {
                 continue;
             }
 
-            $lines[] = $this->annotation($finding);
+            $lines[] = $this->annotation($finding, $report->baseline?->stateFor($finding->id));
         }
 
         return $lines === [] ? '' : implode(PHP_EOL, $lines).PHP_EOL;
     }
 
-    private function annotation(Finding $finding): string
+    private function annotation(Finding $finding, ?string $baselineState = null): string
     {
-        $properties = ['title='.$this->escapeProperty($finding->ruleId.': '.$finding->title)];
+        $label = $baselineState === null ? '' : '['.strtoupper($baselineState).'] ';
+        $properties = ['title='.$this->escapeProperty($label.$finding->ruleId.': '.$finding->title)];
 
         foreach ($finding->evidence->all() as $evidence) {
             if ($evidence->type !== 'file' || ! $this->safePath($evidence->reference)) {

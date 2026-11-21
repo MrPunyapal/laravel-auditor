@@ -41,6 +41,37 @@ final class MarkdownReportRenderer
         $lines[] = $this->renderPriorityTiers($report);
         $lines[] = '';
 
+        if ($report->baseline !== null) {
+            $lines[] = '## Baseline comparison';
+            $lines[] = '';
+            $summary = $report->baseline->summary();
+            $lines[] = sprintf('**New:** %d | **Persistent:** %d | **Absent from current findings file:** %d', $summary['new'], $summary['persistent'], $summary['absent']);
+            $lines[] = '';
+            foreach ([
+                'New findings' => $report->baseline->new,
+                'Persistent findings' => $report->baseline->persistent,
+                'Absent from current findings file' => $report->baseline->absent,
+            ] as $label => $items) {
+                $lines[] = '**'.$label.'**';
+                $lines[] = '';
+
+                if ($items === []) {
+                    $lines[] = '- None';
+                } else {
+                    foreach ($items as $item) {
+                        if ($item instanceof Finding) {
+                            $lines[] = sprintf('- `%s` — %s', $item->id, $item->title);
+                        } else {
+                            $lines[] = sprintf('- `%s` — %s', $item['id'], $item['title']);
+                        }
+                    }
+                }
+                $lines[] = '';
+            }
+            $lines[] = 'Absence from this findings file does not prove a finding is fixed. Compare runs with the same full audit scope.';
+            $lines[] = '';
+        }
+
         $lines[] = '## Domains Audited';
         $lines[] = '';
         $lines[] = $this->renderDomainsRun($report);

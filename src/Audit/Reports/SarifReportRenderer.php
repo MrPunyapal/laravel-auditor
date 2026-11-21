@@ -26,7 +26,7 @@ final class SarifReportRenderer
         $results = [];
 
         foreach ($report->findings->sorted()->all() as $finding) {
-            $results[] = $this->result($finding);
+            $results[] = $this->result($finding, $report->baseline?->stateFor($finding->id));
         }
 
         return [
@@ -48,7 +48,7 @@ final class SarifReportRenderer
     /**
      * @return array<string, mixed>
      */
-    private function result(Finding $finding): array
+    private function result(Finding $finding, ?string $baselineState = null): array
     {
         $locations = [];
 
@@ -68,7 +68,7 @@ final class SarifReportRenderer
             ];
         }
 
-        return array_filter([
+        $result = array_filter([
             'ruleId' => $finding->ruleId === '' ? null : $finding->ruleId,
             'level' => $this->level($finding->severity),
             'message' => ['text' => $finding->summary],
@@ -81,6 +81,17 @@ final class SarifReportRenderer
                 'recommendation' => $finding->recommendation,
             ],
         ], static fn (mixed $value): bool => $value !== null);
+
+        if ($baselineState !== null) {
+            $result['baselineState'] = match ($baselineState) {
+                'new' => 'new',
+                'unchanged' => 'unchanged',
+                'updated' => 'updated',
+                default => 'absent',
+            };
+        }
+
+        return $result;
     }
 
     private function level(Severity $severity): string

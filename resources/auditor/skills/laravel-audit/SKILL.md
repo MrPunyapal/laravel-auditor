@@ -131,6 +131,15 @@ php artisan auditor:report --findings=storage/auditor-findings.json
 php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high
 ```
 
+Keep an ID stable for the same issue across runs. To gate only new findings, create a baseline from a complete findings file:
+
+```bash
+php artisan auditor:baseline --findings=storage/auditor-findings.json --output=storage/auditor-baseline.json
+php artisan auditor:ci --findings=storage/auditor-findings.json --baseline=storage/auditor-baseline.json --fail-on=high
+```
+
+Use the same full audit scope for both files. An ID absent from the current file does not prove the issue was fixed. Baseline mode cannot be combined with `--base` or `--dirty`.
+
 To gate a pull request, pass `--base` with the base ref. It keeps findings whose evidence or affected resources name a file in the committed diff since the merge base of that ref and `HEAD`. A clean checkout still has those commits, so this is the CI gate:
 
 ```bash

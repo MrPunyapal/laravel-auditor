@@ -9,6 +9,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
 use LaravelAuditor\Audit\Domains\DomainRegistry;
 use LaravelAuditor\Audit\Rules\RuleRegistry;
+use LaravelAuditor\Console\Commands\AuditorBaselineCommand;
 use LaravelAuditor\Console\Commands\AuditorCiCommand;
 use LaravelAuditor\Console\Commands\AuditorCompareCommand;
 use LaravelAuditor\Console\Commands\AuditorContextCommand;
@@ -95,6 +96,7 @@ class LaravelAuditorServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                AuditorBaselineCommand::class,
                 AuditorInstallCommand::class,
                 AuditorStatusCommand::class,
                 AuditorRulesCommand::class,

@@ -1045,6 +1045,18 @@ php artisan auditor:ci --findings=storage/auditor-findings.json --fail-on=high -
 
 CI fails when an open finding meets or exceeds the `--fail-on` threshold.
 
+## Findings baselines
+
+Keep a finding's `id` stable when it represents the same issue across runs. Create a versioned, deterministic baseline from a complete findings file:
+
+```bash
+php artisan auditor:baseline --findings=storage/auditor-findings.json --output=storage/auditor-baseline.json
+php artisan auditor:report --findings=storage/auditor-findings.json --baseline=storage/auditor-baseline.json
+php artisan auditor:ci --findings=storage/auditor-findings.json --baseline=storage/auditor-baseline.json --fail-on=high
+```
+
+Baseline CI fails only for new open findings at or above the threshold. Existing findings remain in reports. Compare runs with the same full audit scope; `--baseline` cannot be combined with `--base` or `--dirty`. An ID absent from the current findings file is not proof that the underlying issue was fixed. Baselines contain IDs and display metadata, without evidence or summaries. See `resources/auditor/schema/findings-baseline.schema.json`.
+
 ## Scoping to a branch or to uncommitted work
 
 `--base` keeps findings that reference a file in the committed diff since a ref. That is the CI gate: a clean checkout still has the pull request's commits. `--dirty` keeps findings that reference an uncommitted file, which is useful locally and matches nothing on a clean checkout.

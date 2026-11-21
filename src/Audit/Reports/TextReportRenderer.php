@@ -36,22 +36,30 @@ final class TextReportRenderer
             }
         }
 
+        if ($report->baseline !== null) {
+            $summary = $report->baseline->summary();
+            $lines[] = '';
+            $lines[] = sprintf('Baseline: %d new, %d persistent, %d absent from current findings file.', $summary['new'], $summary['persistent'], $summary['absent']);
+            $lines[] = 'Absence does not prove a finding is fixed; compare runs with the same full audit scope.';
+        }
+
         $lines[] = '';
 
         foreach ($report->findings->sorted()->all() as $finding) {
-            $lines[] = $this->renderFinding($finding);
+            $lines[] = $this->renderFinding($finding, $report->baseline?->stateFor($finding->id));
         }
 
         return implode(PHP_EOL, $lines).PHP_EOL;
     }
 
-    private function renderFinding(Finding $finding): string
+    private function renderFinding(Finding $finding, ?string $baselineState = null): string
     {
         $lines = [];
 
         $lines[] = sprintf(
-            '[%s] %s (%s, confidence: %s)',
+            '[%s] %s%s (%s, confidence: %s)',
             strtoupper($finding->severity->value),
+            $baselineState === null ? '' : '['.strtoupper($baselineState).'] ',
             $finding->title,
             $finding->domain->label(),
             $finding->confidence->label(),

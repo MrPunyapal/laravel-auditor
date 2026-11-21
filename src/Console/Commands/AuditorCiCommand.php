@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use LaravelAuditor\Audit\Enums\FindingStatus;
 use LaravelAuditor\Audit\Enums\Severity;
 use LaravelAuditor\Audit\Findings\Finding;
+use LaravelAuditor\Audit\Findings\FindingBaseline;
 use LaravelAuditor\Audit\Findings\FindingCollection;
 use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Audit\Reports\AuditReport;
@@ -31,6 +32,7 @@ class AuditorCiCommand extends Command
         {--fail-on=high : Minimum severity that fails CI (critical, high, medium, low, info)}
         {--format=text : Output format (text, json, sarif, github)}
         {--output= : Write the report to a file}
+        {--baseline= : Compare findings with a saved baseline and fail only on new findings}
         {--base= : Only fail on findings that touch files changed since this ref, for example origin/main}
         {--dirty : Only fail on findings that touch uncommitted files}';
 
@@ -53,6 +55,21 @@ class AuditorCiCommand extends Command
     public function handle(): int
     {
         $findingsPath = $this->option('findings');
+        $baselinePath = $this->option('baseline');
+        $baselineRequested = $baselinePath !== null;
+        $hasBaseline = is_string($baselinePath) && $baselinePath !== '';
+
+        if ($baselineRequested && ! $hasBaseline) {
+            $this->components->error('Pass a path to --baseline=path/to/findings-baseline.json.');
+
+            return self::FAILURE;
+        }
+
+        if ($hasBaseline && (($this->option('base') !== null && $this->option('base') !== '') || (bool) $this->option('dirty'))) {
+            $this->components->error('--baseline cannot be combined with --base or --dirty; compare findings generated with the same full scope.');
+
+            return self::FAILURE;
+        }
 
         if (! is_string($findingsPath) || $findingsPath === '') {
             $this->components->error('Pass --findings=path/to/findings.json (produced by the audit agent).');
@@ -89,8 +106,20 @@ class AuditorCiCommand extends Command
         $findings = $scoped['findings'];
         $meta = [...$meta, ...$scoped['meta']];
 
+        $baselineComparison = null;
+
+        if ($hasBaseline) {
+            try {
+                $baselineComparison = FindingBaseline::load((string) $baselinePath)->compare($findings);
+            } catch (RuntimeException $e) {
+                $this->components->error($e->getMessage());
+
+                return self::FAILURE;
+            }
+        }
+
         $blocking = new FindingCollection(...array_values(array_filter(
-            $findings->all(),
+            $baselineComparison === null ? $findings->all() : $baselineComparison->new,
             static fn (Finding $finding): bool => $finding->status === FindingStatus::Open
                 && $finding->severity->weight() >= $threshold->weight(),
         )));
@@ -100,6 +129,7 @@ class AuditorCiCommand extends Command
             domainsRun: $this->project->domainsPresent(),
             findings: $findings,
             meta: $meta,
+            baseline: $baselineComparison,
         );
 
         $format = is_string($this->option('format')) ? $this->option('format') : 'text';
@@ -125,14 +155,27 @@ class AuditorCiCommand extends Command
             }
         }
 
+        if ($baselineComparison !== null) {
+            $summary = $baselineComparison->summary();
+            $this->components->info(sprintf(
+                'Baseline comparison: %d new, %d persistent, %d absent from the current findings file.',
+                $summary['new'],
+                $summary['persistent'],
+                $summary['absent'],
+            ));
+        }
+
         if ($blocking->isEmpty()) {
-            $this->components->info('CI passed: no open findings at or above '.$threshold->value.'.');
+            $findingLabel = $baselineComparison === null ? 'open findings' : 'new open findings';
+            $this->components->info('CI passed: no '.$findingLabel.' at or above '.$threshold->value.'.');
 
             return self::SUCCESS;
         }
 
         $this->components->error(sprintf(
-            'CI failed: %d open finding(s) at or above %s.',
+            $baselineComparison === null
+                ? 'CI failed: %d open finding(s) at or above %s.'
+                : 'CI failed: %d new open finding(s) at or above %s.',
             $blocking->count(),
             $threshold->value,
         ));

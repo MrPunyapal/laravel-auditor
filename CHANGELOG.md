@@ -4,6 +4,7 @@
 
 ### Added
 
+- Deterministic findings baselines with report comparisons and CI gates for new findings.
 - Structural migration risk indicators from complete before-and-after schema snapshots, plus opt-in static review of selected registered migrations and conditional database-driver guidance.
 
 ### Fixed
