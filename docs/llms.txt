@@ -18,3 +18,4 @@
 - https://mrpunyapal.github.io/laravel-auditor/github-annotations: Surface structured audit findings in GitHub Actions without a hosted review bot.
 - https://mrpunyapal.github.io/laravel-auditor/security-monitoring: Check Composer lockfiles for new vulnerability disclosures even when application code has not changed.
 - https://mrpunyapal.github.io/laravel-auditor/migration-risk: Review structural migration risk indicators using complete before-and-after database schema snapshots.
+- https://mrpunyapal.github.io/laravel-auditor/change-review: Combine saved Laravel snapshots, migration indicators, and optional audit finding baselines.

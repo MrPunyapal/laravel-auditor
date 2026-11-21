@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change review | Laravel Auditor</title>
+    <meta name="description" content="Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Change review | Laravel Auditor">
+    <meta property="og:description" content="Combine saved Laravel snapshots, migration indicators, and optional audit finding baselines.">
+    <meta property="og:url" content="https://mrpunyapal.github.io/laravel-auditor/change-review">
+    <meta property="og:image" content="https://mrpunyapal.github.io/laravel-auditor/og/cover.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Change review | Laravel Auditor">
+    <meta name="twitter:description" content="Combine saved Laravel snapshots, migration indicators, and optional audit finding baselines.">
+    <meta name="twitter:image" content="https://mrpunyapal.github.io/laravel-auditor/og/cover.png">
+    <link rel="stylesheet" href="../assets/app.css">
+    <script src="../assets/app.js" defer></script>
+</head>
+<body data-docsmith-root="../">
+    <div class="shell">
+        <aside class="sidebar" data-docsmith-sidebar>
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <h1 class="brand">Laravel Auditor</h1>
+                    <p class="tagline">Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.</p>
+                </div>
+                <button type="button" class="mobile-menu-toggle" data-docsmith-menu-toggle aria-expanded="false" aria-controls="docsmith-sidebar-panel" aria-label="Open menu"><svg class="mobile-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="mobile-menu-bars" d="M3.75 8.25h16.5M3.75 15.75h11"></path><path class="mobile-menu-close" d="M6 6l12 12M18 6L6 18"></path></svg><span class="sr-only">Toggle menu</span></button>
+            </div>
+            <div class="sidebar-panel" id="docsmith-sidebar-panel" data-docsmith-sidebar-panel>
+                
+                <div class="sidebar-actions"><a class="sidebar-action-link" href="https://github.com/mrpunyapal/laravel-auditor">Repository</a><button type="button" class="theme-toggle" data-docsmith-theme-toggle>Theme</button></div>
+                <div class="search">
+                    <input type="search" placeholder="Search pages  (⌘K)" aria-label="Search pages" data-docsmith-search>
+                    <div class="search-results" data-docsmith-search-results hidden></div>
+                    <div class="search-empty" data-docsmith-empty>No pages match your search.</div>
+                </div>
+                <nav class="nav" data-docsmith-nav><a class="" href="../" data-nav-item data-title="Overview" data-search="Laravel Auditor Overview Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">Overview</a><a class="" href="../installation/" data-nav-item data-title="Installation" data-search="Installation Installation Install Laravel Auditor in a Laravel application with or without Laravel Boost.">Installation</a><a class="" href="../usage/" data-nav-item data-title="Usage" data-search="Usage Usage Run status, context, rules, reports, and CI with Laravel Auditor.">Usage</a><a class="" href="../agents/" data-nav-item data-title="Agent setup" data-search="Agent setup Agent setup Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.">Agent setup</a><a class="" href="../prompts/" data-nav-item data-title="Prompt examples" data-search="Prompt examples Prompt examples Ready-to-use prompts for running Laravel Auditor audits, from a quick discover pass to focused verification and DSA reviews.">Prompt examples</a><a class="" href="../mcp/" data-nav-item data-title="MCP tools" data-search="MCP tools MCP tools Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.">MCP tools</a><a class="" href="../rules/" data-nav-item data-title="Rules" data-search="Rules Rules The evidence-first audit catalog and how applicability works.">Rules</a><a class="" href="../findings/" data-nav-item data-title="Findings and reports" data-search="Findings and reports Findings and reports Finding schema, example payloads, and how reports are rendered.">Findings and reports</a><a class="" href="../dsa/" data-nav-item data-title="DSA audit" data-search="DSA audit DSA audit Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.">DSA audit</a><a class="" href="../future/" data-nav-item data-title="Future scope" data-search="Future scope Future scope Features that may influence architecture but are not part of V1.">Future scope</a><a class="" href="../snapshots/" data-nav-item data-title="Context snapshots" data-search="Context snapshots Context snapshots Capture and compare reproducible Laravel route, authorization and optional database schema state.">Context snapshots</a><a class="" href="../contributing/" data-nav-item data-title="Contributing" data-search="Contributing Contributing How to work on Laravel Auditor locally, including documentation.">Contributing</a><a class="" href="../github-annotations/" data-nav-item data-title="GitHub Actions annotations" data-search="GitHub Actions annotations GitHub Actions annotations Surface structured audit findings in GitHub Actions without a hosted review bot.">GitHub Actions annotations</a><a class="" href="../security-monitoring/" data-nav-item data-title="Scheduled dependency security checks" data-search="Scheduled dependency security checks Scheduled dependency security checks Check Composer lockfiles for new vulnerability disclosures even when application code has not changed.">Scheduled dependency security checks</a><a class="" href="../migration-risk/" data-nav-item data-title="Migration risk indicators" data-search="Migration risk indicators Migration risk indicators Review structural migration risk indicators using complete before-and-after database schema snapshots.">Migration risk indicators</a><a class="active" href="./" data-nav-item data-title="Change review" data-search="Change review Change review Combine saved Laravel snapshots, migration indicators, and optional audit finding baselines.">Change review</a></nav>
+                <a class="docsmith-badge" href="https://github.com/MrPunyapal/docsmith" target="_blank" rel="noopener noreferrer" data-docsmith-badge aria-label="Built with DocSmith"><svg class="docsmith-badge-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-6.716-4.35-9.428-7.052C.4 11.692-.21 8.9 1.38 6.87 2.736 5.14 5.09 4.583 6.86 5.686 8 6.41 8.86 7.55 9.6 8.7c.74-1.15 1.6-2.29 2.74-3.014 1.77-1.103 4.124-.546 5.48 1.184 1.59 2.03.98 4.822-1.192 7.078C18.716 16.65 12 21 12 21z"/></svg><span class="docsmith-badge-text">Built with</span><span class="docsmith-badge-brand">DocSmith</span></a>
+            </div>
+        </aside>
+        <button type="button" class="sidebar-backdrop" data-docsmith-sidebar-backdrop aria-label="Close menu"></button>
+        <main class="content">
+            <article>
+                <header class="doc-head">
+                    
+                    <h1>Change review</h1>
+                    <p class="doc-description">Combine saved Laravel snapshots, migration indicators, and optional audit finding baselines.</p>
+                </header>
+                <div class="doc-body">
+                    <p>Use the new <strong>read-only</strong> <code>auditor:review</code> command to combine existing deterministic evidence in one JSON report:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:review</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">before.json</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">after.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-output=review.json</span><span class="token">
+</span></span></code></pre>
+<p>The two inputs are snapshots previously created with <code>auditor:snapshot</code> in comparable application environments. The command does <strong>not</strong> switch Git revisions, execute migrations, run an AI coding agent, or collect live state. Review snapshots with the same route-cache state.</p>
+<p>The report includes route and authorization changes from the existing snapshot comparator. When <strong>both</strong> snapshots include complete optional database schema sections, it also includes structural migration risk indicators. If neither snapshot includes a schema, the report explicitly marks schema review as not covered. A mismatch or incomplete snapshot fails rather than producing a clean result.</p>
+<p>To include a complete current audit's findings and compare them with a historical baseline:</p>
+<pre class="phiki language-shellscript github-light phiki-themes github-dark" data-language="shellscript" style="background-color: #fff;color: #24292e;--phiki-dark-background-color: #24292e;--phiki-dark-color: #e1e4e8;"><code><span class="line"><span class="token" style="color: #6f42c1;--phiki-dark-color: #b392f0;">php</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">artisan</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">auditor:review</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">before.json</span><span class="token"> </span><span class="token" style="color: #032f62;--phiki-dark-color: #9ecbff;">after.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-findings=storage/auditor-findings.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-baseline=storage/auditor-baseline.json</span><span class="token"> </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">\
+</span></span><span class="line"><span class="token">  </span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-</span><span class="token" style="color: #005cc5;--phiki-dark-color: #79b8ff;">-output=storage/change-review.json</span><span class="token">
+</span></span></code></pre>
+<p><code>--findings</code> accepts the same structured JSON file used by <code>auditor:report</code>. <code>--baseline</code> requires <code>--findings</code>, and baseline interpretation requires equivalent full audit scope across runs. Findings and confidence remain those supplied by the agent or other finding producer. The command does not verify them independently. It protects existing input snapshots, findings, and baseline files from <code>--output</code> overwrite.</p>
+<p><strong>Do not interpret an empty comparison as safe.</strong> Structural differences are not automatically vulnerabilities; no indicators do not establish deployment safety. Migration PHP is neither executed nor inspected by this command. For source inspection and database-specific review prompts, use <code>auditor:migration-risk</code> with its existing opt-in flags.</p>
+<p>A future Git-aware workflow may help orchestrate snapshot and finding artifacts. A <code>--base</code> ref alone is not a substitute for capturing the older application's runtime state. See <a href="../snapshots/">Context snapshots</a>, <a href="../migration-risk/">Migration risk indicators</a>, and <a href="../findings/">Findings and reports</a>.</p>
+
+                </div>
+                <footer class="doc-meta">
+                    <a class="edit-link" href="https://github.com/mrpunyapal/laravel-auditor/edit/main/md/change-review.md">Edit this page</a>
+                </footer>
+            </article>
+            <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../migration-risk/"><span>Previous</span><strong>Migration risk indicators</strong></a></nav>
+        </main>
+        
+    </div>
+    <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
+    <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>
+    <div class="search-overlay-panel">
+        <div class="search-overlay-input-wrap">
+            <svg class="search-overlay-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="search" class="search-overlay-input" placeholder="Search documentation..." aria-label="Search documentation" data-docsmith-search-overlay-input autocomplete="off">
+            <kbd class="search-overlay-hint">ESC</kbd>
+        </div>
+        <div class="search-overlay-results" data-docsmith-search-overlay-results></div>
+        <div class="search-overlay-empty" data-docsmith-search-overlay-empty hidden>No results found.</div>
+    </div>
+</div>
+</body>
+</html>
