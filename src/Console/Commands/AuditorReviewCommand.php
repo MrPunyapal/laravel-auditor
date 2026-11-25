@@ -95,7 +95,8 @@ final class AuditorReviewCommand extends Command
 
     private function migrationPath(string $path): string
     {
-        if (str_starts_with($path, '/') || preg_match('/^[a-zA-Z]:[\\\\\\/]/', $path) === 1) {
+        if (str_starts_with($path, '/') || preg_match('/^[a-zA-Z]:[\\\\\\/]/', $path) === 1
+            || (DIRECTORY_SEPARATOR === '\\' && str_starts_with($path, '\\\\'))) {
             return $path;
         }
 

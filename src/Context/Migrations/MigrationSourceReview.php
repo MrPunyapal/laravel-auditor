@@ -88,7 +88,8 @@ final class MigrationSourceReview
 
     private function path(string $name): string
     {
-        if (str_starts_with($name, '/') || preg_match('/^[a-zA-Z]:[\\\\\\/]/', $name) === 1) {
+        if (str_starts_with($name, '/') || preg_match('/^[a-zA-Z]:[\\\\\\/]/', $name) === 1
+            || (DIRECTORY_SEPARATOR === '\\' && str_starts_with($name, '\\\\'))) {
             return $name;
         }
 
