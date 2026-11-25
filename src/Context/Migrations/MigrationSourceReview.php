@@ -27,17 +27,7 @@ final class MigrationSourceReview
             throw new RuntimeException('Select between one and 50 migration files.');
         }
 
-        $registered = [];
-
-        foreach ($this->migrations->collect()['migrations'] as $entry) {
-            $file = (string) $entry['file'];
-            $path = $this->path($file);
-            $real = realpath($path);
-
-            if ($real !== false && is_file($real)) {
-                $registered[$real] = $file;
-            }
-        }
+        $registered = array_flip($this->migrations->registeredFiles());
 
         $results = [];
         $seen = [];
@@ -49,7 +39,7 @@ final class MigrationSourceReview
 
             $real = realpath($this->path($request));
 
-            if ($real === false || ! isset($registered[$real]) || ! is_readable($real)) {
+            if ($real === false || ! isset($registered[$real]) || ! is_file($real) || ! is_readable($real)) {
                 throw new RuntimeException('The selected migration file was not found in the registered migration paths.');
             }
 

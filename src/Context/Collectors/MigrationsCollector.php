@@ -36,6 +36,20 @@ final class MigrationsCollector implements ContextCollector
      */
     public function collect(): array
     {
+        $files = array_keys($this->registeredFiles());
+        sort($files, SORT_STRING);
+
+        return [
+            'count' => count($files),
+            'migrations' => array_map($this->inspect(...), $files),
+        ];
+    }
+
+    /**
+     * @return array<string, string> Display paths mapped to validated canonical paths.
+     */
+    public function registeredFiles(): array
+    {
         $migrations = [];
 
         foreach ($this->directories() as $directory) {
@@ -50,24 +64,11 @@ final class MigrationsCollector implements ContextCollector
                     continue;
                 }
 
-                $migrations[] = $this->inspect($file->getPathname());
+                $migrations[$this->paths->relativeToBase($file->getPathname())] = $resolved;
             }
         }
 
-        $unique = [];
-
-        foreach ($migrations as $migration) {
-            $unique[$migration['file']] = $migration;
-        }
-
-        $migrations = array_values($unique);
-
-        usort($migrations, static fn (array $a, array $b): int => strcmp((string) $a['file'], (string) $b['file']));
-
-        return [
-            'count' => count($migrations),
-            'migrations' => $migrations,
-        ];
+        return $migrations;
     }
 
     /**
@@ -108,10 +109,8 @@ final class MigrationsCollector implements ContextCollector
     /**
      * @return array<string, mixed>
      */
-    private function inspect(string $path): array
+    private function inspect(string $relative): array
     {
-        $relative = $this->paths->relativeToBase($path);
-
         return [
             'file' => $relative,
             'name' => $this->nameFromFile($relative),
