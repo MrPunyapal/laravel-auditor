@@ -40,6 +40,8 @@ final class TextReportRenderer
             $summary = $report->baseline->summary();
             $lines[] = '';
             $lines[] = sprintf('Baseline: %d new, %d persistent, %d absent from current findings file.', $summary['new'], $summary['persistent'], $summary['absent']);
+            $lines[] = sprintf('Regressions: %d (increased severity or reopened).', count($report->baseline->regressions));
+            $lines[] = $report->baseline->statusHistoryAvailable ? 'Historical lifecycle status available.' : 'Historical lifecycle status unknown; reopening cannot be determined.';
             $lines[] = 'Absence does not prove a finding is fixed; compare runs with the same full audit scope.';
         }
 
