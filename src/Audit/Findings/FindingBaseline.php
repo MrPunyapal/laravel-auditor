@@ -6,6 +6,7 @@ namespace LaravelAuditor\Audit\Findings;
 
 use JsonException;
 use LaravelAuditor\Audit\Enums\AuditDomain;
+use LaravelAuditor\Audit\Enums\FindingStatus;
 use LaravelAuditor\Audit\Enums\Severity;
 use RuntimeException;
 
@@ -21,14 +22,17 @@ final class FindingBaseline
 
     public const int VERSION = 1;
 
+    public const int STATUS_VERSION = 2;
+
     /**
-     * @param  array<string, array{id: string, rule_id: string, title: string, domain: string, severity: string}>  $findings
+     * @param  array<string, array{id: string, rule_id: string, title: string, domain: string, severity: string, status?: string}>  $findings
      */
     private function __construct(
         private readonly array $findings,
+        private readonly int $version,
     ) {}
 
-    public static function fromFindings(FindingCollection $findings): self
+    public static function fromFindings(FindingCollection $findings, bool $withStatus = false): self
     {
         $entries = [];
 
@@ -41,11 +45,15 @@ final class FindingBaseline
                 'domain' => $finding->domain->value,
                 'severity' => $finding->severity->value,
             ];
+
+            if ($withStatus) {
+                $entries[$finding->id]['status'] = $finding->status->value;
+            }
         }
 
         ksort($entries, SORT_STRING);
 
-        return new self($entries);
+        return new self($entries, $withStatus ? self::STATUS_VERSION : self::VERSION);
     }
 
     /**
@@ -57,7 +65,9 @@ final class FindingBaseline
             throw new RuntimeException('Unsupported findings baseline format.');
         }
 
-        if (($data['version'] ?? null) !== self::VERSION) {
+        $version = $data['version'] ?? null;
+
+        if ($version !== self::VERSION && $version !== self::STATUS_VERSION) {
             throw new RuntimeException('Unsupported findings baseline version.');
         }
 
@@ -78,7 +88,13 @@ final class FindingBaseline
                 throw new RuntimeException("Findings baseline item [{$index}] must be an object.");
             }
 
-            if (array_diff(array_keys($finding), ['id', 'rule_id', 'title', 'domain', 'severity']) !== []) {
+            $allowed = ['id', 'rule_id', 'title', 'domain', 'severity'];
+
+            if ($version === self::STATUS_VERSION) {
+                $allowed[] = 'status';
+            }
+
+            if (array_diff(array_keys($finding), $allowed) !== []) {
                 throw new RuntimeException("Findings baseline item [{$index}] contains unsupported fields.");
             }
 
@@ -104,11 +120,21 @@ final class FindingBaseline
                 'domain' => $domain,
                 'severity' => $severity,
             ];
+
+            if ($version === self::STATUS_VERSION) {
+                $status = $finding['status'] ?? null;
+
+                if (! is_string($status) || FindingStatus::tryFrom($status) === null) {
+                    throw new RuntimeException("Findings baseline item [{$index}] has an invalid or missing status.");
+                }
+
+                $entries[$id]['status'] = $status;
+            }
         }
 
         ksort($entries, SORT_STRING);
 
-        return new self($entries);
+        return new self($entries, $version);
     }
 
     public static function load(string $path): self
@@ -141,6 +167,7 @@ final class FindingBaseline
         $new = [];
         $persistent = [];
         $states = [];
+        $regressions = [];
         $seen = [];
 
         foreach ($current->all() as $finding) {
@@ -156,10 +183,28 @@ final class FindingBaseline
 
             $persistent[] = $finding;
             $baseline = $this->findings[$finding->id];
+            $previousStatus = $baseline['status'] ?? null;
+            $severityIncreased = $finding->severity->weight() > Severity::from($baseline['severity'])->weight();
+            $reopened = $previousStatus !== null && $previousStatus !== FindingStatus::Open->value
+                && $finding->status === FindingStatus::Open;
+
+            if ($severityIncreased || $reopened) {
+                $regressions[] = [
+                    'id' => $finding->id,
+                    'previous_severity' => $baseline['severity'],
+                    'current_severity' => $finding->severity->value,
+                    'previous_status' => $previousStatus,
+                    'current_status' => $finding->status->value,
+                    'severity_increased' => $severityIncreased,
+                    'reopened' => $reopened,
+                ];
+            }
+
             $states[$finding->id] = $baseline['title'] === $finding->title
                 && $baseline['rule_id'] === $finding->ruleId
                 && $baseline['domain'] === $finding->domain->value
                 && $baseline['severity'] === $finding->severity->value
+                && ($previousStatus === null || $previousStatus === $finding->status->value)
                 ? 'unchanged'
                 : 'updated';
         }
@@ -172,17 +217,19 @@ final class FindingBaseline
         usort($new, static fn (Finding $a, Finding $b): int => strcmp($a->id, $b->id));
         usort($persistent, static fn (Finding $a, Finding $b): int => strcmp($a->id, $b->id));
 
-        return new FindingBaselineComparison($new, $persistent, $absent, $states);
+        usort($regressions, static fn (array $a, array $b): int => strcmp($a['id'], $b['id']));
+
+        return new FindingBaselineComparison($new, $persistent, $absent, $states, $regressions, $this->version === self::STATUS_VERSION);
     }
 
     /**
-     * @return array{format: string, version: int, findings: list<array{id: string, rule_id: string, title: string, domain: string, severity: string}>}
+     * @return array{format: string, version: int, findings: list<array{id: string, rule_id: string, title: string, domain: string, severity: string, status?: string}>}
      */
     public function toArray(): array
     {
         return [
             'format' => self::FORMAT,
-            'version' => self::VERSION,
+            'version' => $this->version,
             'findings' => array_values($this->findings),
         ];
     }
