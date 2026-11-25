@@ -8,7 +8,9 @@ use Illuminate\Console\Command;
 use LaravelAuditor\Audit\Findings\FindingBaseline;
 use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Context\Reviews\ChangeReviewBuilder;
+use LaravelAuditor\Context\Reviews\ChangeReviewRenderer;
 use RuntimeException;
+use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
 /**
@@ -21,7 +23,8 @@ final class AuditorReviewCommand extends Command
         {after : Path to the later Laravel context snapshot}
         {--findings= : Optional complete current findings JSON}
         {--baseline= : Optional historical findings baseline (requires --findings)}
-        {--output= : Write the report to a JSON file instead of stdout}';
+        {--format=json : Output format (json, markdown, text)}
+        {--output= : Write the report to a file instead of stdout}';
 
     protected $description = 'Combine saved snapshots, optional schema risks, and supplied audit findings.';
 
@@ -49,10 +52,13 @@ final class AuditorReviewCommand extends Command
             $findings = $findingsPath === null ? null : $this->loader->load($findingsPath);
             $baseline = $baselinePath === null ? null : FindingBaseline::load($baselinePath);
 
-            $content = json_encode(
-                $this->review->review($before, $after, $findings, $baseline),
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
-            ).PHP_EOL;
+            $format = $this->option('format');
+
+            if (! is_string($format) || ! in_array($format, ['json', 'markdown', 'text'], true)) {
+                throw new RuntimeException('Unknown review format. Use json, markdown, or text.');
+            }
+
+            $content = ChangeReviewRenderer::render($this->review->review($before, $after, $findings, $baseline), $format);
 
             $output = $this->optionalPath('output');
 
@@ -72,7 +78,7 @@ final class AuditorReviewCommand extends Command
                 return self::SUCCESS;
             }
 
-            $this->line(rtrim($content));
+            $this->output->writeln(rtrim($content), OutputInterface::OUTPUT_RAW);
 
             return self::SUCCESS;
         } catch (Throwable $e) {
