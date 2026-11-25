@@ -25,8 +25,9 @@ final class SnapshotBuilder
     /**
      * @return array<string, mixed>
      */
-    public function capture(bool $withSchema = false): array
+    public function capture(bool $withSchema = false, bool $withProvenance = false): array
     {
+        $provenance = $withProvenance ? SnapshotProvenance::capture() : null;
         $routes = $this->context->get('routes')->collect();
         $authorization = $this->context->get('policies_authorization')->collect();
 
@@ -105,6 +106,7 @@ final class SnapshotBuilder
             'format' => self::FORMAT,
             'version' => self::VERSION,
             'sections' => $sections,
+            ...($provenance === null ? [] : ['provenance' => SnapshotProvenance::finish($provenance)]),
         ];
     }
 

@@ -43,6 +43,18 @@ Routes include both declared middleware and the resolved route middleware stack,
 
 Capture both snapshots with the same route-cache state. Cached routes represent the cached application configuration; rebuild the route cache after changing routes. Laravel can generate names for unnamed routes during caching, so cached and uncached snapshots may differ even without a source change.
 
+## Optional capture provenance
+
+Use `--with-provenance` to attach observed Git commit and dirty state, route-cache state, and PHP/Laravel versions:
+
+~~~bash
+php artisan auditor:snapshot --with-provenance --output=before.json
+~~~
+
+The existing format and default capture stay compatible. Git metadata is null when unavailable; no repository paths, environment variables, database credentials, or Git remotes are stored. Dirty state includes tracked and untracked non-ignored files. Keep artifacts outside the working tree or ignored if you need clean capture metadata. Capture conditions are checked before and after collection, but this does not prove that files, runtime configuration, or database state remained identical.
+
+Comparisons reject known route-cache mismatches and report version differences or unknown metadata. They do not authenticate artifacts, prove that a commit produced the observed state, or guarantee environment equivalence. Trust the capture process and store artifacts privately.
+
 ## Migration risk indicators
 
 Run `php artisan auditor:migration-risk before.json after.json` to review potential schema-change risks when both snapshots include `--schema`. See [Migration risk indicators](/migration-risk) for coverage and limitations. This does not execute or analyze migration PHP and does not determine deployment safety.
