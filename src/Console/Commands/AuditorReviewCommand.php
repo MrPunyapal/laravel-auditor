@@ -9,6 +9,7 @@ use LaravelAuditor\Audit\Findings\FindingBaseline;
 use LaravelAuditor\Audit\Findings\FindingLoader;
 use LaravelAuditor\Context\Reviews\ChangeReviewBuilder;
 use LaravelAuditor\Context\Reviews\ChangeReviewRenderer;
+use LaravelAuditor\Context\Reviews\GitArtifactReview;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
@@ -23,6 +24,7 @@ final class AuditorReviewCommand extends Command
         {after : Path to the later Laravel context snapshot}
         {--findings= : Optional complete current findings JSON}
         {--baseline= : Optional historical findings baseline (requires --findings)}
+        {--base= : Validate supplied artifacts against the merge base and current HEAD}
         {--migration=* : Inspect an explicitly selected registered migration PHP file}
         {--driver-guidance : Include conditional database-driver review questions}
         {--format=json : Output format (json, markdown, text)}
@@ -60,8 +62,21 @@ final class AuditorReviewCommand extends Command
                 throw new RuntimeException('Unknown review format. Use json, markdown, or text.');
             }
 
+            $baseRef = $this->optionalPath('base');
+            $gitReview = $baseRef === null ? null : app(GitArtifactReview::class)->review($baseRef, $before, $after);
             $migrations = array_values(array_map(static fn (?string $path): string => $path ?? '', $this->option('migration')));
             $report = $this->review->review($before, $after, $findings, $baseline, $migrations, (bool) $this->option('driver-guidance'));
+
+            if ($gitReview !== null) {
+                $currentGitReview = app(GitArtifactReview::class)->review((string) $baseRef, $before, $after);
+
+                if ($currentGitReview !== $gitReview) {
+                    throw new RuntimeException('Git review scope changed while processing artifacts.');
+                }
+
+                $report['results']['git_review'] = $gitReview;
+            }
+
             $content = ChangeReviewRenderer::render($report, $format);
 
             $output = $this->optionalPath('output');
@@ -107,7 +122,7 @@ final class AuditorReviewCommand extends Command
     {
         $value = $this->option($option);
 
-        if ($value === null) {
+        if ($value === null && ! $this->input->hasParameterOption('--'.$option, true)) {
             return null;
         }
 

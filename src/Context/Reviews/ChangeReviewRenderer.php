@@ -43,6 +43,36 @@ final class ChangeReviewRenderer
         }
 
         $lines[] = '';
+        $lines[] = self::heading('Capture provenance', $markdown);
+
+        if (isset($comparison['provenance'])) {
+            $lines[] = '- Before: '.self::value($comparison['provenance']['before'], $markdown);
+            $lines[] = '- After: '.self::value($comparison['provenance']['after'], $markdown);
+            $lines[] = '- Route cache matches: '.self::comparisonStatus($comparison['provenance']['route_cache_matches']);
+            $lines[] = '- Runtime versions match: '.self::comparisonStatus($comparison['provenance']['runtime_versions_match']);
+            $lines[] = '- '.self::value($comparison['provenance']['note'], $markdown);
+        } else {
+            $lines[] = 'Unknown capture conditions.';
+        }
+
+        if (isset($results['git_review'])) {
+            $git = $results['git_review'];
+            $lines[] = '';
+            $lines[] = self::heading('Git artifact review', $markdown);
+            $lines[] = '- Merge base: '.self::value($git['merge_base'], $markdown);
+            $lines[] = '- HEAD: '.self::value($git['head'], $markdown);
+            $lines[] = 'Changed files: '.$git['file_count'];
+
+            foreach ($git['changed_files'] as $file) {
+                $lines[] = '- '.self::value($file, $markdown);
+            }
+
+            foreach ($git['limitations'] as $limitation) {
+                $lines[] = '- '.self::value($limitation, $markdown);
+            }
+        }
+
+        $lines[] = '';
         $lines[] = self::heading('Routes and authorization', $markdown);
 
         foreach (['added', 'removed', 'modified'] as $kind) {
@@ -139,6 +169,12 @@ final class ChangeReviewRenderer
             if (isset($risk['driver_review'])) {
                 $lines[] = self::heading('Conditional driver guidance', $markdown);
 
+                if (! $risk['driver_review']['supported_guidance']) {
+                    $lines[] = 'Driver guidance is unavailable for this database driver.';
+                } elseif ($risk['driver_review']['questions'] === []) {
+                    $lines[] = 'No driver guidance questions matched the structural indicators.';
+                }
+
                 foreach ($risk['driver_review']['questions'] as $question) {
                     $lines[] = '- '.self::value($question, $markdown);
                 }
@@ -221,6 +257,15 @@ final class ChangeReviewRenderer
     private static function heading(string $title, bool $markdown): string
     {
         return ($markdown ? '## ' : '').$title;
+    }
+
+    private static function comparisonStatus(?bool $match): string
+    {
+        return match ($match) {
+            true => 'yes',
+            false => 'no',
+            null => 'unknown',
+        };
     }
 
     /**
