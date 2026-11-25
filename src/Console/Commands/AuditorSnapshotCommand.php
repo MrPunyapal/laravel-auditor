@@ -15,7 +15,8 @@ class AuditorSnapshotCommand extends Command
 {
     protected $signature = 'auditor:snapshot
         {--output= : Write snapshot JSON to a file instead of stdout}
-        {--schema : Include read-only live database schema shape}';
+        {--schema : Include read-only live database schema shape}
+        {--with-provenance : Record non-secret capture metadata and observed Git state}';
 
     protected $description = 'Capture the current routes and authorization registry as versioned JSON.';
 
@@ -29,7 +30,7 @@ class AuditorSnapshotCommand extends Command
     {
         try {
             $content = json_encode(
-                $this->builder->capture((bool) $this->option('schema')),
+                $this->builder->capture((bool) $this->option('schema'), (bool) $this->option('with-provenance')),
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
             ).PHP_EOL;
         } catch (Throwable $e) {

@@ -20,6 +20,7 @@ final class SnapshotComparator
     {
         $this->validate($before);
         $this->validate($after);
+        $provenance = SnapshotProvenance::compare($before, $after);
 
         $oldRoutes = $this->routeMap($before['sections']['routes']);
         $newRoutes = $this->routeMap($after['sections']['routes']);
@@ -100,6 +101,7 @@ final class SnapshotComparator
             'format' => 'laravel-auditor-snapshot-diff',
             'version' => SnapshotBuilder::VERSION,
             'complete' => true,
+            'provenance' => $provenance,
             'has_changes' => $added !== [] || $removed !== [] || $modified !== [] || $authChanged || $orderChanged || $schemaChanged,
             'summary' => [
                 'routes_added' => count($added),

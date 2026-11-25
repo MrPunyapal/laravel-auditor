@@ -28,6 +28,22 @@ final class GitStatus
     ) {}
 
     /**
+     * Resolve the current commit without changing the checkout.
+     */
+    public function revision(): ?string
+    {
+        $result = $this->run(['rev-parse', '--verify', 'HEAD^{commit}']);
+
+        if (! $result['ok']) {
+            return null;
+        }
+
+        $sha = trim($result['output']);
+
+        return preg_match('/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/D', $sha) === 1 ? $sha : null;
+    }
+
+    /**
      * Uncommitted files, relative to the application root.
      *
      * Staged, unstaged, and untracked paths are included. Deleted paths are kept
