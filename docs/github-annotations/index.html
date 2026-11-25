@@ -19,7 +19,7 @@
     <script src="../assets/app.js" defer></script>
 </head>
 <body data-docsmith-root="../">
-    <div class="shell">
+    <div class="shell has-right-rail">
         <aside class="sidebar" data-docsmith-sidebar>
             <div class="sidebar-header">
                 <div class="sidebar-title">
@@ -55,6 +55,20 @@
 </span></span></code></pre>
 <p>When run inside GitHub Actions, annotations appear in the check output. The new format escapes special characters, omits unsafe file paths, and skips findings whose status is not <code>open</code>. It does <strong>not</strong> call GitHub APIs or generate findings itself.</p>
 <p>Use the existing base/dirty options to scope findings to changed files before emitting annotations. The reporter does not independently verify findings or their severity.</p>
+<h2 id="review-trusted-before-after-artifacts-in-ci">Review trusted before/after artifacts in CI</h2>
+<p>The package includes <a href="https://github.com/mrpunyapal/laravel-auditor/blob/main/resources/auditor/examples/change-review.yml">change-review.yml</a>, a manual workflow example for the Git-aware review and regression-aware finding policy. It uses the existing <code>auditor:review</code>, <code>auditor:ci</code>, and optional annotation renderer rather than implementing another scanner.</p>
+<ol>
+<li>Install the package version supporting these commands in the application and commit its lockfile. Configure a disposable testing environment that can boot the application. Adapt PHP and extension requirements as needed; the example assumes PHP 8.4.</li>
+<li>In separate <strong>trusted</strong> capture runs at the exact merge base and head commit, capture comparable snapshots using <code>auditor:snapshot --with-provenance</code>. Include <code>--schema</code> on both sides only when you have equivalent disposable database environments. Capture from a clean working tree, writing artifacts outside it.</li>
+<li>Produce complete findings files with stable IDs and equivalent audit scope. At the merge base, create the baseline using <code>auditor:baseline --with-status</code> if the regression gate is enabled. Do not create the baseline from the current findings.</li>
+<li>Upload an artifact named <code>laravel-auditor-before</code> containing <code>snapshot.json</code> and <code>baseline.json</code> at its root, and one named <code>laravel-auditor-after</code> containing <code>snapshot.json</code> and <code>findings.json</code> at its root. Record the two successful workflow run IDs in the same repository.</li>
+<li>Copy the example into the application's default branch and manually dispatch it on the <strong>trusted</strong> head revision with the base ref and both run IDs.</li>
+</ol>
+<p>The example verifies the capture runs' recorded repository, commit and successful conclusion before downloading artifacts using a read-only token. This checks association, not authenticity or correctness: independently trust the producer workflows, capture environments and stored artifacts. The workflow deliberately does not use an automatic untrusted PR trigger, check out historical code, run migrations, or generate findings. Composer installation and Artisan still execute the selected application's trusted code. Never use production credentials or attach production data.</p>
+<p>The evidence review is a separate step from the finding gate. The latter defaults to new, severity-increased and reopened open findings at high severity or above, using a version 2 baseline. Turn off the regression option to use the backward-compatible new-only policy. Neither policy treats structural indicators as confirmed vulnerabilities; a failed or unavailable evidence step does not become a passing gate.</p>
+<p>Commit your application's <code>composer.lock</code> before using this workflow. The example installs from that lockfile. The selected run IDs must come from capture workflows you trust. The example checks each run's repository, commit, and successful completion.</p>
+<p>The job summary contains counts and fixed labels. Full reports and command diagnostics remain in the runner's temporary directory. Enable annotations only after reviewing the confidentiality of finding summaries, file paths and recommendations. Use <code>auditor:ci --format=sarif --output=...</code> to create SARIF for private local or restricted artifact use.</p>
+<p>See GitHub's <a href="https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts">artifact download documentation</a> and <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions">workflow permissions</a> when adapting the example.</p>
 
                 </div>
                 <footer class="doc-meta">
@@ -63,7 +77,7 @@
             </article>
             <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../contributing/"><span>Previous</span><strong>Contributing</strong></a><a class="pager-link pager-link-next" href="../security-monitoring/"><span>Next</span><strong>Scheduled dependency security checks</strong></a></nav>
         </main>
-        
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#review-trusted-before-after-artifacts-in-ci" data-docsmith-toc-link="review-trusted-before-after-artifacts-in-ci">Review trusted before/after artifacts in CI</a></nav></aside>
     </div>
     <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
     <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>
