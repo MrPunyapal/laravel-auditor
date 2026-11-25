@@ -17,7 +17,8 @@ final class AuditorBaselineCommand extends Command
 {
     protected $signature = 'auditor:baseline
         {--findings= : Path to a JSON file containing findings}
-        {--output= : Path to write the versioned findings baseline}';
+        {--output= : Path to write the versioned findings baseline}
+        {--with-status : Create a version 2 baseline containing finding lifecycle status}';
 
     protected $description = 'Create a deterministic baseline from a findings file.';
 
@@ -46,7 +47,7 @@ final class AuditorBaselineCommand extends Command
 
         try {
             $findings = $this->loader->load($findingsPath);
-            $baseline = FindingBaseline::fromFindings($findings);
+            $baseline = FindingBaseline::fromFindings($findings, (bool) $this->option('with-status'));
             $content = $baseline->toJson();
         } catch (RuntimeException $e) {
             $this->components->error($e->getMessage());
