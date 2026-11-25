@@ -64,9 +64,9 @@ final class MigrationSourceReview
                 throw new RuntimeException('A migration file exceeds the 1 MiB review limit or cannot be measured.');
             }
 
-            $source = file_get_contents($real);
+            $source = file_get_contents($real, false, null, 0, 1048577);
 
-            if (! is_string($source)) {
+            if (! is_string($source) || strlen($source) > 1048576) {
                 throw new RuntimeException('The selected migration file could not be read.');
             }
 

@@ -37,6 +37,12 @@ php artisan auditor:review before.json after.json \
 
 `--findings` accepts the same structured JSON file used by `auditor:report`. `--baseline` requires `--findings`, and baseline interpretation requires equivalent full audit scope across runs. Findings and confidence remain those supplied by the agent or other finding producer. The command does not verify them independently. It protects existing input snapshots, findings, and baseline files from `--output` overwrite.
 
-**Do not interpret an empty comparison as safe.** Structural differences are not automatically vulnerabilities; no indicators do not establish deployment safety. Migration PHP is neither executed nor inspected by this command. For source inspection and database-specific review prompts, use `auditor:migration-risk` with its existing opt-in flags.
+**Do not interpret an empty comparison as safe.** Structural differences are not automatically vulnerabilities; no indicators do not establish deployment safety. Migration PHP is never executed. With complete schema snapshots on both sides, opt in to the existing token-based source inspector and conditional driver guidance:
+
+~~~bash
+php artisan auditor:review before.json after.json --migration=database/migrations/example.php --driver-guidance
+~~~
+
+Select actual registered migration paths (repeatable, at most 50). The report keeps structural indicators distinct from source indicators and driver questions. The structural indicator count does not include source occurrences. These flags require complete schema-enabled snapshots; no migration execution, measured lock duration, or deployment-safety guarantee is implied.
 
 A future Git-aware workflow may help orchestrate snapshot and finding artifacts. A `--base` ref alone is not a substitute for capturing the older application's runtime state. See [Context snapshots](snapshots.md), [Migration risk indicators](migration-risk.md), and [Findings and reports](findings.md).

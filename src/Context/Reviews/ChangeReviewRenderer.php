@@ -120,6 +120,34 @@ final class ChangeReviewRenderer
                 }
             }
 
+            if (isset($risk['source_review'])) {
+                $lines[] = self::heading('Selected migration source (not executed)', $markdown);
+
+                foreach ($risk['source_review']['files'] as $file) {
+                    $lines[] = '- '.self::value($file['file'], $markdown).' (coverage: '.self::value($file['coverage'], $markdown).')';
+
+                    foreach ($file['indicators'] as $indicator) {
+                        $lines[] = '  - '.self::value($indicator, $markdown);
+                    }
+                }
+
+                foreach ($risk['source_review']['limitations'] as $limitation) {
+                    $lines[] = '- '.self::value($limitation, $markdown);
+                }
+            }
+
+            if (isset($risk['driver_review'])) {
+                $lines[] = self::heading('Conditional driver guidance', $markdown);
+
+                foreach ($risk['driver_review']['questions'] as $question) {
+                    $lines[] = '- '.self::value($question, $markdown);
+                }
+
+                foreach ($risk['driver_review']['limitations'] as $limitation) {
+                    $lines[] = '- '.self::value($limitation, $markdown);
+                }
+            }
+
             foreach ($risk['limitations'] as $limitation) {
                 $lines[] = '- '.self::value($limitation, $markdown);
             }

@@ -23,6 +23,8 @@ final class AuditorReviewCommand extends Command
         {after : Path to the later Laravel context snapshot}
         {--findings= : Optional complete current findings JSON}
         {--baseline= : Optional historical findings baseline (requires --findings)}
+        {--migration=* : Inspect an explicitly selected registered migration PHP file}
+        {--driver-guidance : Include conditional database-driver review questions}
         {--format=json : Output format (json, markdown, text)}
         {--output= : Write the report to a file instead of stdout}';
 
@@ -58,15 +60,18 @@ final class AuditorReviewCommand extends Command
                 throw new RuntimeException('Unknown review format. Use json, markdown, or text.');
             }
 
-            $content = ChangeReviewRenderer::render($this->review->review($before, $after, $findings, $baseline), $format);
+            $migrations = array_values(array_map(static fn (?string $path): string => $path ?? '', $this->option('migration')));
+            $report = $this->review->review($before, $after, $findings, $baseline, $migrations, (bool) $this->option('driver-guidance'));
+            $content = ChangeReviewRenderer::render($report, $format);
 
             $output = $this->optionalPath('output');
 
             if ($output !== null) {
-                $inputs = array_values(array_filter([$beforePath, $afterPath, $findingsPath, $baselinePath], is_string(...)));
+                $migrationPaths = array_map($this->migrationPath(...), $migrations);
+                $inputs = array_values(array_filter([$beforePath, $afterPath, $findingsPath, $baselinePath, ...$migrationPaths], is_string(...)));
 
                 if ($this->outputOverwritesInput($output, $inputs)) {
-                    throw new RuntimeException('--output must not overwrite any input snapshot, findings file, or baseline.');
+                    throw new RuntimeException('--output must not overwrite any input snapshot, findings file, baseline, or migration.');
                 }
 
                 if (@file_put_contents($output, $content) === false) {
@@ -86,6 +91,15 @@ final class AuditorReviewCommand extends Command
 
             return self::FAILURE;
         }
+    }
+
+    private function migrationPath(string $path): string
+    {
+        if (str_starts_with($path, '/') || preg_match('/^[a-zA-Z]:[\\\\\\/]/', $path) === 1) {
+            return $path;
+        }
+
+        return base_path($path);
     }
 
     private function optionalPath(string $option): ?string
