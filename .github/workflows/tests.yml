@@ -30,6 +30,11 @@ jobs:
             testbench: 10.*
           - laravel: 13.*
             testbench: 11.*
+        exclude:
+          - laravel: 12.*
+            php: 8.6
+          - laravel: 13.*
+            php: 8.3
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -45,6 +50,14 @@ jobs:
           ini-values: error_reporting=E_ALL
           tools: composer:v2
           coverage: none
+
+      - name: Use Pest 4 for Laravel 12
+        if: matrix.laravel == '12.*'
+        run: composer require "pestphp/pest:^4.6" "pestphp/pest-plugin-laravel:^4.1" "pestphp/pest-plugin-type-coverage:^4.0.6" --no-interaction --no-update
+
+      - name: Use Pest 5 for Laravel 13
+        if: matrix.laravel == '13.*'
+        run: composer require "pestphp/pest:^5.0" "pestphp/pest-plugin-laravel:^5.0" "pestphp/pest-plugin-type-coverage:^5.1.1" --no-interaction --no-update
 
       - name: Install dependencies
         run: |
