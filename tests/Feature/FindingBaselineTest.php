@@ -379,3 +379,29 @@ it('rejects missing or invalid status in a version 2 baseline', function () {
         unlink($findingsPath);
     }
 });
+
+it('distinguishes empty findings lists from JSON objects in the regression gate', function () {
+    $findingsPath = baselineTestJsonFile([]);
+    $baselinePath = baselineTestJsonFile([
+        'format' => 'laravel-auditor.findings-baseline',
+        'version' => 2,
+        'findings' => [],
+    ]);
+    $options = ['--findings' => $findingsPath, '--baseline' => $baselinePath, '--fail-on-regression' => true];
+
+    try {
+        foreach (['{}', '{"findings":{}}', '{"findings":{"0":{}}}'] as $malformed) {
+            file_put_contents($findingsPath, $malformed);
+            $this->artisan('auditor:ci', $options)->assertFailed();
+        }
+
+        file_put_contents($findingsPath, '{"findings":[]}');
+        $this->artisan('auditor:ci', $options)->assertSuccessful();
+
+        file_put_contents($baselinePath, '{"format":"laravel-auditor.findings-baseline","version":2,"findings":{}}');
+        $this->artisan('auditor:ci', $options)->assertFailed();
+    } finally {
+        unlink($findingsPath);
+        unlink($baselinePath);
+    }
+});

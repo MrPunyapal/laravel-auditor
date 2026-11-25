@@ -150,13 +150,18 @@ final class FindingBaseline
         }
 
         try {
+            $shape = json_decode($contents, flags: JSON_THROW_ON_ERROR);
             $data = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             throw new RuntimeException('Invalid findings baseline JSON: '.$e->getMessage(), previous: $e);
         }
 
-        if (! is_array($data)) {
+        if (! is_object($shape) || ! is_array($data)) {
             throw new RuntimeException('Findings baseline must contain a JSON object.');
+        }
+
+        if (! is_array($shape->findings ?? null)) {
+            throw new RuntimeException('Findings baseline must contain a findings array.');
         }
 
         return self::fromArray($data);
