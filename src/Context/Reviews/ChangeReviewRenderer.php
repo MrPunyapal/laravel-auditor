@@ -60,6 +60,9 @@ final class ChangeReviewRenderer
                                 .' → '.self::value($route['after'][$field], $markdown);
                         }
                     }
+                } else {
+                    $lines[] = '  - Action: '.self::value($route['action'], $markdown);
+                    $lines[] = '  - Resolved middleware: '.self::value($route['resolved_middleware'], $markdown);
                 }
             }
         }
@@ -146,8 +149,11 @@ final class ChangeReviewRenderer
                 $lines[] = 'Historical baseline not supplied.';
             }
 
+            $newIds = $findingReview['baseline'] === null ? [] : array_column($findingReview['baseline']['new'], 'id');
+
             foreach ($findingReview['findings'] as $finding) {
-                $lines[] = '- '.self::value($finding['id'], $markdown).' ['.self::value($finding['severity'], $markdown).'] '
+                $state = $findingReview['baseline'] === null ? '' : (in_array($finding['id'], $newIds, true) ? '[NEW] ' : '[PERSISTENT] ');
+                $lines[] = '- '.$state.self::value($finding['id'], $markdown).' ['.self::value($finding['severity'], $markdown).'] '
                     .self::value($finding['title'], $markdown).' (status: '.self::value($finding['status'], $markdown)
                     .', confidence: '.self::value($finding['confidence'], $markdown).')';
 

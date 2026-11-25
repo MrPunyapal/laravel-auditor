@@ -1,0 +1,414 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/mrpunyapal/laravel-auditor/schema/change-review.schema.json",
+    "title": "Laravel Auditor Change Review",
+    "description": "Version 1 change-review report envelope and principal result sections. Observations are not independently verified findings or a deployment safety assessment.",
+    "type": "object",
+    "required": [
+        "format",
+        "version",
+        "scope",
+        "coverage",
+        "summary",
+        "results",
+        "limitations"
+    ],
+    "properties": {
+        "format": {
+            "const": "laravel-auditor-change-review"
+        },
+        "version": {
+            "const": 1
+        },
+        "scope": {
+            "const": "explicit_saved_snapshots"
+        },
+        "coverage": {
+            "type": "object",
+            "required": [
+                "routes_and_authorization",
+                "database_schema",
+                "migration_source",
+                "findings_supplied",
+                "baseline_compared"
+            ],
+            "properties": {
+                "routes_and_authorization": {
+                    "type": "boolean"
+                },
+                "database_schema": {
+                    "type": "boolean"
+                },
+                "migration_source": {
+                    "type": "boolean"
+                },
+                "findings_supplied": {
+                    "type": "boolean"
+                },
+                "baseline_compared": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "summary": {
+            "type": "object",
+            "required": [
+                "structural_changes_present",
+                "migration_risk_indicators",
+                "findings_count",
+                "baseline"
+            ],
+            "properties": {
+                "structural_changes_present": {
+                    "type": "boolean"
+                },
+                "migration_risk_indicators": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "minimum": 0
+                },
+                "findings_count": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "minimum": 0
+                },
+                "baseline": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/baselineSummary"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            }
+        },
+        "results": {
+            "type": "object",
+            "required": [
+                "snapshot_comparison",
+                "migration_risk",
+                "finding_review"
+            ],
+            "properties": {
+                "snapshot_comparison": {
+                    "type": "object",
+                    "required": [
+                        "format",
+                        "version",
+                        "complete",
+                        "has_changes",
+                        "summary",
+                        "changes"
+                    ],
+                    "properties": {
+                        "format": {
+                            "const": "laravel-auditor-snapshot-diff"
+                        },
+                        "version": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "complete": {
+                            "const": true
+                        },
+                        "has_changes": {
+                            "type": "boolean"
+                        },
+                        "summary": {
+                            "type": "object",
+                            "required": [
+                                "routes_added",
+                                "routes_removed",
+                                "routes_modified",
+                                "route_order_changed"
+                            ],
+                            "properties": {
+                                "routes_added": {
+                                    "$ref": "#/$defs/count"
+                                },
+                                "routes_removed": {
+                                    "$ref": "#/$defs/count"
+                                },
+                                "routes_modified": {
+                                    "$ref": "#/$defs/count"
+                                },
+                                "route_order_changed": {
+                                    "type": "boolean"
+                                },
+                                "tables_added": {
+                                    "$ref": "#/$defs/count"
+                                },
+                                "tables_removed": {
+                                    "$ref": "#/$defs/count"
+                                },
+                                "tables_modified": {
+                                    "$ref": "#/$defs/count"
+                                }
+                            }
+                        },
+                        "changes": {
+                            "type": "object",
+                            "required": [
+                                "routes",
+                                "authorization",
+                                "route_order"
+                            ],
+                            "properties": {
+                                "routes": {
+                                    "$ref": "#/$defs/diffLists"
+                                },
+                                "authorization": {
+                                    "type": "object"
+                                },
+                                "route_order": {
+                                    "type": "object",
+                                    "required": [
+                                        "changed",
+                                        "before",
+                                        "after"
+                                    ],
+                                    "properties": {
+                                        "changed": {
+                                            "type": "boolean"
+                                        },
+                                        "before": {
+                                            "type": "array"
+                                        },
+                                        "after": {
+                                            "type": "array"
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/$defs/diffLists"
+                                }
+                            }
+                        }
+                    }
+                },
+                "migration_risk": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "format",
+                                "version",
+                                "driver",
+                                "coverage",
+                                "deployment_safety_verified",
+                                "has_indicators",
+                                "summary",
+                                "indicators",
+                                "limitations"
+                            ],
+                            "properties": {
+                                "format": {
+                                    "const": "laravel-auditor-migration-risk"
+                                },
+                                "version": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "driver": {
+                                    "type": "string"
+                                },
+                                "coverage": {
+                                    "type": "string"
+                                },
+                                "deployment_safety_verified": {
+                                    "const": false
+                                },
+                                "has_indicators": {
+                                    "type": "boolean"
+                                },
+                                "summary": {
+                                    "type": "object",
+                                    "required": [
+                                        "high",
+                                        "review"
+                                    ],
+                                    "properties": {
+                                        "high": {
+                                            "$ref": "#/$defs/count"
+                                        },
+                                        "review": {
+                                            "$ref": "#/$defs/count"
+                                        }
+                                    }
+                                },
+                                "indicators": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "code",
+                                            "level",
+                                            "schema",
+                                            "table",
+                                            "column",
+                                            "message",
+                                            "verify"
+                                        ],
+                                        "properties": {
+                                            "code": {
+                                                "type": "string"
+                                            },
+                                            "level": {
+                                                "enum": [
+                                                    "high",
+                                                    "review"
+                                                ]
+                                            },
+                                            "schema": {
+                                                "type": [
+                                                    "string",
+                                                    "null"
+                                                ]
+                                            },
+                                            "table": {
+                                                "type": "string"
+                                            },
+                                            "column": {
+                                                "type": [
+                                                    "string",
+                                                    "null"
+                                                ]
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "verify": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "limitations": {
+                                    "$ref": "#/$defs/notes"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "finding_review": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "findings",
+                                "baseline"
+                            ],
+                            "properties": {
+                                "findings": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "finding.schema.json"
+                                    }
+                                },
+                                "baseline": {
+                                    "anyOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "summary",
+                                                "new",
+                                                "persistent",
+                                                "absent",
+                                                "notes"
+                                            ],
+                                            "properties": {
+                                                "summary": {
+                                                    "$ref": "#/$defs/baselineSummary"
+                                                },
+                                                "new": {
+                                                    "type": "array"
+                                                },
+                                                "persistent": {
+                                                    "type": "array"
+                                                },
+                                                "absent": {
+                                                    "type": "array"
+                                                },
+                                                "notes": {
+                                                    "$ref": "#/$defs/notes"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "limitations": {
+            "$ref": "#/$defs/notes"
+        }
+    },
+    "$defs": {
+        "count": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "notes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "baselineSummary": {
+            "type": "object",
+            "required": [
+                "new",
+                "persistent",
+                "absent"
+            ],
+            "properties": {
+                "new": {
+                    "$ref": "#/$defs/count"
+                },
+                "persistent": {
+                    "$ref": "#/$defs/count"
+                },
+                "absent": {
+                    "$ref": "#/$defs/count"
+                }
+            }
+        },
+        "diffLists": {
+            "type": "object",
+            "required": [
+                "added",
+                "removed",
+                "modified"
+            ],
+            "properties": {
+                "added": {
+                    "type": "array"
+                },
+                "removed": {
+                    "type": "array"
+                },
+                "modified": {
+                    "type": "array"
+                }
+            }
+        }
+    }
+}
