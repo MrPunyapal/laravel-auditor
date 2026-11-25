@@ -4,25 +4,110 @@
     "title": "Laravel Auditor Findings Baseline",
     "description": "A deterministic snapshot of finding identities used to compare complete findings files.",
     "type": "object",
-    "required": ["format", "version", "findings"],
+    "required": [
+        "format",
+        "version",
+        "findings"
+    ],
     "properties": {
-        "format": {"const": "laravel-auditor.findings-baseline"},
-        "version": {"const": 1},
+        "format": {
+            "const": "laravel-auditor.findings-baseline"
+        },
+        "version": {
+            "enum": [
+                1,
+                2
+            ]
+        },
         "findings": {
             "type": "array",
             "items": {
                 "type": "object",
-                "required": ["id", "rule_id", "title", "domain", "severity"],
+                "required": [
+                    "id",
+                    "rule_id",
+                    "title",
+                    "domain",
+                    "severity"
+                ],
                 "properties": {
-                    "id": {"type": "string", "minLength": 1, "pattern": ".*\\S.*"},
-                    "rule_id": {"type": "string"},
-                    "title": {"type": "string"},
-                    "domain": {"enum": ["security", "performance", "architecture", "database", "testing", "conventions"]},
-                    "severity": {"enum": ["critical", "high", "medium", "low", "info"]}
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": ".*\\S.*"
+                    },
+                    "rule_id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "domain": {
+                        "enum": [
+                            "security",
+                            "performance",
+                            "architecture",
+                            "database",
+                            "testing",
+                            "conventions"
+                        ]
+                    },
+                    "severity": {
+                        "enum": [
+                            "critical",
+                            "high",
+                            "medium",
+                            "low",
+                            "info"
+                        ]
+                    },
+                    "status": {
+                        "enum": [
+                            "open",
+                            "accepted",
+                            "dismissed",
+                            "fixed"
+                        ]
+                    }
                 },
                 "additionalProperties": false
             }
         }
     },
-    "additionalProperties": false
+    "additionalProperties": false,
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "version": {
+                        "const": 2
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "findings": {
+                        "items": {
+                            "required": [
+                                "status"
+                            ]
+                        }
+                    }
+                }
+            },
+            "else": {
+                "properties": {
+                    "findings": {
+                        "items": {
+                            "not": {
+                                "required": [
+                                    "status"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
 }
