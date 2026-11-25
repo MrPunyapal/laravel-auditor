@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         php: [8.3, 8.4, 8.5, 8.6]
@@ -53,15 +53,15 @@ jobs:
 
       - name: Use Pest 4 for Laravel 12
         if: matrix.laravel == '12.*'
-        run: composer require "pestphp/pest:^4.6" "pestphp/pest-plugin-laravel:^4.1" "pestphp/pest-plugin-type-coverage:^4.0.6" --no-interaction --no-update
+        run: composer require --dev "pestphp/pest:~4.6" "pestphp/pest-plugin-laravel:~4.1" "pestphp/pest-plugin-type-coverage:4.0.6 - 4" --no-interaction --no-update
 
       - name: Use Pest 5 for Laravel 13
         if: matrix.laravel == '13.*'
-        run: composer require "pestphp/pest:^5.0" "pestphp/pest-plugin-laravel:^5.0" "pestphp/pest-plugin-type-coverage:^5.1.1" --no-interaction --no-update
+        run: composer require --dev "pestphp/pest:~5.0" "pestphp/pest-plugin-laravel:~5.0" "pestphp/pest-plugin-type-coverage:5.1.1 - 5" --no-interaction --no-update
 
       - name: Install dependencies
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
           composer run prepare
 
