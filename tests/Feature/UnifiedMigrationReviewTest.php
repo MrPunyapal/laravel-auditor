@@ -79,3 +79,30 @@ it('accepts a migration in a separately registered directory', function () {
         rmdir($directory);
     }
 });
+
+it('excludes migration links whose targets are outside the registered directory', function () {
+    $root = sys_get_temp_dir().'/auditor-migration-paths-'.uniqid();
+    $directory = $root.'/registered';
+    mkdir($directory, 0777, true);
+    $file = $root.'/outside.php';
+    $link = $directory.'/2030_01_01_000005_link.php';
+
+    try {
+        file_put_contents($file, '<?php return new class { public function up() {} };');
+
+        if (! @symlink($file, $link)) {
+            $this->markTestSkipped('Creating file symlinks is unavailable.');
+        }
+        app('migrator')->path($directory);
+
+        expect(fn () => app(MigrationSourceReview::class)->review([$link]))
+            ->toThrow(RuntimeException::class, 'not found in the registered migration paths');
+    } finally {
+        if (is_link($link)) {
+            unlink($link);
+        }
+        unlink($file);
+        rmdir($directory);
+        rmdir($root);
+    }
+});
