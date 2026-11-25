@@ -7,7 +7,7 @@ order: 10
 slug: future
 ---
 
-These features may influence later versions. They are **not** included in the current release and are not promises.
+For the prioritized development plan and proposed release milestones, see the [development roadmap](roadmap.md). The ideas below may influence later versions; they are not commitments.
 
 ## Legacy and standalone support
 
@@ -24,7 +24,7 @@ These features may influence later versions. They are **not** included in the cu
 
 ## CI and baselines
 
-- **F4: CI policies** — Ignored findings, historical baselines, new-vs-existing detection, trend tracking. `auditor:ci` already fails on severity.
+- **F4: CI policies** — Ignored findings, regression-aware baseline policies, and trend tracking. Historical baselines and new-finding CI gates are already available; stricter policies remain proposed.
 
 ## Audit depth
 

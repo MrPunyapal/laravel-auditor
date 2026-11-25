@@ -19,14 +19,16 @@ Laravel Auditor provides an AI coding agent with a repeatable, evidence-based au
 | Ecosystem rule packs | Livewire, Filament, Inertia, Sanctum, Pest — applied only when the target package is installed. Queue and DSA rules always apply. |
 | Findings | `Finding`, `FindingCollection`, `FindingLoader`, JSON schemas (`finding.schema.json`, `report.schema.json`), example findings file |
 | Reports | Markdown, JSON, CLI text, and SARIF renderers; `auditor:report` and `auditor:ci` commands, GitHub Actions annotations, dependency finding exports, `--base=<ref>` for the committed merge-base diff and `--dirty` for uncommitted files |
+| Historical findings baselines | Versioned baseline files, baseline-aware reports, and new-finding CI gates using stable IDs and comparable full audit scopes |
+| Unified change review | Read-only JSON report combining saved snapshots, optional schema risks, and supplied findings/baselines; no automatic historical state capture |
 | Snapshots and migration review | Read-only route and authorization snapshots, optional schema snapshots, snapshot comparisons, structural migration risk indicators, opt-in registered migration source inspection, and conditional database guidance. No production deployment safety guarantee. |
-| Artisan commands | `auditor:install`, `auditor:status`, `auditor:rules`, `auditor:report`, `auditor:context`, `auditor:ci`, `auditor:mcp`, `auditor:dependency-findings`, `auditor:snapshot`, `auditor:compare`, `auditor:migration-risk` |
+| Artisan commands | `auditor:install`, `auditor:status`, `auditor:rules`, `auditor:report`, `auditor:context`, `auditor:ci`, `auditor:mcp`, `auditor:dependency-findings`, `auditor:snapshot`, `auditor:compare`, `auditor:migration-risk`, `auditor:baseline`, `auditor:review` |
 | Installer | Idempotent standalone installer with `--dry-run`, `--force`, `--agents` options; wires only selected, configured, or detected agents; writes adapters only when missing |
 | Agent resources | 9 skills (8 audit + setup), 4 guidelines, 2 schemas, 1 example file — published via `vendor:publish` or `auditor:install` |
 | Facades | `LaravelAuditor` facade exposing `collect()`, `rules()`, `context()`, and `project()` |
 | Configuration | `config/laravel-auditor.php` with domains, extra rule directories, standalone resource target, agent list, custom agents, context options, changed-file options |
 | Documentation site | Docsmith-based docs deployed to GitHub Pages with OG images, sitemap, and per-page metadata |
-| CI | 32-job matrix (Ubuntu + Windows, PHP 8.3/8.4/8.5/8.6, Laravel 12/13, prefer-lowest/stable), PHPStan, Pint, type coverage, Pest |
+| CI | 24-job matrix (Ubuntu + Windows, Laravel 12 with PHP 8.3–8.5, Laravel 13 with PHP 8.4–8.6, prefer-lowest/stable), PHPStan, Pint, type coverage, Pest |
 
 ### Testing
 
@@ -44,7 +46,7 @@ These items are intentionally deferred. They may appear in future releases.
 | Area | Reason |
 | --- | --- |
 | Automatic code fixes | The package is read-only by design; fixes remain the agent's responsibility |
-| Historical audit baselines | No diffing between audit runs; findings are point-in-time. `--base` and `--dirty` filter one run by git paths. They do not store or compare previous audit results |
+| Regression-aware baseline policies | Historical findings baselines and new-finding CI gates are available; policies for worsening and reopened findings are proposed |
 | Web dashboard | No browser UI; all output is CLI, JSON, Markdown, or SARIF |
 | Legacy/standalone PHP runner | Requires a Laravel application context; cannot run outside a Laravel app |
 | Organization policy packs | No multi-tenant or organization-level rule configuration |
