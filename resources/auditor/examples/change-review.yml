@@ -1,0 +1,168 @@
+# Copy to .github/workflows/change-review.yml in your Laravel application.
+# Requires the v0.7 change-review and regression-aware baseline commands.
+# Run only on a trusted application revision, using trusted capture workflows.
+name: Laravel Change Review
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: 'Git base ref (snapshots must match merge base and HEAD)'
+        required: true
+        default: origin/main
+        type: string
+      before_run_id:
+        description: 'Successful trusted workflow run at the merge base'
+        required: true
+        type: string
+      after_run_id:
+        description: 'Successful trusted workflow run at HEAD'
+        required: true
+        type: string
+      fail_on:
+        description: 'Minimum blocking severity'
+        required: true
+        default: high
+        type: choice
+        options: [critical, high, medium, low, info]
+      fail_on_regression:
+        description: 'Include severity increases and reopened findings (requires baseline v2)'
+        type: boolean
+        default: true
+      publish_annotations:
+        description: 'Expose finding details in GitHub Actions annotations'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_ENV: testing
+      BASE_REF: ${{ inputs.base_ref }}
+      BEFORE_RUN_ID: ${{ inputs.before_run_id }}
+      AFTER_RUN_ID: ${{ inputs.after_run_id }}
+      FAIL_ON: ${{ inputs.fail_on }}
+      FAIL_ON_REGRESSION: ${{ inputs.fail_on_regression }}
+    steps:
+      - name: Checkout trusted revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check capture run associations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$BEFORE_RUN_ID" =~ ^[0-9]+$ && "$AFTER_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ -n "$BASE_REF" && "$BASE_REF" != -* ]]
+          head=$(git rev-parse HEAD)
+          merge_base=$(git merge-base --all -- "$BASE_REF" "$head")
+          [[ "$merge_base" =~ ^[0-9a-f]{40}$ ]]
+          verify_run() {
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$1" |
+              jq -e --arg sha "$2" --arg repo "$GITHUB_REPOSITORY" \
+                '.head_sha == $sha and .head_repository.full_name == $repo and .status == "completed" and .conclusion == "success"' >/dev/null
+          }
+          verify_run "$BEFORE_RUN_ID" "$merge_base"
+          verify_run "$AFTER_RUN_ID" "$head"
+
+      - name: Download trusted base artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: laravel-auditor-before
+          path: ${{ runner.temp }}/auditor-before
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.before_run_id }}
+
+      - name: Download trusted head artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: laravel-auditor-after
+          path: ${{ runner.temp }}/auditor-after
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.after_run_id }}
+
+      - name: Setup PHP and Composer
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      # Adapt testing configuration to your trusted application's boot requirements.
+      # Composer scripts and Artisan boot application code: never use an untrusted ref.
+      - name: Install locked dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Validate evidence and generate private review
+        id: review
+        shell: bash
+        run: |
+          set -euo pipefail
+          php artisan auditor:review \
+            "$RUNNER_TEMP/auditor-before/snapshot.json" \
+            "$RUNNER_TEMP/auditor-after/snapshot.json" \
+            --base="$BASE_REF" \
+            --findings="$RUNNER_TEMP/auditor-after/findings.json" \
+            --baseline="$RUNNER_TEMP/auditor-before/baseline.json" \
+            --output="$RUNNER_TEMP/auditor-review.json"
+          # Only numeric counts and fixed labels in the job summary.
+          jq -er '
+            "## Laravel change review\n" +
+            "Structural changes: " + (if .summary.structural_changes_present then "observed" else "none observed" end) + "\n" +
+            "Schema risk indicators: " + (if .summary.migration_risk_indicators == null then "not reviewed" else (.summary.migration_risk_indicators | numbers | tostring) end) + "\n" +
+            "New findings: " + (.summary.baseline.new | numbers | tostring) + "\n" +
+            "Persistent findings: " + (.summary.baseline.persistent | numbers | tostring) + "\n" +
+            "Absent from current findings: " + (.summary.baseline.absent | numbers | tostring) + "\n" +
+            "Deployment safety and artifact authenticity are not verified."
+          ' "$RUNNER_TEMP/auditor-review.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Apply finding policy
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "$FAIL_ON_REGRESSION" == true ]]; then
+            args+=(--fail-on-regression)
+          fi
+          php artisan auditor:ci \
+            --findings="$RUNNER_TEMP/auditor-after/findings.json" \
+            --baseline="$RUNNER_TEMP/auditor-before/baseline.json" \
+            --fail-on="$FAIL_ON" --format=json \
+            --output="$RUNNER_TEMP/auditor-gate.json" "${args[@]}"
+
+      - name: Publish optional finding annotations
+        if: ${{ !cancelled() && steps.review.outcome == 'success' && inputs.publish_annotations }}
+        shell: bash
+        run: |
+          php artisan auditor:report \
+            --findings="$RUNNER_TEMP/auditor-after/findings.json" \
+            --baseline="$RUNNER_TEMP/auditor-before/baseline.json" \
+            --format=github
+
+      - name: Explain review and gate outcome
+        if: ${{ !cancelled() }}
+        env:
+          REVIEW_OUTCOME: ${{ steps.review.outcome }}
+          GATE_OUTCOME: ${{ steps.gate.outcome }}
+        shell: bash
+        run: |
+          case "$REVIEW_OUTCOME" in
+            success) echo "Evidence review completed." >> "$GITHUB_STEP_SUMMARY" ;;
+            *) echo "Evidence review unavailable or failed. Do not interpret this run as a clean review." >> "$GITHUB_STEP_SUMMARY" ;;
+          esac
+          case "$GATE_OUTCOME" in
+            success) echo "Finding policy passed." >> "$GITHUB_STEP_SUMMARY" ;;
+            failure) echo "Finding policy failed or inputs could not be evaluated; inspect the failed step." >> "$GITHUB_STEP_SUMMARY" ;;
+            *) echo "Finding policy not evaluated." >> "$GITHUB_STEP_SUMMARY" ;;
+          esac

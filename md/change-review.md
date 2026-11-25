@@ -54,3 +54,7 @@ php artisan auditor:review before.json after.json --base=origin/main --format=ma
 ~~~
 
 The command validates the recorded clean revisions against a unique local merge base and HEAD, rejects missing/truncated Git scope or dirty captures, and includes the changed-file list. It never checks out, installs, or boots a historical revision. The required snapshot files remain explicit; a Git ref cannot recreate runtime state. Matching unsigned metadata is not proof of authenticity. Existing full-scope findings/baselines remain unfiltered. See [Context snapshots](snapshots.md), [Migration risk indicators](migration-risk.md), and [Findings and reports](findings.md).
+
+## GitHub Actions
+
+Copy the [manual change-review workflow](https://github.com/mrpunyapal/laravel-auditor/blob/main/resources/auditor/examples/change-review.yml) into your application's `.github/workflows/` directory after the Git-aware review and regression-aware baseline features are available. See [GitHub Actions annotations](github-annotations.md) for the trusted capture contract and privacy controls.
