@@ -29,6 +29,8 @@ final class GitStatus
 
     /**
      * Resolve the current commit without changing the checkout.
+     *
+     * @phpstan-impure
      */
     public function revision(): ?string
     {
@@ -41,6 +43,18 @@ final class GitStatus
         $sha = trim($result['output']);
 
         return preg_match('/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/D', $sha) === 1 ? $sha : null;
+    }
+
+    /**
+     * Observe the whole repository, including paths outside the application root.
+     *
+     * @phpstan-impure
+     */
+    public function isDirty(): ?bool
+    {
+        $status = $this->run(['--no-optional-locks', 'status', '--porcelain=v1', '-z', '--untracked-files=normal', '--ignored=no', '--ignore-submodules=none']);
+
+        return $status['ok'] ? $status['output'] !== '' : null;
     }
 
     /**
@@ -311,9 +325,8 @@ final class GitStatus
             return ['ok' => false, 'reason' => 'symfony/process is not installed'];
         }
 
-        $process = new Process(['git', ...$arguments], $this->basePath);
-
         try {
+            $process = new Process(['git', ...$arguments], $this->basePath);
             $process->setTimeout($this->timeout);
             $process->run();
         } catch (Throwable $e) {

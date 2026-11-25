@@ -20,13 +20,12 @@ final class SnapshotProvenance
     {
         $git = app(GitStatus::class);
         $revision = $git->revision();
-        $status = $revision === null ? null : $git->changedFiles(max: 0);
         /** @var Application $application */
         $application = app();
 
         return [
             'revision' => $revision,
-            'dirty' => $status !== null && $status['available'] ? $status['truncated'] : null,
+            'dirty' => $revision === null ? null : $git->isDirty(),
             'routes_cached' => $application->routesAreCached(),
             'php_version' => PHP_VERSION,
             'laravel_version' => $application->version(),

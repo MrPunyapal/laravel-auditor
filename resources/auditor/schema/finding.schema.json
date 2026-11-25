@@ -25,7 +25,7 @@
                     "line": { "type": ["integer", "null"] },
                     "end_line": { "type": ["integer", "null"] },
                     "detail": { "type": ["string", "null"] },
-                    "metadata": { "type": "object" }
+                    "metadata": { "anyOf": [{ "type": "object" }, { "type": "array" }] }
                 }
             }
         },
@@ -34,6 +34,6 @@
         "recommendation": { "type": "string" },
         "remediation": { "type": ["string", "null"] },
         "verification_notes": { "type": ["string", "null"] },
-        "metadata": { "type": "object" }
+        "metadata": { "anyOf": [{ "type": "object" }, { "type": "array" }] }
     }
 }

@@ -4,6 +4,8 @@
 
 ### Added
 
+- Opt-in regression-aware CI gates for increased severity and reopened findings, with backward-compatible status-aware baselines and explicit unknown historical status.
+
 ### Fixed
 
 ## [v0.6.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.5.0...v0.6.0) - 2026-11-25

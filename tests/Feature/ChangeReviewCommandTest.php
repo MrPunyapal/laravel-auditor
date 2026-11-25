@@ -86,29 +86,35 @@ it('includes existing finding baseline comparison without performing an audit', 
         'why_it_matters' => 'An unauthorized action could expose records.',
         'evidence' => [['type' => 'route', 'reference' => 'POST /orders']],
     ];
-    $oldPath = changeReviewTempFile([$finding]);
+    $oldPath = changeReviewTempFile([[...$finding, 'severity' => 'medium', 'status' => 'accepted']]);
     $currentPath = changeReviewTempFile([$finding, [...$finding, 'id' => 'R-2', 'title' => 'New finding']]);
     $baselinePath = sys_get_temp_dir().'/laravel-auditor-review-baseline-'.uniqid('', true).'.json';
 
     try {
         file_put_contents(
             $baselinePath,
-            FindingBaseline::fromFindings(app(FindingLoader::class)->load($oldPath))->toJson(),
+            FindingBaseline::fromFindings(app(FindingLoader::class)->load($oldPath), withStatus: true)->toJson(),
         );
 
-        expect(Artisan::call('auditor:review', [
+        $options = [
             'before' => $snapshotPath,
             'after' => $snapshotPath,
             '--findings' => $currentPath,
             '--baseline' => $baselinePath,
-        ]))->toBe(0);
+        ];
+        expect(Artisan::call('auditor:review', $options))->toBe(0);
 
         $report = json_decode(Artisan::output(), true, flags: JSON_THROW_ON_ERROR);
 
         expect($report['summary']['findings_count'])->toBe(2)
             ->and($report['summary']['baseline'])->toBe(['new' => 1, 'persistent' => 1, 'absent' => 0])
             ->and(array_column($report['results']['finding_review']['baseline']['new'], 'id'))->toBe(['R-2'])
+            ->and($report['results']['finding_review']['baseline']['regressions'][0]['reopened'])->toBeTrue()
             ->and($report['coverage']['baseline_compared'])->toBeTrue();
+        foreach (['markdown', 'text'] as $format) {
+            expect(Artisan::call('auditor:review', [...$options, '--format' => $format]))->toBe(0)
+                ->and(Artisan::output())->toContain('[UPDATED]', 'Regression:', 'severity increased', 'reopened from');
+        }
     } finally {
         foreach ([$snapshotPath, $oldPath, $currentPath, $baselinePath] as $path) {
             if (is_file($path)) {
