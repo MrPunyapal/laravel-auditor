@@ -57,6 +57,7 @@ jobs:
           persist-credentials: false
 
       - name: Check capture run associations
+        id: captures
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -74,6 +75,7 @@ jobs:
           }
           verify_run "$BEFORE_RUN_ID" "$merge_base"
           verify_run "$AFTER_RUN_ID" "$head"
+          printf 'merge_base=%s\n' "$merge_base" >> "$GITHUB_OUTPUT"
 
       - name: Download trusted base artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
@@ -101,20 +103,29 @@ jobs:
       # Adapt testing configuration to your trusted application's boot requirements.
       # Composer scripts and Artisan boot application code: never use an untrusted ref.
       - name: Install locked dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        shell: bash
+        run: |
+          git ls-files --error-unmatch -- composer.lock >/dev/null
+          test -f composer.lock
+          composer install --no-interaction --prefer-dist --no-progress
 
       - name: Validate evidence and generate private review
         id: review
+        env:
+          MERGE_BASE: ${{ steps.captures.outputs.merge_base }}
         shell: bash
         run: |
           set -euo pipefail
-          php artisan auditor:review \
+          if ! php artisan auditor:review \
             "$RUNNER_TEMP/auditor-before/snapshot.json" \
             "$RUNNER_TEMP/auditor-after/snapshot.json" \
-            --base="$BASE_REF" \
+            --base="$MERGE_BASE" \
             --findings="$RUNNER_TEMP/auditor-after/findings.json" \
             --baseline="$RUNNER_TEMP/auditor-before/baseline.json" \
-            --output="$RUNNER_TEMP/auditor-review.json"
+            --output="$RUNNER_TEMP/auditor-review.json" >"$RUNNER_TEMP/auditor-review.log" 2>&1; then
+            echo "Could not validate and review the supplied evidence."
+            exit 1
+          fi
           # Only numeric counts and fixed labels in the job summary.
           jq -er '
             "## Laravel change review\n" +
@@ -135,20 +146,28 @@ jobs:
           if [[ "$FAIL_ON_REGRESSION" == true ]]; then
             args+=(--fail-on-regression)
           fi
-          php artisan auditor:ci \
+          if ! php artisan auditor:ci \
             --findings="$RUNNER_TEMP/auditor-after/findings.json" \
             --baseline="$RUNNER_TEMP/auditor-before/baseline.json" \
             --fail-on="$FAIL_ON" --format=json \
-            --output="$RUNNER_TEMP/auditor-gate.json" "${args[@]}"
+            --output="$RUNNER_TEMP/auditor-gate.json" "${args[@]}" >"$RUNNER_TEMP/auditor-gate.log" 2>&1; then
+            echo "Finding policy failed or could not be evaluated."
+            exit 1
+          fi
 
       - name: Publish optional finding annotations
         if: ${{ !cancelled() && steps.review.outcome == 'success' && inputs.publish_annotations }}
         shell: bash
         run: |
-          php artisan auditor:report \
+          set -euo pipefail
+          if ! php artisan auditor:report \
             --findings="$RUNNER_TEMP/auditor-after/findings.json" \
             --baseline="$RUNNER_TEMP/auditor-before/baseline.json" \
-            --format=github
+            --format=github --output="$RUNNER_TEMP/auditor-annotations.txt" >"$RUNNER_TEMP/auditor-annotations.log" 2>&1; then
+            echo "Could not generate finding annotations."
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/auditor-annotations.txt"
 
       - name: Explain review and gate outcome
         if: ${{ !cancelled() }}

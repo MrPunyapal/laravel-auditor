@@ -16,6 +16,8 @@ it('ships a manual least-privilege change-review workflow with separate evidence
         ->toContain('.head_sha == $sha', '.head_repository.full_name == $repo')
         ->toContain('laravel-auditor-before', 'laravel-auditor-after')
         ->toContain('php artisan auditor:review', 'php artisan auditor:ci')
+        ->toContain('git ls-files --error-unmatch -- composer.lock', '--base="$MERGE_BASE"')
+        ->toContain('>"$RUNNER_TEMP/auditor-review.log" 2>&1', '>"$RUNNER_TEMP/auditor-gate.log" 2>&1')
         ->toContain('--fail-on-regression', '--format=github')
         ->toContain('publish_annotations:', 'default: false')
         ->toContain('Evidence review unavailable or failed')

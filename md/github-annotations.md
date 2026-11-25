@@ -32,6 +32,8 @@ The example verifies the capture runs' recorded repository, commit and successfu
 
 The evidence review is a separate step from the finding gate. The latter defaults to new, severity-increased and reopened open findings at high severity or above, using a version 2 baseline. Turn off the regression option to use the backward-compatible new-only policy. Neither policy treats structural indicators as confirmed vulnerabilities; a failed or unavailable evidence step does not become a passing gate.
 
-The job summary contains counts and fixed labels, not raw findings or routes. Full reports remain in the runner's temporary directory by default; no output artifacts are uploaded. Enable annotations only after reviewing the confidentiality of finding summaries, file paths and recommendations. For private local or restricted artifact use, the existing `auditor:ci --format=sarif --output=...` option can produce SARIF; this example does not upload it or request security-event write permissions.
+Commit your application's `composer.lock` before using this workflow. The example installs from that lockfile. The selected run IDs must come from capture workflows you trust. The example checks each run's repository, commit, and successful completion.
+
+The job summary contains counts and fixed labels. Full reports and command diagnostics remain in the runner's temporary directory. Enable annotations only after reviewing the confidentiality of finding summaries, file paths and recommendations. Use `auditor:ci --format=sarif --output=...` to create SARIF for private local or restricted artifact use.
 
 See GitHub's [artifact download documentation](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts) and [workflow permissions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions) when adapting the example.
