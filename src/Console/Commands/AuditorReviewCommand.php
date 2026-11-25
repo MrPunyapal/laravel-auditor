@@ -66,8 +66,11 @@ final class AuditorReviewCommand extends Command
             $gitReview = $baseRef === null ? null : app(GitArtifactReview::class)->review($baseRef, $before, $after);
             $migrations = array_values(array_map(static fn (?string $path): string => $path ?? '', $this->option('migration')));
             $report = $this->review->review($before, $after, $findings, $baseline, $migrations, (bool) $this->option('driver-guidance'));
+
             if ($gitReview !== null) {
-                if (app(GitArtifactReview::class)->review((string) $baseRef, $before, $after) !== $gitReview) {
+                $currentGitReview = app(GitArtifactReview::class)->review((string) $baseRef, $before, $after);
+
+                if ($currentGitReview !== $gitReview) {
                     throw new RuntimeException('Git review scope changed while processing artifacts.');
                 }
 

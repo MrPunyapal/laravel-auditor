@@ -28,8 +28,14 @@ final class ChangeReviewBuilder
      * @param  list<string>  $migrationFiles
      * @return array<string, mixed>
      */
-    public function review(array $before, array $after, ?FindingCollection $findings = null, ?FindingBaseline $baseline = null, array $migrationFiles = [], bool $driverGuidance = false): array
-    {
+    public function review(
+        array $before,
+        array $after,
+        ?FindingCollection $findings = null,
+        ?FindingBaseline $baseline = null,
+        array $migrationFiles = [],
+        bool $driverGuidance = false,
+    ): array {
         if ($baseline !== null && $findings === null) {
             throw new RuntimeException('A findings baseline requires a complete current findings file.');
         }
@@ -37,6 +43,7 @@ final class ChangeReviewBuilder
         $comparison = $this->snapshots->compare($before, $after);
         $schemaIncluded = array_key_exists('schema', $before['sections']);
         $migrationRisk = $schemaIncluded ? $this->migrations->analyze($before, $after) : null;
+
         if (($migrationFiles !== [] || $driverGuidance) && $migrationRisk === null) {
             throw new RuntimeException('Migration source review and driver guidance require schema-enabled snapshots on both sides.');
         }
