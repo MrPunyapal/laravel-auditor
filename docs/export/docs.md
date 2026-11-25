@@ -1536,7 +1536,15 @@ php artisan auditor:review before.json after.json --migration=database/migration
 
 Select actual registered migration paths (repeatable, at most 50). The report keeps structural indicators distinct from source indicators and driver questions. The structural indicator count does not include source occurrences. These flags require complete schema-enabled snapshots; no migration execution, measured lock duration, or deployment-safety guarantee is implied.
 
-A future Git-aware workflow may help orchestrate snapshot and finding artifacts. A `--base` ref alone is not a substitute for capturing the older application's runtime state. See [Context snapshots](snapshots.md), [Migration risk indicators](migration-risk.md), and [Findings and reports](findings.md).
+## Git-aware review
+
+With Git installed, capture snapshots with `--with-provenance` at the merge base and the head commit in separate trusted, comparable environments. Store the artifacts outside the working tree or in ignored storage. From the clean head checkout:
+
+~~~bash
+php artisan auditor:review before.json after.json --base=origin/main --format=markdown
+~~~
+
+The command validates the recorded clean revisions against a unique local merge base and HEAD, rejects missing/truncated Git scope or dirty captures, and includes the changed-file list. It never checks out, installs, or boots a historical revision. The required snapshot files remain explicit; a Git ref cannot recreate runtime state. Matching unsigned metadata is not proof of authenticity. Existing full-scope findings/baselines remain unfiltered. See [Context snapshots](snapshots.md), [Migration risk indicators](migration-risk.md), and [Findings and reports](findings.md).
 
 
 ---
