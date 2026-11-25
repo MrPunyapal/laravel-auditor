@@ -7,7 +7,15 @@ use LaravelAuditor\Context\Snapshots\SnapshotBuilder;
 use LaravelAuditor\Support\GitStatus;
 
 it('reviews explicit clean artifacts matching the committed merge base and head', function () {
-    $repo = committedFeatureRepository();
+    $repo = changedFilesRepository();
+    writeRepositoryFile($repo, 'app/Models/User.php', '<?php // base');
+    runGit($repo, 'add', '.');
+    runGit($repo, 'commit', '-qm', 'base');
+    runGit($repo, 'branch', '-M', 'main');
+    runGit($repo, 'checkout', '-qb', 'feature');
+    writeRepositoryFile($repo, 'app/Models/User.php', '<?php // head');
+    runGit($repo, 'add', '.');
+    runGit($repo, 'commit', '-qm', 'head');
     $beforePath = sys_get_temp_dir().'/git-review-before-'.uniqid('', true).'.json';
     $afterPath = sys_get_temp_dir().'/git-review-after-'.uniqid('', true).'.json';
 
