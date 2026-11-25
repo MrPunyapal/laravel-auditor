@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.6.0...HEAD)
+## [Unreleased](https://github.com/mrpunyapal/laravel-auditor/compare/v0.7.0...HEAD)
+
+### Added
+
+### Fixed
+
+## [v0.7.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.6.0...v0.7.0) - 2026-11-25
 
 ### Added
 
@@ -15,6 +21,8 @@
 
 - Reject malformed findings and baseline containers instead of treating them as empty evidence.
 - Keep migration source inside registered directories and preserve numeric filenames in Git scope output.
+
+**Full Changelog** https://github.com/MrPunyapal/laravel-auditor/compare/v0.6.0...v0.7.0
 
 ## [v0.6.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.5.0...v0.6.0) - 2026-11-25
 
