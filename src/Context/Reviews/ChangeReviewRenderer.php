@@ -43,6 +43,34 @@ final class ChangeReviewRenderer
         }
 
         $lines[] = '';
+        $lines[] = self::heading('Capture provenance', $markdown);
+
+        if (isset($comparison['provenance'])) {
+            $lines[] = '- Before: '.self::value($comparison['provenance']['before'], $markdown);
+            $lines[] = '- After: '.self::value($comparison['provenance']['after'], $markdown);
+            $lines[] = '- '.self::value($comparison['provenance']['note'], $markdown);
+        } else {
+            $lines[] = 'Unknown capture conditions.';
+        }
+
+        if (isset($results['git_review'])) {
+            $git = $results['git_review'];
+            $lines[] = '';
+            $lines[] = self::heading('Git artifact review', $markdown);
+            $lines[] = '- Merge base: '.self::value($git['merge_base'], $markdown);
+            $lines[] = '- HEAD: '.self::value($git['head'], $markdown);
+            $lines[] = 'Changed files: '.$git['file_count'];
+
+            foreach ($git['changed_files'] as $file) {
+                $lines[] = '- '.self::value($file, $markdown);
+            }
+
+            foreach ($git['limitations'] as $limitation) {
+                $lines[] = '- '.self::value($limitation, $markdown);
+            }
+        }
+
+        $lines[] = '';
         $lines[] = self::heading('Routes and authorization', $markdown);
 
         foreach (['added', 'removed', 'modified'] as $kind) {

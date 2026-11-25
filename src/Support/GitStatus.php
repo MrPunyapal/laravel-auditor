@@ -44,6 +44,27 @@ final class GitStatus
     }
 
     /**
+     * Resolve a single merge base against an immutable HEAD commit.
+     */
+    public function mergeBase(string $base, string $head): ?string
+    {
+        if (trim($base) === '' || str_starts_with($base, '-') || preg_match('/[\x00-\x1F\x7F]/', $base) === 1
+            || preg_match('/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/D', $head) !== 1) {
+            return null;
+        }
+
+        $result = $this->run(['merge-base', '--all', '--', $base, $head]);
+
+        if (! $result['ok']) {
+            return null;
+        }
+
+        $sha = trim($result['output']);
+
+        return preg_match('/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/D', $sha) === 1 ? $sha : null;
+    }
+
+    /**
      * Uncommitted files, relative to the application root.
      *
      * Staged, unstaged, and untracked paths are included. Deleted paths are kept
