@@ -86,29 +86,35 @@ it('includes existing finding baseline comparison without performing an audit', 
         'why_it_matters' => 'An unauthorized action could expose records.',
         'evidence' => [['type' => 'route', 'reference' => 'POST /orders']],
     ];
-    $oldPath = changeReviewTempFile([$finding]);
+    $oldPath = changeReviewTempFile([[...$finding, 'severity' => 'medium', 'status' => 'accepted']]);
     $currentPath = changeReviewTempFile([$finding, [...$finding, 'id' => 'R-2', 'title' => 'New finding']]);
     $baselinePath = sys_get_temp_dir().'/laravel-auditor-review-baseline-'.uniqid('', true).'.json';
 
     try {
         file_put_contents(
             $baselinePath,
-            FindingBaseline::fromFindings(app(FindingLoader::class)->load($oldPath))->toJson(),
+            FindingBaseline::fromFindings(app(FindingLoader::class)->load($oldPath), withStatus: true)->toJson(),
         );
 
-        expect(Artisan::call('auditor:review', [
+        $options = [
             'before' => $snapshotPath,
             'after' => $snapshotPath,
             '--findings' => $currentPath,
             '--baseline' => $baselinePath,
-        ]))->toBe(0);
+        ];
+        expect(Artisan::call('auditor:review', $options))->toBe(0);
 
         $report = json_decode(Artisan::output(), true, flags: JSON_THROW_ON_ERROR);
 
         expect($report['summary']['findings_count'])->toBe(2)
             ->and($report['summary']['baseline'])->toBe(['new' => 1, 'persistent' => 1, 'absent' => 0])
             ->and(array_column($report['results']['finding_review']['baseline']['new'], 'id'))->toBe(['R-2'])
+            ->and($report['results']['finding_review']['baseline']['regressions'][0]['reopened'])->toBeTrue()
             ->and($report['coverage']['baseline_compared'])->toBeTrue();
+        foreach (['markdown', 'text'] as $format) {
+            expect(Artisan::call('auditor:review', [...$options, '--format' => $format]))->toBe(0)
+                ->and(Artisan::output())->toContain('[UPDATED]', 'Regression:', 'severity increased', 'reopened from');
+        }
     } finally {
         foreach ([$snapshotPath, $oldPath, $currentPath, $baselinePath] as $path) {
             if (is_file($path)) {
@@ -161,5 +167,94 @@ it('prevents output from overwriting snapshot, finding, or baseline input', func
         expect(file_get_contents($snapshotPath))->toBe($original);
     } finally {
         unlink($snapshotPath);
+    }
+});
+
+it('renders markdown and text from the same evidence without changing the default JSON output', function () {
+    $before = app(SnapshotBuilder::class)->capture();
+    $after = $before;
+    $after['sections']['routes'][0]['resolved_middleware'][] = 'example-middleware';
+    $beforePath = changeReviewTempFile($before);
+    $afterPath = changeReviewTempFile($after);
+
+    try {
+        $options = ['before' => $beforePath, 'after' => $afterPath];
+        expect(Artisan::call('auditor:review', $options))->toBe(0);
+        $default = Artisan::output();
+
+        expect(Artisan::call('auditor:review', [...$options, '--format' => 'json']))->toBe(0)
+            ->and(Artisan::output())->toBe($default);
+
+        expect(Artisan::call('auditor:review', [...$options, '--format' => 'markdown']))->toBe(0);
+        $markdown = Artisan::output();
+        expect($markdown)->toContain('# Laravel Auditor Change Review', '## Coverage', 'Modified routes: 1', 'example-middleware', 'Not reviewed: schema-enabled snapshots were not supplied.', 'Not reviewed: no findings file was supplied.', 'Deployment safety has not been verified.');
+
+        expect(Artisan::call('auditor:review', [...$options, '--format' => 'markdown']))->toBe(0)
+            ->and(Artisan::output())->toBe($markdown);
+
+        expect(Artisan::call('auditor:review', [...$options, '--format' => 'text']))->toBe(0)
+            ->and(Artisan::output())->toContain('Laravel Auditor Change Review', 'Modified routes: 1')
+            ->not->toContain('# Laravel Auditor Change Review');
+
+        $this->artisan('auditor:review', [...$options, '--format' => 'unsupported'])
+            ->expectsOutputToContain('Unknown review format')
+            ->assertFailed();
+    } finally {
+        unlink($beforePath);
+        unlink($afterPath);
+    }
+});
+
+it('keeps untrusted snapshot metadata inside a single escaped markdown code span and escapes terminal controls', function () {
+    $before = app(SnapshotBuilder::class)->capture();
+    $after = $before;
+    $after['sections']['routes'][0]['action'] = "injected\x1b[31m\n## forged";
+    $after['sections']['routes'][0]['name'] = 'bad'.chr(96).'<script>alert(1)</script>';
+    $beforePath = changeReviewTempFile($before);
+    $afterPath = changeReviewTempFile($after);
+
+    try {
+        $options = ['before' => $beforePath, 'after' => $afterPath];
+
+        expect(Artisan::call('auditor:review', [...$options, '--format' => 'markdown']))->toBe(0);
+        $markdown = Artisan::output();
+        expect($markdown)->toContain('bad\u0060<script>alert(1)</script>', 'injected\u001b[31m\n## forged')
+            ->not->toContain(chr(27), "\n## forged", 'bad'.chr(96).'<script>');
+
+        expect(Artisan::call('auditor:review', [...$options, '--format' => 'text']))->toBe(0)
+            ->and(Artisan::output())->not->toContain(chr(27), "\n## forged");
+    } finally {
+        unlink($beforePath);
+        unlink($afterPath);
+    }
+});
+
+it('writes a markdown report without overwriting inputs and publishes the review envelope schema', function () {
+    $snapshot = app(SnapshotBuilder::class)->capture();
+    $snapshotPath = changeReviewTempFile($snapshot);
+    $outputPath = sys_get_temp_dir().'/laravel-auditor-review-'.uniqid('', true).'.md';
+
+    try {
+        $options = ['before' => $snapshotPath, 'after' => $snapshotPath, '--format' => 'markdown'];
+        $this->artisan('auditor:review', [...$options, '--output' => $outputPath])->assertSuccessful();
+        expect(file_get_contents($outputPath))->toStartWith('# Laravel Auditor Change Review');
+
+        $original = file_get_contents($snapshotPath);
+        $this->artisan('auditor:review', [...$options, '--output' => $snapshotPath])->assertFailed();
+        expect(file_get_contents($snapshotPath))->toBe($original);
+
+        $schema = json_decode((string) file_get_contents(dirname(__DIR__, 2).'/resources/auditor/schema/change-review.schema.json'), true, flags: JSON_THROW_ON_ERROR);
+        expect(Artisan::call('auditor:review', ['before' => $snapshotPath, 'after' => $snapshotPath]))->toBe(0);
+        $report = json_decode(Artisan::output(), true, flags: JSON_THROW_ON_ERROR);
+
+        expect(array_keys($report))->toBe($schema['required'])
+            ->and($report['format'])->toBe($schema['properties']['format']['const'])
+            ->and($report['version'])->toBe($schema['properties']['version']['const']);
+    } finally {
+        unlink($snapshotPath);
+
+        if (is_file($outputPath)) {
+            unlink($outputPath);
+        }
     }
 });
