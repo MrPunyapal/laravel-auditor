@@ -27,17 +27,7 @@ final class MigrationSourceReview
             throw new RuntimeException('Select between one and 50 migration files.');
         }
 
-        $registered = [];
-
-        foreach ($this->migrations->collect()['migrations'] as $entry) {
-            $file = (string) $entry['file'];
-            $path = $this->path($file);
-            $real = realpath($path);
-
-            if ($real !== false && is_file($real)) {
-                $registered[$real] = $file;
-            }
-        }
+        $registered = array_flip($this->migrations->registeredFiles());
 
         $results = [];
         $seen = [];
@@ -49,7 +39,7 @@ final class MigrationSourceReview
 
             $real = realpath($this->path($request));
 
-            if ($real === false || ! isset($registered[$real]) || ! is_readable($real)) {
+            if ($real === false || ! isset($registered[$real]) || ! is_file($real) || ! is_readable($real)) {
                 throw new RuntimeException('The selected migration file was not found in the registered migration paths.');
             }
 
@@ -64,9 +54,9 @@ final class MigrationSourceReview
                 throw new RuntimeException('A migration file exceeds the 1 MiB review limit or cannot be measured.');
             }
 
-            $source = file_get_contents($real);
+            $source = file_get_contents($real, false, null, 0, 1048577);
 
-            if (! is_string($source)) {
+            if (! is_string($source) || strlen($source) > 1048576) {
                 throw new RuntimeException('The selected migration file could not be read.');
             }
 
@@ -98,7 +88,8 @@ final class MigrationSourceReview
 
     private function path(string $name): string
     {
-        if (str_starts_with($name, '/') || preg_match('/^[a-zA-Z]:[\\\\\\/]/', $name) === 1) {
+        if (str_starts_with($name, '/') || preg_match('/^[a-zA-Z]:[\\\\\\/]/', $name) === 1
+            || (DIRECTORY_SEPARATOR === '\\' && str_starts_with($name, '\\\\'))) {
             return $name;
         }
 
