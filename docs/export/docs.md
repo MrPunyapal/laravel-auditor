@@ -1055,7 +1055,20 @@ php artisan auditor:report --findings=storage/auditor-findings.json --baseline=s
 php artisan auditor:ci --findings=storage/auditor-findings.json --baseline=storage/auditor-baseline.json --fail-on=high
 ```
 
-Baseline CI fails only for new open findings at or above the threshold. Existing findings remain in reports. Compare runs with the same full audit scope; `--baseline` cannot be combined with `--base` or `--dirty`. An ID absent from the current findings file is not proof that the underlying issue was fixed. Baselines contain IDs and display metadata, without evidence or summaries. See `resources/auditor/schema/findings-baseline.schema.json`.
+By default, baseline CI fails only for new open findings at or above the threshold. Existing findings remain in reports. Compare runs with the same full audit scope; `--baseline` cannot be combined with `--base` or `--dirty`. An ID absent from the current findings file is not proof that the underlying issue was fixed. Baselines contain IDs and display metadata, without evidence or summaries. See `resources/auditor/schema/findings-baseline.schema.json`.
+
+### Opt-in regression-aware CI
+
+Version 1 remains the default baseline format. Create a version 2 baseline from a trusted, complete audit to retain the finding lifecycle status:
+
+```bash
+php artisan auditor:baseline --findings=storage/auditor-findings.json --output=storage/auditor-baseline.json --with-status
+php artisan auditor:ci --findings=storage/auditor-findings.json --baseline=storage/auditor-baseline.json --fail-on=high --fail-on-regression
+```
+
+The opt-in gate checks new findings and persistent findings whose severity increased or whose status changed from non-open to open. Only currently open candidates meeting the severity threshold block CI; a finding meeting both regression criteria is counted once. The flag requires a version 2 baseline rather than silently treating missing version 1 status as open. Without the flag, existing CI behavior is unchanged. Both formats remain readable; version 2 adds status without copying evidence or summaries. JSON comparisons include regression details, comparison states, and whether historical status is available. A version 1 comparison can detect severity increases but cannot determine reopening.
+
+Use equivalent full audit scopes, preserve stable IDs, and retain the baseline from before the change. Recreating a baseline from current findings would hide the very changes being reviewed. Status and severity are producer-supplied, not independent proof of exploitation or remediation.
 
 ## Scoping to a branch or to uncommitted work
 
@@ -1478,6 +1491,15 @@ Use the new **read-only** `auditor:review` command to combine existing determini
 ~~~bash
 php artisan auditor:review before.json after.json --output=review.json
 ~~~
+
+JSON remains the default output. For a human-readable review, select Markdown or terminal text:
+
+~~~bash
+php artisan auditor:review before.json after.json --format=markdown --output=review.md
+php artisan auditor:review before.json after.json --format=text
+~~~
+
+These views include coverage, changed routes and authorization metadata, schema table changes, prioritized structural migration indicators and verification questions, supplied findings and baseline counts, and limitations. Omitted inputs are marked as not reviewed rather than counted as zero. Findings and structural observations remain separate. The JSON report includes the full underlying evidence; the human-readable views are summaries, not a replacement for the machine-readable result. The version 1 envelope and principal result sections are described in `resources/auditor/schema/change-review.schema.json`.
 
 The two inputs are snapshots previously created with `auditor:snapshot` in comparable application environments. The command does **not** switch Git revisions, execute migrations, run an AI coding agent, or collect live state. Review snapshots with the same route-cache state.
 
