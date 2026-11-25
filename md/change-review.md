@@ -7,7 +7,7 @@ slug: change-review
 
 # Change review
 
-Use the new **read-only** `auditor:review` command to combine existing deterministic evidence in one JSON report:
+Use the **read-only** `auditor:review` command to combine saved evidence in one report:
 
 ~~~bash
 php artisan auditor:review before.json after.json --output=review.json
@@ -20,7 +20,7 @@ php artisan auditor:review before.json after.json --format=markdown --output=rev
 php artisan auditor:review before.json after.json --format=text
 ~~~
 
-These views include coverage, changed routes and authorization metadata, schema table changes, prioritized structural migration indicators and verification questions, supplied findings and baseline counts, and limitations. Omitted inputs are marked as not reviewed rather than counted as zero. Findings and structural observations remain separate. The JSON report includes the full underlying evidence; the human-readable views are summaries, not a replacement for the machine-readable result. The version 1 envelope and principal result sections are described in `resources/auditor/schema/change-review.schema.json`.
+These views include coverage, route and authorization changes, schema changes, migration indicators, supplied findings, and baseline comparisons. Baseline details show severity increases and reopens when the historical status is known. Omitted evidence is marked as unavailable. JSON includes the full evidence and follows the version 1 schema in `resources/auditor/schema/change-review.schema.json`.
 
 The two inputs are snapshots previously created with `auditor:snapshot` in comparable application environments. The command does **not** switch Git revisions, execute migrations, run an AI coding agent, or collect live state. Review snapshots with the same route-cache state.
 
@@ -57,4 +57,4 @@ The command validates the recorded clean revisions against a unique local merge 
 
 ## GitHub Actions
 
-Copy the [manual change-review workflow](https://github.com/mrpunyapal/laravel-auditor/blob/main/resources/auditor/examples/change-review.yml) into your application's `.github/workflows/` directory after the Git-aware review and regression-aware baseline features are available. See [GitHub Actions annotations](github-annotations.md) for the trusted capture contract and privacy controls.
+Copy the [manual change-review workflow](https://github.com/mrpunyapal/laravel-auditor/blob/main/resources/auditor/examples/change-review.yml) into your application's `.github/workflows/` directory. Use a package version that includes Git-aware review and status-aware baselines. Follow the trusted capture and privacy requirements in [GitHub Actions annotations](github-annotations.md).
