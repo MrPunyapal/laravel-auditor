@@ -22,20 +22,18 @@ The milestones below are proposals, not release commitments or delivery dates. V
 
 Current commands and limitations are documented in [Change review](change-review.md), [Findings and reports](findings.md), [Context snapshots](snapshots.md), and [Migration risk indicators](migration-risk.md).
 
-## Proposed v0.7.0 — Practical pull-request change review
+## v0.7.0 — Practical pull request change review
 
-**Priority: highest.** Make existing review evidence easier to understand and use in CI before expanding coverage.
+The following features are on the default branch and are listed under Unreleased in the changelog.
 
-Deliver in independently reviewable PRs, in dependency order:
+- [x] **Regression-aware baselines.** Version 2 records lifecycle status. Opt in to CI checks for increases in severity and reopened findings, in addition to new findings. Existing baselines and the default policy remain supported.
+- [x] **Human-readable reports.** Change review supports Markdown and terminal text alongside its versioned JSON report.
+- [x] **Snapshot provenance.** Opt-in Git, route cache, and runtime metadata helps compare the conditions under which snapshots were captured. The metadata is unsigned.
+- [x] **Unified migration review.** Explicitly select registered migration source and request database guidance when both snapshots include schema evidence.
+- [x] **Git-aware artifact review.** Associate explicitly supplied clean snapshots with the local merge base and HEAD. Changed paths are reported separately from complete findings.
+- [x] **GitHub Actions example.** Consume trusted artifacts and run separate structural review and findings policy steps. Annotations are optional.
 
-- [ ] **Regression-aware baselines.** Preserve the default new-ID-only CI policy. Add opt-in policies for increased severity and reopened findings, with explicit updated/unchanged/absent states. Existing baseline files lack historical status; version the format compatibly and treat unavailable history as unknown. Test low-to-critical changes, reopened findings, duplicate IDs, old formats, and equivalent-scope requirements. Absence is not proof of remediation.
-- [ ] **Human-readable review reports.** Add Markdown and terminal output while preserving the existing JSON contract. Publish a versioned review schema, useful summaries, prioritized structural indicators, and explicit coverage limitations. Keep structural evidence separate from agent-provided findings; no inferred security conclusions. Test deterministic output, escaping, and incomplete inputs.
-- [ ] **Snapshot provenance and comparability.** Record enough non-secret metadata to associate artifacts with revisions and relevant capture conditions. Distinguish verified provenance from user-supplied labels; reject incompatible captures or clearly mark unknown comparability. Preserve support for existing snapshots without inventing their history.
-- [ ] **Unified migration review options.** Reuse the existing migration source inspector and driver advisor in the review command, only with explicit opt-in and registered paths. Maintain file safety, no execution of migration PHP, and conditional guidance rather than downtime predictions.
-- [ ] **Git-aware artifact review.** Resolve the merge base and changed-file scope using existing Git utilities. Associate saved before/after artifacts with the relevant revisions; never infer past runtime state from a Git diff. A possible future interface is `auditor:review --base=origin/main`, with explicit artifact inputs or a documented trusted artifact location. Do not automatically check out, install, boot, or execute an untrusted revision.
-- [ ] **GitHub Actions integration.** Provide a copyable workflow and concise review output with existing annotations/SARIF support where appropriate. Separate structural indicators, findings policy failures, and unavailable evidence. Use least-privilege permissions, trusted baseline artifacts, and protect sensitive metadata. No hosted service required.
-
-Exit criteria: a Laravel developer can capture comparable evidence, inspect one understandable change report, and optionally gate new or worsening findings in CI. Missing required evidence must not produce a passing safety verdict.
+See the [change review guide](change-review.md) for how to capture evidence, review differences, and configure the CI gate.
 
 ## Proposed v0.8.0 — Deeper Laravel-specific verification
 

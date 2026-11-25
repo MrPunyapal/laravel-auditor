@@ -308,9 +308,12 @@ Combine existing route and authorization snapshots, optional schema risk indicat
 
 ```bash
 php artisan auditor:review before.json after.json --output=review.json
+php artisan auditor:review before.json after.json --format=markdown
 ```
 
 See [Change review](https://mrpunyapal.github.io/laravel-auditor/change-review/) for evidence requirements and limitations. This command does not execute migrations or run an AI audit.
+
+Use `auditor:snapshot --with-provenance` to record Git and runtime metadata. With clean saved snapshots, `auditor:review --base=origin/main` checks the recorded revisions against the local merge base and HEAD. The [GitHub Actions example](resources/auditor/examples/change-review.yml) uses trusted capture artifacts and can gate regressions against a status-aware baseline.
 
 ## Reporting and diagnostics
 

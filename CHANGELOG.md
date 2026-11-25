@@ -5,8 +5,16 @@
 ### Added
 
 - Opt-in regression-aware CI gates for increased severity and reopened findings, with backward-compatible status-aware baselines and explicit unknown historical status.
+- Markdown and terminal output for change reviews, alongside the default JSON and its published schema.
+- Optional snapshot provenance and comparison of recorded route cache and runtime versions.
+- Explicit migration source inspection and conditional database driver guidance in unified reviews.
+- Git-aware review of saved artifacts against a local merge base and current commit.
+- A copyable GitHub Actions example that consumes trusted capture artifacts and applies a separate findings policy.
 
 ### Fixed
+
+- Reject malformed findings and baseline containers instead of treating them as empty evidence.
+- Keep migration source inside registered directories and preserve numeric filenames in Git scope output.
 
 ## [v0.6.0](https://github.com/mrpunyapal/laravel-auditor/compare/v0.5.0...v0.6.0) - 2026-11-25
 

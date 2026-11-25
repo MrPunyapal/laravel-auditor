@@ -24,7 +24,7 @@ For the prioritized development plan and proposed release milestones, see the [d
 
 ## CI and baselines
 
-- **F4: CI policies** — Ignored findings, regression-aware baseline policies, and trend tracking. Historical baselines and new-finding CI gates are already available; stricter policies remain proposed.
+- **F4: CI policies** — Ignored findings and trend tracking. Status-aware baselines support opt-in severity increase and reopen checks.
 
 ## Audit depth
 
