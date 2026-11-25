@@ -177,7 +177,7 @@ final class GitStatus
      */
     private function diffFiles(string $before, string $after, string $prefix, array $ignore, int $max): array
     {
-        $diff = $this->run(['diff', '-z', '--name-status', $before, $after, '--']);
+        $diff = $this->run(['diff', '-z', '--name-status', '--no-relative', '--ignore-submodules=none', $before, $after, '--']);
 
         if (! $diff['ok']) {
             return $this->unavailable($diff['reason']);

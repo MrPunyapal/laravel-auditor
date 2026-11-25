@@ -69,3 +69,27 @@ it('reviews explicit clean artifacts matching the committed merge base and head'
         removeRepository($repo);
     }
 });
+
+it('keeps the full committed application scope when Git is configured for relative diffs', function () {
+    $repo = changedFilesRepository();
+
+    try {
+        writeRepositoryFile($repo, 'application/base.php', '<?php');
+        runGit($repo, 'add', '.');
+        runGit($repo, 'commit', '-qm', 'base');
+        runGit($repo, 'branch', 'base');
+        runGit($repo, 'config', 'diff.relative', 'true');
+        writeRepositoryFile($repo, 'application/changed.php', '<?php');
+        writeRepositoryFile($repo, 'sibling/external.php', '<?php');
+        runGit($repo, 'add', '.');
+        runGit($repo, 'commit', '-qm', 'head');
+
+        $git = new GitStatus($repo.DIRECTORY_SEPARATOR.'application');
+        $head = $git->revision();
+        $base = $git->mergeBase('base', (string) $head);
+        expect($base)->not->toBeNull()
+            ->and($git->changedBetween((string) $base, (string) $head, [], 500)['files'])->toBe(['changed.php']);
+    } finally {
+        removeRepository($repo);
+    }
+});
