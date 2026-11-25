@@ -213,7 +213,7 @@ it('rejects malformed or unsupported baselines instead of reporting a clean comp
     $findingsPath = baselineTestJsonFile([baselineTestFinding('F-1')]);
     $badBaselines = [
         'not json',
-        json_encode(['format' => 'laravel-auditor.findings-baseline', 'version' => 2, 'findings' => []], JSON_THROW_ON_ERROR),
+        json_encode(['format' => 'laravel-auditor.findings-baseline', 'version' => 99, 'findings' => []], JSON_THROW_ON_ERROR),
         json_encode([
             'format' => 'laravel-auditor.findings-baseline',
             'version' => 1,
@@ -263,4 +263,119 @@ it('rejects baseline comparisons combined with partial change scopes', function 
 
     unlink($findingsPath);
     unlink($baselinePath);
+});
+
+it('retains status only in opt-in version 2 baselines and detects regressions without duplicate candidates', function () {
+    $old = [
+        baselineTestFinding('raised', 'low'),
+        [...baselineTestFinding('reopened', 'high'), 'status' => 'fixed'],
+        [...baselineTestFinding('both', 'medium'), 'status' => 'accepted'],
+        baselineTestFinding('unchanged', 'high'),
+        baselineTestFinding('lowered', 'critical'),
+        baselineTestFinding('closed', 'low'),
+    ];
+    $current = [
+        baselineTestFinding('raised', 'critical'),
+        baselineTestFinding('reopened', 'high'),
+        baselineTestFinding('both', 'high'),
+        baselineTestFinding('unchanged', 'high'),
+        baselineTestFinding('lowered', 'high'),
+        [...baselineTestFinding('closed', 'high'), 'status' => 'fixed'],
+    ];
+    $oldPath = baselineTestJsonFile($old);
+    $currentPath = baselineTestJsonFile($current);
+    $baselinePath = baselineTestJsonFile([]);
+
+    try {
+        $this->artisan('auditor:baseline', [
+            '--findings' => $oldPath,
+            '--output' => $baselinePath,
+            '--with-status' => true,
+        ])->assertSuccessful();
+
+        $saved = json_decode((string) file_get_contents($baselinePath), true, flags: JSON_THROW_ON_ERROR);
+        expect($saved['version'])->toBe(2)
+            ->and($saved['findings'][0]['status'])->toBe('accepted')
+            ->and($saved['findings'][0])->not->toHaveKey('evidence');
+
+        $exit = Artisan::call('auditor:report', [
+            '--findings' => $currentPath,
+            '--baseline' => $baselinePath,
+            '--format' => 'json',
+        ]);
+        $report = json_decode(Artisan::output(), true, flags: JSON_THROW_ON_ERROR);
+
+        expect($exit)->toBe(0)
+            ->and($report['baseline']['status_history_available'])->toBeTrue()
+            ->and(array_column($report['baseline']['regressions'], 'id'))->toBe(['both', 'closed', 'raised', 'reopened'])
+            ->and($report['baseline']['regressions'][0]['severity_increased'])->toBeTrue()
+            ->and($report['baseline']['regressions'][0]['reopened'])->toBeTrue();
+
+        $options = ['--findings' => $currentPath, '--baseline' => $baselinePath, '--fail-on' => 'high'];
+        $this->artisan('auditor:ci', $options)->assertSuccessful();
+        $this->artisan('auditor:ci', [...$options, '--fail-on-regression' => true])
+            ->expectsOutputToContain('3 new or regressed open finding(s)')
+            ->assertFailed();
+    } finally {
+        unlink($oldPath);
+        unlink($currentPath);
+        unlink($baselinePath);
+    }
+});
+
+it('requires known historical status for the stricter policy without rejecting legacy baselines by default', function () {
+    $findingsPath = baselineTestJsonFile([baselineTestFinding('F-1', 'high')]);
+    $baselinePath = baselineTestJsonFile([
+        'format' => 'laravel-auditor.findings-baseline',
+        'version' => 1,
+        'findings' => [
+            ['id' => 'F-1', 'rule_id' => 'AUD-SEC-001', 'title' => 'Missing authorization', 'domain' => 'security', 'severity' => 'low'],
+        ],
+    ]);
+
+    try {
+        $options = ['--findings' => $findingsPath, '--baseline' => $baselinePath];
+        $this->artisan('auditor:ci', $options)->assertSuccessful();
+        $this->artisan('auditor:ci', [...$options, '--fail-on-regression' => true])
+            ->expectsOutputToContain('historical status is unknown')
+            ->assertFailed();
+        $this->artisan('auditor:ci', ['--findings' => $findingsPath, '--fail-on-regression' => true])
+            ->expectsOutputToContain('requires a version 2 --baseline')
+            ->assertFailed();
+
+        expect(Artisan::call('auditor:report', [...$options, '--format' => 'json']))->toBe(0);
+        $report = json_decode(Artisan::output(), true, flags: JSON_THROW_ON_ERROR);
+        expect($report['baseline']['status_history_available'])->toBeFalse()
+            ->and($report['baseline']['regressions'][0]['severity_increased'])->toBeTrue()
+            ->and($report['baseline']['regressions'][0]['previous_status'])->toBeNull()
+            ->and($report['baseline']['regressions'][0]['reopened'])->toBeFalse();
+    } finally {
+        unlink($findingsPath);
+        unlink($baselinePath);
+    }
+});
+
+it('rejects missing or invalid status in a version 2 baseline', function () {
+    $findingsPath = baselineTestJsonFile([baselineTestFinding('F-1')]);
+    $entry = ['id' => 'F-1', 'rule_id' => 'AUD-SEC-001', 'title' => 'Missing authorization', 'domain' => 'security', 'severity' => 'high'];
+
+    try {
+        foreach ([$entry, [...$entry, 'status' => 'unknown']] as $invalid) {
+            $baselinePath = baselineTestJsonFile([
+                'format' => 'laravel-auditor.findings-baseline',
+                'version' => 2,
+                'findings' => [$invalid],
+            ]);
+
+            try {
+                $this->artisan('auditor:ci', ['--findings' => $findingsPath, '--baseline' => $baselinePath])
+                    ->expectsOutputToContain('invalid or missing status')
+                    ->assertFailed();
+            } finally {
+                unlink($baselinePath);
+            }
+        }
+    } finally {
+        unlink($findingsPath);
+    }
 });
