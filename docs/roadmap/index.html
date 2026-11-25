@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development roadmap | Laravel Auditor</title>
+    <meta name="description" content="Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Development roadmap | Laravel Auditor">
+    <meta property="og:description" content="Planned milestones for evidence-based Laravel change review, verification, and security intelligence.">
+    <meta property="og:url" content="https://mrpunyapal.github.io/laravel-auditor/roadmap">
+    <meta property="og:image" content="https://mrpunyapal.github.io/laravel-auditor/og/cover.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Development roadmap | Laravel Auditor">
+    <meta name="twitter:description" content="Planned milestones for evidence-based Laravel change review, verification, and security intelligence.">
+    <meta name="twitter:image" content="https://mrpunyapal.github.io/laravel-auditor/og/cover.png">
+    <link rel="stylesheet" href="../assets/app.css">
+    <script src="../assets/app.js" defer></script>
+</head>
+<body data-docsmith-root="../">
+    <div class="shell has-right-rail">
+        <aside class="sidebar" data-docsmith-sidebar>
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <h1 class="brand">Laravel Auditor</h1>
+                    <p class="tagline">Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.</p>
+                </div>
+                <button type="button" class="mobile-menu-toggle" data-docsmith-menu-toggle aria-expanded="false" aria-controls="docsmith-sidebar-panel" aria-label="Open menu"><svg class="mobile-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="mobile-menu-bars" d="M3.75 8.25h16.5M3.75 15.75h11"></path><path class="mobile-menu-close" d="M6 6l12 12M18 6L6 18"></path></svg><span class="sr-only">Toggle menu</span></button>
+            </div>
+            <div class="sidebar-panel" id="docsmith-sidebar-panel" data-docsmith-sidebar-panel>
+                
+                <div class="sidebar-actions"><a class="sidebar-action-link" href="https://github.com/mrpunyapal/laravel-auditor">Repository</a><button type="button" class="theme-toggle" data-docsmith-theme-toggle>Theme</button></div>
+                <div class="search">
+                    <input type="search" placeholder="Search pages  (⌘K)" aria-label="Search pages" data-docsmith-search>
+                    <div class="search-results" data-docsmith-search-results hidden></div>
+                    <div class="search-empty" data-docsmith-empty>No pages match your search.</div>
+                </div>
+                <nav class="nav" data-docsmith-nav><a class="" href="../" data-nav-item data-title="Overview" data-search="Laravel Auditor Overview Evidence-based, agent-agnostic auditing tools and methodology for Laravel applications.">Overview</a><a class="" href="../installation/" data-nav-item data-title="Installation" data-search="Installation Installation Install Laravel Auditor in a Laravel application with or without Laravel Boost.">Installation</a><a class="" href="../usage/" data-nav-item data-title="Usage" data-search="Usage Usage Run status, context, rules, reports, and CI with Laravel Auditor.">Usage</a><a class="" href="../agents/" data-nav-item data-title="Agent setup" data-search="Agent setup Agent setup Wire Laravel Auditor into Codex, Claude Code, Gemini, Cursor, Copilot, and Laravel Boost.">Agent setup</a><a class="" href="../prompts/" data-nav-item data-title="Prompt examples" data-search="Prompt examples Prompt examples Ready-to-use prompts for running Laravel Auditor audits, from a quick discover pass to focused verification and DSA reviews.">Prompt examples</a><a class="" href="../mcp/" data-nav-item data-title="MCP tools" data-search="MCP tools MCP tools Register the Laravel Auditor stdio MCP server and the structured context tools it exposes.">MCP tools</a><a class="" href="../rules/" data-nav-item data-title="Rules" data-search="Rules Rules The evidence-first audit catalog and how applicability works.">Rules</a><a class="" href="../findings/" data-nav-item data-title="Findings and reports" data-search="Findings and reports Findings and reports Finding schema, example payloads, and how reports are rendered.">Findings and reports</a><a class="" href="../dsa/" data-nav-item data-title="DSA audit" data-search="DSA audit DSA audit Bounded, read-only subsystem audit for data structures, state, algorithms, and ownership.">DSA audit</a><a class="" href="../future/" data-nav-item data-title="Future scope" data-search="Future scope Future scope Features that may influence architecture but are not part of V1.">Future scope</a><a class="" href="../snapshots/" data-nav-item data-title="Context snapshots" data-search="Context snapshots Context snapshots Capture and compare reproducible Laravel route, authorization and optional database schema state.">Context snapshots</a><a class="" href="../contributing/" data-nav-item data-title="Contributing" data-search="Contributing Contributing How to work on Laravel Auditor locally, including documentation.">Contributing</a><a class="" href="../github-annotations/" data-nav-item data-title="GitHub Actions annotations" data-search="GitHub Actions annotations GitHub Actions annotations Surface structured audit findings in GitHub Actions without a hosted review bot.">GitHub Actions annotations</a><a class="" href="../security-monitoring/" data-nav-item data-title="Scheduled dependency security checks" data-search="Scheduled dependency security checks Scheduled dependency security checks Check Composer lockfiles for new vulnerability disclosures even when application code has not changed.">Scheduled dependency security checks</a><a class="" href="../migration-risk/" data-nav-item data-title="Migration risk indicators" data-search="Migration risk indicators Migration risk indicators Review structural migration risk indicators using complete before-and-after database schema snapshots.">Migration risk indicators</a><a class="" href="../change-review/" data-nav-item data-title="Change review" data-search="Change review Change review Combine saved Laravel snapshots, migration indicators, and optional audit finding baselines.">Change review</a><a class="active" href="./" data-nav-item data-title="Development roadmap" data-search="Development roadmap Development roadmap Planned milestones for evidence-based Laravel change review, verification, and security intelligence.">Development roadmap</a></nav>
+                <a class="docsmith-badge" href="https://github.com/MrPunyapal/docsmith" target="_blank" rel="noopener noreferrer" data-docsmith-badge aria-label="Built with DocSmith"><svg class="docsmith-badge-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-6.716-4.35-9.428-7.052C.4 11.692-.21 8.9 1.38 6.87 2.736 5.14 5.09 4.583 6.86 5.686 8 6.41 8.86 7.55 9.6 8.7c.74-1.15 1.6-2.29 2.74-3.014 1.77-1.103 4.124-.546 5.48 1.184 1.59 2.03.98 4.822-1.192 7.078C18.716 16.65 12 21 12 21z"/></svg><span class="docsmith-badge-text">Built with</span><span class="docsmith-badge-brand">DocSmith</span></a>
+            </div>
+        </aside>
+        <button type="button" class="sidebar-backdrop" data-docsmith-sidebar-backdrop aria-label="Close menu"></button>
+        <main class="content">
+            <article>
+                <header class="doc-head">
+                    
+                    <h1>Development roadmap</h1>
+                    <p class="doc-description">Planned milestones for evidence-based Laravel change review, verification, and security intelligence.</p>
+                </header>
+                <div class="doc-body">
+                    <p>Last reviewed: 2026-11-25. Starting point: <a href="https://github.com/MrPunyapal/laravel-auditor/releases/tag/v0.6.0">v0.6.0</a>.</p>
+<p>Our goal is to help developers answer: <strong>What changed in my Laravel application, what could break, and what evidence supports that conclusion?</strong></p>
+<p>The milestones below are proposals, not release commitments or delivery dates. Version numbers may change based on compatibility, feedback, and implementation evidence. Existing coding agents remain responsible for application-code reasoning; Auditor provides deterministic evidence and a repeatable review workflow.</p>
+<h2 id="already-shipped">Already shipped</h2>
+<ul>
+<li><input checked disabled type="checkbox"> v0.3.0: Composer advisory exports, optional lockfile and production-only auditing, npm audit context, and additional evidence-first security rules.</li>
+<li><input checked disabled type="checkbox"> v0.4.0: Route and authorization snapshots, optional schema snapshots, structural comparisons, and GitHub Actions annotations.</li>
+<li><input checked disabled type="checkbox"> v0.5.0: Migration risk indicators, opt-in migration source review, conditional database-driver guidance, and historical findings baselines.</li>
+<li><input checked disabled type="checkbox"> v0.6.0: Read-only <code>auditor:review</code> combining saved snapshots, optional schema risks, and supplied findings/baselines in JSON. Verified PHP 8.6 compatibility with Laravel 13.</li>
+</ul>
+<p>Current commands and limitations are documented in <a href="../change-review/">Change review</a>, <a href="../findings/">Findings and reports</a>, <a href="../snapshots/">Context snapshots</a>, and <a href="../migration-risk/">Migration risk indicators</a>.</p>
+<h2 id="proposed-v0-7-0-practical-pull-request-change-review">Proposed v0.7.0 — Practical pull-request change review</h2>
+<p><strong>Priority: highest.</strong> Make existing review evidence easier to understand and use in CI before expanding coverage.</p>
+<p>Deliver in independently reviewable PRs, in dependency order:</p>
+<ul>
+<li><input disabled type="checkbox"> <strong>Regression-aware baselines.</strong> Preserve the default new-ID-only CI policy. Add opt-in policies for increased severity and reopened findings, with explicit updated/unchanged/absent states. Existing baseline files lack historical status; version the format compatibly and treat unavailable history as unknown. Test low-to-critical changes, reopened findings, duplicate IDs, old formats, and equivalent-scope requirements. Absence is not proof of remediation.</li>
+<li><input disabled type="checkbox"> <strong>Human-readable review reports.</strong> Add Markdown and terminal output while preserving the existing JSON contract. Publish a versioned review schema, useful summaries, prioritized structural indicators, and explicit coverage limitations. Keep structural evidence separate from agent-provided findings; no inferred security conclusions. Test deterministic output, escaping, and incomplete inputs.</li>
+<li><input disabled type="checkbox"> <strong>Snapshot provenance and comparability.</strong> Record enough non-secret metadata to associate artifacts with revisions and relevant capture conditions. Distinguish verified provenance from user-supplied labels; reject incompatible captures or clearly mark unknown comparability. Preserve support for existing snapshots without inventing their history.</li>
+<li><input disabled type="checkbox"> <strong>Unified migration review options.</strong> Reuse the existing migration source inspector and driver advisor in the review command, only with explicit opt-in and registered paths. Maintain file safety, no execution of migration PHP, and conditional guidance rather than downtime predictions.</li>
+<li><input disabled type="checkbox"> <strong>Git-aware artifact review.</strong> Resolve the merge base and changed-file scope using existing Git utilities. Associate saved before/after artifacts with the relevant revisions; never infer past runtime state from a Git diff. A possible future interface is <code>auditor:review --base=origin/main</code>, with explicit artifact inputs or a documented trusted artifact location. Do not automatically check out, install, boot, or execute an untrusted revision.</li>
+<li><input disabled type="checkbox"> <strong>GitHub Actions integration.</strong> Provide a copyable workflow and concise review output with existing annotations/SARIF support where appropriate. Separate structural indicators, findings policy failures, and unavailable evidence. Use least-privilege permissions, trusted baseline artifacts, and protect sensitive metadata. No hosted service required.</li>
+</ul>
+<p>Exit criteria: a Laravel developer can capture comparable evidence, inspect one understandable change report, and optionally gate new or worsening findings in CI. Missing required evidence must not produce a passing safety verdict.</p>
+<h2 id="proposed-v0-8-0-deeper-laravel-specific-verification">Proposed v0.8.0 — Deeper Laravel-specific verification</h2>
+<p>Extend the existing review contract incrementally rather than introduce unrelated scanners.</p>
+<ul>
+<li><input disabled type="checkbox"> Configuration compatibility changes using allowlisted, non-secret metadata; no environment values or credentials.</li>
+<li><input disabled type="checkbox"> Dependency changes using committed lockfile data, including direct/transitive version changes and available advisory context; do not confuse outdated versions with vulnerabilities.</li>
+<li><input disabled type="checkbox"> Queue, event/listener, and scheduler metadata comparisons, with explicit limits for dynamic registration and runtime behavior.</li>
+<li><input disabled type="checkbox"> Authorization regression evidence beyond route metadata where it is safe and reproducible; distinguish changed policies/middleware from a demonstrated authorization bypass.</li>
+<li><input disabled type="checkbox"> Regression fixtures for supported Laravel patterns and database drivers, with coverage boundaries documented.</li>
+</ul>
+<p>Exit criteria: new sections are optional, deterministic, versioned where necessary, and distinguish unavailable or unsupported data from unchanged data.</p>
+<h2 id="proposed-v0-9-0-optional-security-intelligence">Proposed v0.9.0 — Optional security intelligence</h2>
+<p>Build on existing Composer auditing instead of duplicating Composer or npm scanners.</p>
+<ul>
+<li><input disabled type="checkbox"> Evaluate advisory enrichment using GitHub Security Advisories and OSV; match and deduplicate CVE, GHSA, and ecosystem advisory identifiers.</li>
+<li><input disabled type="checkbox"> Enrich applicable findings with CISA Known Exploited Vulnerabilities (KEV) and FIRST EPSS metadata. Keep exploitation probability and known exploitation separate from severity and application-specific exploitability.</li>
+<li><input disabled type="checkbox"> Verify affected and patched version ranges, including transitive dependencies; offer actionable upgrade guidance without installing or updating packages.</li>
+<li><input disabled type="checkbox"> Explore Laravel-specific applicability checks grounded in actual code and configuration.</li>
+</ul>
+<p>Before implementing any external provider, verify current terms, licensing/attribution, API limits, freshness, caching, timeout/failure behavior, and privacy implications. Network access must be explicit for new integrations, optional, and free of required paid services. Unavailable or stale intelligence must not imply a clean audit.</p>
+<h2 id="proposed-v1-0-0-mature-verification-workflow">Proposed v1.0.0 — Mature verification workflow</h2>
+<p>Treat 1.0 as a quality and compatibility milestone, not a feature-count target.</p>
+<ul>
+<li><input disabled type="checkbox"> Stabilize and document public command, config, MCP, finding, snapshot, baseline, and review contracts with a migration policy.</li>
+<li><input disabled type="checkbox"> Provide controlled, opt-in runtime verification in isolated test environments; no production mutations, no automatic execution of untrusted code, and no claims beyond observed behavior.</li>
+<li><input disabled type="checkbox"> Evaluate representative Laravel applications using reproducible fixtures and independent expected outcomes; measure false positives, missed findings, coverage, and limitations without inventing benchmarks.</li>
+<li><input disabled type="checkbox"> Validate Laravel Boost and standalone agent integrations, supported PHP/Laravel combinations, and database-driver behavior.</li>
+<li><input disabled type="checkbox"> Publish practical end-to-end examples and contributor guidance.</li>
+</ul>
+<p>Automatic remediation remains a separate, approval-based future investigation, not a prerequisite for 1.0. See <a href="../future/">Future scope</a> for other deferred ideas.</p>
+<h2 id="engineering-principles">Engineering principles</h2>
+<ul>
+<li>Evidence over guesses; severity and confidence are distinct.</li>
+<li>Read-only auditing by default. Report structural observations as observations, not confirmed vulnerabilities or deployment guarantees.</li>
+<li>Agent-agnostic, with optional Laravel Boost integration. Deterministic review features should not require an AI service.</li>
+<li>Free and open-source core; no mandatory paid APIs, hosted service, or telemetry.</li>
+<li>Prefer existing abstractions, small atomic PRs, explicit unknown states, and backward-compatible additions.</li>
+<li>Never execute untrusted migration source or silently run historical application revisions.</li>
+<li>Every feature needs focused regression tests, updated source documentation, and passing applicable CI checks (PHPStan, Pint, Pest, type coverage, supported PHP/Laravel/OS combinations). Rebuild generated documentation via the existing workflow.</li>
+<li>Reassess the roadmap after each milestone using real developer feedback and verified evidence.</li>
+</ul>
+
+                </div>
+                <footer class="doc-meta">
+                    <a class="edit-link" href="https://github.com/mrpunyapal/laravel-auditor/edit/main/md/roadmap.md">Edit this page</a>
+                </footer>
+            </article>
+            <nav class="pager" aria-label="Page navigation"><a class="pager-link" href="../change-review/"><span>Previous</span><strong>Change review</strong></a></nav>
+        </main>
+        <aside class="toc-sidebar" data-docsmith-toc><p class="toc-title">On this page</p><nav class="toc-links"><a class="toc-link toc-link-level-2" href="#already-shipped" data-docsmith-toc-link="already-shipped">Already shipped</a><a class="toc-link toc-link-level-2" href="#proposed-v0-7-0-practical-pull-request-change-review" data-docsmith-toc-link="proposed-v0-7-0-practical-pull-request-change-review">Proposed v0.7.0 — Practical pull-request change review</a><a class="toc-link toc-link-level-2" href="#proposed-v0-8-0-deeper-laravel-specific-verification" data-docsmith-toc-link="proposed-v0-8-0-deeper-laravel-specific-verification">Proposed v0.8.0 — Deeper Laravel-specific verification</a><a class="toc-link toc-link-level-2" href="#proposed-v0-9-0-optional-security-intelligence" data-docsmith-toc-link="proposed-v0-9-0-optional-security-intelligence">Proposed v0.9.0 — Optional security intelligence</a><a class="toc-link toc-link-level-2" href="#proposed-v1-0-0-mature-verification-workflow" data-docsmith-toc-link="proposed-v1-0-0-mature-verification-workflow">Proposed v1.0.0 — Mature verification workflow</a><a class="toc-link toc-link-level-2" href="#engineering-principles" data-docsmith-toc-link="engineering-principles">Engineering principles</a></nav></aside>
+    </div>
+    <div class="search-overlay" data-docsmith-search-overlay hidden role="dialog" aria-label="Search documentation">
+    <div class="search-overlay-backdrop" data-docsmith-search-overlay-close></div>
+    <div class="search-overlay-panel">
+        <div class="search-overlay-input-wrap">
+            <svg class="search-overlay-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="search" class="search-overlay-input" placeholder="Search documentation..." aria-label="Search documentation" data-docsmith-search-overlay-input autocomplete="off">
+            <kbd class="search-overlay-hint">ESC</kbd>
+        </div>
+        <div class="search-overlay-results" data-docsmith-search-overlay-results></div>
+        <div class="search-overlay-empty" data-docsmith-search-overlay-empty hidden>No results found.</div>
+    </div>
+</div>
+</body>
+</html>

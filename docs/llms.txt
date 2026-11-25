@@ -19,3 +19,4 @@
 - https://mrpunyapal.github.io/laravel-auditor/security-monitoring: Check Composer lockfiles for new vulnerability disclosures even when application code has not changed.
 - https://mrpunyapal.github.io/laravel-auditor/migration-risk: Review structural migration risk indicators using complete before-and-after database schema snapshots.
 - https://mrpunyapal.github.io/laravel-auditor/change-review: Combine saved Laravel snapshots, migration indicators, and optional audit finding baselines.
+- https://mrpunyapal.github.io/laravel-auditor/roadmap: Planned milestones for evidence-based Laravel change review, verification, and security intelligence.
