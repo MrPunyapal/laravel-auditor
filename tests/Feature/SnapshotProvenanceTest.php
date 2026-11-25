@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Artisan;
 use LaravelAuditor\Context\Snapshots\SnapshotBuilder;
 use LaravelAuditor\Context\Snapshots\SnapshotComparator;
+use LaravelAuditor\Support\GitStatus;
 
 it('keeps default snapshots compatible and optionally records non-secret capture metadata', function () {
     expect(Artisan::call('auditor:snapshot'))->toBe(0);
@@ -41,4 +42,23 @@ it('reports unknown legacy provenance and rejects mismatched or malformed captur
 
     $after['provenance']['revision'] = 'not-a-commit';
     expect(fn () => $comparator->compare($before, $after))->toThrow(RuntimeException::class, 'Invalid snapshot provenance');
+});
+
+it('records sibling changes when capturing from an application inside a monorepo', function () {
+    $repo = changedFilesRepository();
+
+    try {
+        writeRepositoryFile($repo, 'application/app.php', '<?php');
+        runGit($repo, 'add', '.');
+        runGit($repo, 'commit', '-qm', 'base');
+        useDirtyRepository($repo.DIRECTORY_SEPARATOR.'application');
+
+        expect(app(GitStatus::class)->isDirty())->toBeFalse();
+        writeRepositoryFile($repo, 'sibling/shared.php', '<?php');
+        expect(Artisan::call('auditor:snapshot', ['--with-provenance' => true]))->toBe(0);
+        $snapshot = json_decode(Artisan::output(), true, flags: JSON_THROW_ON_ERROR);
+        expect($snapshot['provenance']['dirty'])->toBeTrue();
+    } finally {
+        removeRepository($repo);
+    }
 });

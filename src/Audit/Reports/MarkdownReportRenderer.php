@@ -68,6 +68,9 @@ final class MarkdownReportRenderer
                 }
                 $lines[] = '';
             }
+            $lines[] = sprintf('**Regressions (increased severity or reopened):** %d', count($report->baseline->regressions));
+            $lines[] = $report->baseline->statusHistoryAvailable ? 'Historical lifecycle status available.' : 'Historical lifecycle status unknown; reopening cannot be determined.';
+            $lines[] = '';
             $lines[] = 'Absence from this findings file does not prove a finding is fixed. Compare runs with the same full audit scope.';
             $lines[] = '';
         }

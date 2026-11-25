@@ -19,7 +19,7 @@ final class GithubAnnotationRenderer
 
         if ($report->baseline !== null) {
             $summary = $report->baseline->summary();
-            $lines[] = sprintf('::notice title=Laravel Auditor baseline::%d new, %d persistent, %d absent from current findings file.', $summary['new'], $summary['persistent'], $summary['absent']);
+            $lines[] = sprintf('::notice title=Laravel Auditor baseline::%d new, %d persistent, %d absent from current findings file; %d regressions. Historical status %s.', $summary['new'], $summary['persistent'], $summary['absent'], count($report->baseline->regressions), $report->baseline->statusHistoryAvailable ? 'available' : 'unknown');
         }
 
         foreach ($report->findings->sorted()->all() as $finding) {

@@ -188,11 +188,27 @@ final class ChangeReviewRenderer
             $lines[] = 'Not reviewed: no findings file was supplied.';
         } else {
             $findingReview = $results['finding_review'];
+            $baselineStates = [];
             $lines[] = 'Findings supplied: '.$summary['findings_count'];
 
             if ($summary['baseline'] !== null) {
                 $baseline = $summary['baseline'];
                 $lines[] = sprintf('Baseline: %d new, %d persistent, %d absent from the current findings file.', $baseline['new'], $baseline['persistent'], $baseline['absent']);
+
+                $baselineStates = array_column($findingReview['baseline']['states'] ?? [], 'state', 'id');
+                foreach ($findingReview['baseline']['regressions'] ?? [] as $regression) {
+                    $changes = [];
+
+                    if ($regression['severity_increased']) {
+                        $changes[] = 'severity increased from '.self::value($regression['previous_severity'], $markdown)
+                            .' to '.self::value($regression['current_severity'], $markdown);
+                    }
+
+                    if ($regression['reopened']) {
+                        $changes[] = 'reopened from '.self::value($regression['previous_status'], $markdown);
+                    }
+                    $lines[] = '- Regression: '.self::value($regression['id'], $markdown).' ('.implode('; ', $changes).')';
+                }
 
                 foreach ($findingReview['baseline']['absent'] as $absent) {
                     $lines[] = '- Absent: '.self::value($absent['id'], $markdown).' — '.self::value($absent['title'], $markdown);
@@ -208,7 +224,8 @@ final class ChangeReviewRenderer
             $newIds = $findingReview['baseline'] === null ? [] : array_column($findingReview['baseline']['new'], 'id');
 
             foreach ($findingReview['findings'] as $finding) {
-                $state = $findingReview['baseline'] === null ? '' : (in_array($finding['id'], $newIds, true) ? '[NEW] ' : '[PERSISTENT] ');
+                $state = $baselineStates[$finding['id']] ?? (in_array($finding['id'], $newIds, true) ? 'new' : 'persistent');
+                $state = $findingReview['baseline'] === null ? '' : '['.strtoupper($state).'] ';
                 $lines[] = '- '.$state.self::value($finding['id'], $markdown).' ['.self::value($finding['severity'], $markdown).'] '
                     .self::value($finding['title'], $markdown).' (status: '.self::value($finding['status'], $markdown)
                     .', confidence: '.self::value($finding['confidence'], $markdown).')';
@@ -249,6 +266,8 @@ final class ChangeReviewRenderer
         if ($encoded === '') {
             $encoded = '""';
         }
+
+        $encoded = str_replace([chr(127), '##['], ['\u007f', '\u0023#['], $encoded);
 
         return $markdown ? chr(96).str_replace(chr(96), '\u0060', $encoded).chr(96) : $encoded;
     }

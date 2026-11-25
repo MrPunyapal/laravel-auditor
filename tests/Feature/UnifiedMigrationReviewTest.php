@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
+use LaravelAuditor\Context\Migrations\MigrationSourceReview;
 use LaravelAuditor\Context\Snapshots\SnapshotBuilder;
 
 it('combines selected migration source and driver questions without executing source or overwriting it', function () {
@@ -58,5 +59,23 @@ it('rejects optional migration review when schema evidence was not captured', fu
             ->assertFailed();
     } finally {
         unlink($path);
+    }
+});
+
+it('accepts a migration in a separately registered directory', function () {
+    $directory = sys_get_temp_dir().'/auditor-registered-migrations-'.uniqid();
+    mkdir($directory);
+    $file = $directory.'/2030_01_01_000004_review.php';
+
+    try {
+        file_put_contents($file, '<?php return new class { public function up() {} };');
+        app('migrator')->path($directory);
+        $report = app(MigrationSourceReview::class)->review([$file, $file]);
+
+        expect($report['files'])->toHaveCount(1)
+            ->and($report['files'][0]['indicators'])->toBe([]);
+    } finally {
+        unlink($file);
+        rmdir($directory);
     }
 });
