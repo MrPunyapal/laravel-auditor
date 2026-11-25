@@ -14,6 +14,7 @@ it('reviews explicit clean artifacts matching the committed merge base and head'
     runGit($repo, 'branch', '-M', 'main');
     runGit($repo, 'checkout', '-qb', 'feature');
     writeRepositoryFile($repo, 'app/Models/User.php', '<?php // head');
+    writeRepositoryFile($repo, '123', 'numeric filename');
     runGit($repo, 'add', '.');
     runGit($repo, 'commit', '-qm', 'head');
     $beforePath = sys_get_temp_dir().'/git-review-before-'.uniqid('', true).'.json';
@@ -45,7 +46,7 @@ it('reviews explicit clean artifacts matching the committed merge base and head'
 
         expect($report['results']['git_review']['merge_base'])->toBe($mergeBase)
             ->and($report['results']['git_review']['head'])->toBe($head)
-            ->and($report['results']['git_review']['changed_files'])->toBe(['app/Models/User.php'])
+            ->and($report['results']['git_review']['changed_files'])->toBe(['123', 'app/Models/User.php'])
             ->and($report['results']['git_review']['artifact_authenticity_verified'])->toBeFalse();
 
         $this->artisan('auditor:review', [...$options, '--base' => 'not-a-ref'])->assertFailed();

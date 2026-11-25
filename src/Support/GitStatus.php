@@ -147,13 +147,43 @@ final class GitStatus
             return $this->unavailable('git merge-base returned an unexpected result');
         }
 
-        $diff = $this->run(['diff', '-z', '--name-status', $sha, 'HEAD']);
+        return $this->diffFiles($sha, 'HEAD', $prefix['prefix'], $ignore, $max);
+    }
+
+    /**
+     * @param  list<string>  $ignore
+     * @return array{available: bool, reason: string|null, files: list<string>, truncated: bool}
+     */
+    public function changedBetween(string $before, string $after, array $ignore, int $max): array
+    {
+        foreach ([$before, $after] as $revision) {
+            if (preg_match('/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/D', $revision) !== 1) {
+                return $this->unavailable('expected full commit IDs');
+            }
+        }
+
+        $prefix = $this->prefix();
+
+        if ($prefix['prefix'] === null) {
+            return $this->unavailable((string) $prefix['reason']);
+        }
+
+        return $this->diffFiles($before, $after, $prefix['prefix'], $ignore, $max);
+    }
+
+    /**
+     * @param  list<string>  $ignore
+     * @return array{available: bool, reason: string|null, files: list<string>, truncated: bool}
+     */
+    private function diffFiles(string $before, string $after, string $prefix, array $ignore, int $max): array
+    {
+        $diff = $this->run(['diff', '-z', '--name-status', $before, $after, '--']);
 
         if (! $diff['ok']) {
             return $this->unavailable($diff['reason']);
         }
 
-        return $this->listed(self::parseDiffStatus($diff['output'], $prefix['prefix'], $ignore), $max);
+        return $this->listed(self::parseDiffStatus($diff['output'], $prefix, $ignore), $max);
     }
 
     /**
@@ -192,10 +222,10 @@ final class GitStatus
                 continue;
             }
 
-            $paths[$relative] = true;
+            $paths[$relative] = $relative;
         }
 
-        $paths = array_keys($paths);
+        $paths = array_values($paths);
 
         sort($paths);
 
@@ -248,11 +278,11 @@ final class GitStatus
                     continue;
                 }
 
-                $paths[$relative] = true;
+                $paths[$relative] = $relative;
             }
         }
 
-        $paths = array_keys($paths);
+        $paths = array_values($paths);
 
         sort($paths);
 
