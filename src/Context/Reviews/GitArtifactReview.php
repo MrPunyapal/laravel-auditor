@@ -34,9 +34,7 @@ final class GitArtifactReview
             throw new RuntimeException('Cannot resolve a unique Git merge base and HEAD. Fetch the requested base and full history.');
         }
 
-        $status = $this->git->changedFiles(max: 0);
-
-        if (! $status['available'] || $status['truncated']) {
+        if ($this->git->isDirty() !== false) {
             throw new RuntimeException('Git-aware review requires a clean working tree with available Git status.');
         }
 
@@ -48,9 +46,9 @@ final class GitArtifactReview
             throw new RuntimeException('Supply clean provenance-enabled snapshots matching the merge base and HEAD.');
         }
 
-        $changed = $this->git->changedSince($mergeBase, $this->options->ignore(), $this->options->maxFiles());
+        $changed = $this->git->changedBetween($mergeBase, $head, $this->options->ignore(), $this->options->maxFiles());
 
-        if (! $changed['available'] || $changed['truncated'] || $this->git->revision() !== $head) {
+        if (! $changed['available'] || $changed['truncated'] || $this->git->revision() !== $head || $this->git->isDirty() !== false) {
             throw new RuntimeException('Cannot resolve a complete stable Git change scope; check changed_files.max_files and Git history.');
         }
 

@@ -48,6 +48,8 @@ final class ChangeReviewRenderer
         if (isset($comparison['provenance'])) {
             $lines[] = '- Before: '.self::value($comparison['provenance']['before'], $markdown);
             $lines[] = '- After: '.self::value($comparison['provenance']['after'], $markdown);
+            $lines[] = '- Route cache matches: '.self::comparisonStatus($comparison['provenance']['route_cache_matches']);
+            $lines[] = '- Runtime versions match: '.self::comparisonStatus($comparison['provenance']['runtime_versions_match']);
             $lines[] = '- '.self::value($comparison['provenance']['note'], $markdown);
         } else {
             $lines[] = 'Unknown capture conditions.';
@@ -167,6 +169,12 @@ final class ChangeReviewRenderer
             if (isset($risk['driver_review'])) {
                 $lines[] = self::heading('Conditional driver guidance', $markdown);
 
+                if (! $risk['driver_review']['supported_guidance']) {
+                    $lines[] = 'Driver guidance is unavailable for this database driver.';
+                } elseif ($risk['driver_review']['questions'] === []) {
+                    $lines[] = 'No driver guidance questions matched the structural indicators.';
+                }
+
                 foreach ($risk['driver_review']['questions'] as $question) {
                     $lines[] = '- '.self::value($question, $markdown);
                 }
@@ -188,11 +196,27 @@ final class ChangeReviewRenderer
             $lines[] = 'Not reviewed: no findings file was supplied.';
         } else {
             $findingReview = $results['finding_review'];
+            $baselineStates = [];
             $lines[] = 'Findings supplied: '.$summary['findings_count'];
 
             if ($summary['baseline'] !== null) {
                 $baseline = $summary['baseline'];
                 $lines[] = sprintf('Baseline: %d new, %d persistent, %d absent from the current findings file.', $baseline['new'], $baseline['persistent'], $baseline['absent']);
+
+                $baselineStates = array_column($findingReview['baseline']['states'] ?? [], 'state', 'id');
+                foreach ($findingReview['baseline']['regressions'] ?? [] as $regression) {
+                    $changes = [];
+
+                    if ($regression['severity_increased']) {
+                        $changes[] = 'severity increased from '.self::value($regression['previous_severity'], $markdown)
+                            .' to '.self::value($regression['current_severity'], $markdown);
+                    }
+
+                    if ($regression['reopened']) {
+                        $changes[] = 'reopened from '.self::value($regression['previous_status'], $markdown);
+                    }
+                    $lines[] = '- Regression: '.self::value($regression['id'], $markdown).' ('.implode('; ', $changes).')';
+                }
 
                 foreach ($findingReview['baseline']['absent'] as $absent) {
                     $lines[] = '- Absent: '.self::value($absent['id'], $markdown).' — '.self::value($absent['title'], $markdown);
@@ -208,7 +232,8 @@ final class ChangeReviewRenderer
             $newIds = $findingReview['baseline'] === null ? [] : array_column($findingReview['baseline']['new'], 'id');
 
             foreach ($findingReview['findings'] as $finding) {
-                $state = $findingReview['baseline'] === null ? '' : (in_array($finding['id'], $newIds, true) ? '[NEW] ' : '[PERSISTENT] ');
+                $state = $baselineStates[$finding['id']] ?? (in_array($finding['id'], $newIds, true) ? 'new' : 'persistent');
+                $state = $findingReview['baseline'] === null ? '' : '['.strtoupper($state).'] ';
                 $lines[] = '- '.$state.self::value($finding['id'], $markdown).' ['.self::value($finding['severity'], $markdown).'] '
                     .self::value($finding['title'], $markdown).' (status: '.self::value($finding['status'], $markdown)
                     .', confidence: '.self::value($finding['confidence'], $markdown).')';
@@ -234,6 +259,15 @@ final class ChangeReviewRenderer
         return ($markdown ? '## ' : '').$title;
     }
 
+    private static function comparisonStatus(?bool $match): string
+    {
+        return match ($match) {
+            true => 'yes',
+            false => 'no',
+            null => 'unknown',
+        };
+    }
+
     /**
      * Encode untrusted metadata on a single line, including control and Unicode
      * formatting characters. Prevent Markdown code-span termination.
@@ -249,6 +283,8 @@ final class ChangeReviewRenderer
         if ($encoded === '') {
             $encoded = '""';
         }
+
+        $encoded = str_replace([chr(127), '##['], ['\u007f', '\u0023#['], $encoded);
 
         return $markdown ? chr(96).str_replace(chr(96), '\u0060', $encoded).chr(96) : $encoded;
     }

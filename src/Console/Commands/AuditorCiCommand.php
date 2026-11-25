@@ -32,7 +32,8 @@ class AuditorCiCommand extends Command
         {--fail-on=high : Minimum severity that fails CI (critical, high, medium, low, info)}
         {--format=text : Output format (text, json, sarif, github)}
         {--output= : Write the report to a file}
-        {--baseline= : Compare findings with a saved baseline and fail only on new findings}
+        {--baseline= : Compare findings with a saved baseline}
+        {--fail-on-regression : Also fail on increased severity or reopened findings (requires a version 2 baseline)}
         {--base= : Only fail on findings that touch files changed since this ref, for example origin/main}
         {--dirty : Only fail on findings that touch uncommitted files}';
 
@@ -58,6 +59,13 @@ class AuditorCiCommand extends Command
         $baselinePath = $this->option('baseline');
         $baselineRequested = $baselinePath !== null;
         $hasBaseline = is_string($baselinePath) && $baselinePath !== '';
+        $failOnRegression = (bool) $this->option('fail-on-regression');
+
+        if ($failOnRegression && ! $hasBaseline) {
+            $this->components->error('--fail-on-regression requires a version 2 --baseline created with --with-status.');
+
+            return self::FAILURE;
+        }
 
         if ($baselineRequested && ! $hasBaseline) {
             $this->components->error('Pass a path to --baseline=path/to/findings-baseline.json.');
@@ -111,6 +119,14 @@ class AuditorCiCommand extends Command
         if ($hasBaseline) {
             try {
                 $baselineComparison = FindingBaseline::load((string) $baselinePath)->compare($findings);
+
+                if ($failOnRegression && ! $baselineComparison->statusHistoryAvailable) {
+                    throw new RuntimeException('--fail-on-regression requires a version 2 baseline created with --with-status; historical status is unknown.');
+                }
+
+                if ($failOnRegression) {
+                    $meta['baseline_policy'] = 'new_and_regressions';
+                }
             } catch (RuntimeException $e) {
                 $this->components->error($e->getMessage());
 
@@ -118,8 +134,12 @@ class AuditorCiCommand extends Command
             }
         }
 
+        $candidates = $baselineComparison === null
+            ? $findings->all()
+            : ($failOnRegression ? $baselineComparison->regressionCandidates() : $baselineComparison->new);
+
         $blocking = new FindingCollection(...array_values(array_filter(
-            $baselineComparison === null ? $findings->all() : $baselineComparison->new,
+            $candidates,
             static fn (Finding $finding): bool => $finding->status === FindingStatus::Open
                 && $finding->severity->weight() >= $threshold->weight(),
         )));
@@ -166,7 +186,7 @@ class AuditorCiCommand extends Command
         }
 
         if ($blocking->isEmpty()) {
-            $findingLabel = $baselineComparison === null ? 'open findings' : 'new open findings';
+            $findingLabel = $baselineComparison === null ? 'open findings' : ($failOnRegression ? 'new or regressed open findings' : 'new open findings');
             $this->components->info('CI passed: no '.$findingLabel.' at or above '.$threshold->value.'.');
 
             return self::SUCCESS;
@@ -175,7 +195,7 @@ class AuditorCiCommand extends Command
         $this->components->error(sprintf(
             $baselineComparison === null
                 ? 'CI failed: %d open finding(s) at or above %s.'
-                : 'CI failed: %d new open finding(s) at or above %s.',
+                : ($failOnRegression ? 'CI failed: %d new or regressed open finding(s) at or above %s.' : 'CI failed: %d new open finding(s) at or above %s.'),
             $blocking->count(),
             $threshold->value,
         ));

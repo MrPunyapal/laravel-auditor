@@ -47,6 +47,9 @@
                 },
                 "baseline_compared": {
                     "type": "boolean"
+                },
+                "driver_guidance": {
+                    "type": "boolean"
                 }
             }
         },
@@ -189,6 +192,131 @@
                                     "$ref": "#/$defs/diffLists"
                                 }
                             }
+                        },
+                        "provenance": {
+                            "type": "object",
+                            "required": [
+                                "before",
+                                "after",
+                                "route_cache_matches",
+                                "runtime_versions_match",
+                                "artifact_authenticity_verified",
+                                "environment_equivalence_verified",
+                                "note"
+                            ],
+                            "properties": {
+                                "before": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "revision",
+                                                "dirty",
+                                                "routes_cached",
+                                                "php_version",
+                                                "laravel_version"
+                                            ],
+                                            "properties": {
+                                                "revision": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ]
+                                                },
+                                                "dirty": {
+                                                    "type": [
+                                                        "boolean",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "routes_cached": {
+                                                    "type": "boolean"
+                                                },
+                                                "php_version": {
+                                                    "type": "string"
+                                                },
+                                                "laravel_version": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "after": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "revision",
+                                                "dirty",
+                                                "routes_cached",
+                                                "php_version",
+                                                "laravel_version"
+                                            ],
+                                            "properties": {
+                                                "revision": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ]
+                                                },
+                                                "dirty": {
+                                                    "type": [
+                                                        "boolean",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "routes_cached": {
+                                                    "type": "boolean"
+                                                },
+                                                "php_version": {
+                                                    "type": "string"
+                                                },
+                                                "laravel_version": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "route_cache_matches": {
+                                    "type": [
+                                        "boolean",
+                                        "null"
+                                    ]
+                                },
+                                "runtime_versions_match": {
+                                    "type": [
+                                        "boolean",
+                                        "null"
+                                    ]
+                                },
+                                "artifact_authenticity_verified": {
+                                    "const": false
+                                },
+                                "environment_equivalence_verified": {
+                                    "const": false
+                                },
+                                "note": {
+                                    "type": "string"
+                                }
+                            }
                         }
                     }
                 },
@@ -294,6 +422,125 @@
                                 },
                                 "limitations": {
                                     "$ref": "#/$defs/notes"
+                                },
+                                "source_review": {
+                                    "type": "object",
+                                    "required": [
+                                        "coverage",
+                                        "files",
+                                        "limitations"
+                                    ],
+                                    "properties": {
+                                        "coverage": {
+                                            "type": "string"
+                                        },
+                                        "files": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": [
+                                                    "file",
+                                                    "coverage",
+                                                    "indicators"
+                                                ],
+                                                "properties": {
+                                                    "file": {
+                                                        "type": "string"
+                                                    },
+                                                    "coverage": {
+                                                        "type": "string"
+                                                    },
+                                                    "indicators": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "limitations": {
+                                            "$ref": "#/$defs/notes"
+                                        }
+                                    }
+                                },
+                                "driver_review": {
+                                    "type": "object",
+                                    "required": [
+                                        "driver",
+                                        "supported_guidance",
+                                        "assessment",
+                                        "database_version_verified",
+                                        "locking_verified",
+                                        "questions",
+                                        "reference",
+                                        "limitations"
+                                    ],
+                                    "properties": {
+                                        "driver": {
+                                            "type": "string"
+                                        },
+                                        "supported_guidance": {
+                                            "type": "boolean"
+                                        },
+                                        "assessment": {
+                                            "const": "conditional_review_only"
+                                        },
+                                        "database_version_verified": {
+                                            "const": false
+                                        },
+                                        "locking_verified": {
+                                            "const": false
+                                        },
+                                        "questions": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": [
+                                                    "indicator_code",
+                                                    "schema",
+                                                    "table",
+                                                    "column",
+                                                    "check"
+                                                ],
+                                                "properties": {
+                                                    "indicator_code": {
+                                                        "type": "string"
+                                                    },
+                                                    "schema": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "table": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "column": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "check": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "reference": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "limitations": {
+                                            "$ref": "#/$defs/notes"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -346,6 +593,72 @@
                                                 },
                                                 "notes": {
                                                     "$ref": "#/$defs/notes"
+                                                },
+                                                "status_history_available": {
+                                                    "type": "boolean"
+                                                },
+                                                "states": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "required": [
+                                                            "id",
+                                                            "state"
+                                                        ],
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "state": {
+                                                                "enum": [
+                                                                    "new",
+                                                                    "updated",
+                                                                    "unchanged"
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "regressions": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "required": [
+                                                            "id",
+                                                            "previous_severity",
+                                                            "current_severity",
+                                                            "previous_status",
+                                                            "current_status",
+                                                            "severity_increased",
+                                                            "reopened"
+                                                        ],
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "previous_severity": {
+                                                                "type": "string"
+                                                            },
+                                                            "current_severity": {
+                                                                "type": "string"
+                                                            },
+                                                            "previous_status": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "current_status": {
+                                                                "type": "string"
+                                                            },
+                                                            "severity_increased": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "reopened": {
+                                                                "type": "boolean"
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -354,6 +667,47 @@
                             }
                         }
                     ]
+                },
+                "git_review": {
+                    "type": "object",
+                    "required": [
+                        "merge_base",
+                        "head",
+                        "changed_files",
+                        "ignored_prefixes",
+                        "file_count",
+                        "artifact_revisions_match",
+                        "artifact_authenticity_verified",
+                        "limitations"
+                    ],
+                    "properties": {
+                        "merge_base": {
+                            "type": "string",
+                            "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+                        },
+                        "head": {
+                            "type": "string",
+                            "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+                        },
+                        "changed_files": {
+                            "$ref": "#/$defs/notes"
+                        },
+                        "ignored_prefixes": {
+                            "$ref": "#/$defs/notes"
+                        },
+                        "file_count": {
+                            "$ref": "#/$defs/count"
+                        },
+                        "artifact_revisions_match": {
+                            "const": true
+                        },
+                        "artifact_authenticity_verified": {
+                            "const": false
+                        },
+                        "limitations": {
+                            "$ref": "#/$defs/notes"
+                        }
+                    }
                 }
             }
         },

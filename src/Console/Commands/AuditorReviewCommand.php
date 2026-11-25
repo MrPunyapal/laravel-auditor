@@ -121,7 +121,7 @@ final class AuditorReviewCommand extends Command
     {
         $value = $this->option($option);
 
-        if ($value === null) {
+        if ($value === null && ! $this->input->hasParameterOption('--'.$option, true)) {
             return null;
         }
 

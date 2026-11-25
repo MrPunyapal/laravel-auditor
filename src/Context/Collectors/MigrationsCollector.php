@@ -44,6 +44,12 @@ final class MigrationsCollector implements ContextCollector
                     continue;
                 }
 
+                $resolved = $file->getRealPath();
+
+                if ($resolved === false || ! str_starts_with($resolved, rtrim($directory, '/\\').DIRECTORY_SEPARATOR)) {
+                    continue;
+                }
+
                 $migrations[] = $this->inspect($file->getPathname());
             }
         }
